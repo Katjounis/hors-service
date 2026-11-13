@@ -1434,3 +1434,128 @@ h3 { font-size: 1.25rem; }
 .hostbar { flex-direction: row; flex-wrap: wrap; }
 .hostbar .btn { flex: 1 1 140px; min-height: 44px; padding: 6px 10px; font-size: .92rem; }
 .hostbar .btn-big { min-height: 50px; font-size: 1rem; }
+
+/* =====================================================================================================
+   Passe « check-list site et app » : pas de verre dépoli, arrondis discrets, pas de pastilles, pas de halo
+   ni d'ombre douce sur les cartes, pas de dégradé violet ni de texte en dégradé, animations de 250 ms au plus
+   et sans rebond. Les surfaces sont opaques (neutres teintés), séparées par des filets fins.
+   ===================================================================================================== */
+:root {
+  --surface: #221C1A;
+  --surface-2: #2B2421;
+  --r: 8px;
+  --r-s: 6px;
+  --ressort: cubic-bezier(.2, .7, .3, 1);
+}
+.paper, .paper.kraft, .paper.rose, .tile, .gcard, .choice, .act, .panel, .home-foot, .sheet-wrap, .topbar, .rules.paper {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.paper, .paper.kraft, .paper.rose { background: var(--surface); }
+.topbar { background: #181312; }
+.sheet-wrap { background: rgba(16, 12, 12, .72); }
+.home-foot { background: transparent; padding: 8px 0 0; }
+.btn-main, .choice-main, .gcard, .ose-card.paper, .jn-card.paper, .qo-card.paper, .word-card.paper, .pen, .announce-sheet, .side-art, .toast, .btn-mort { box-shadow: none; }
+.ose-card.paper, .jn-card.paper, .qo-card.paper, .word-card.paper { border: 1px solid #CFC3AC; }
+.chip, .you, .tag, .role-tag, .gcard-no, .dock-who, .mort-son, .dock-mini, .jn-badge { border-radius: 4px; }
+.choice, .gcard, .tile, .pen, .side-art, .is-side .sheet { border-radius: var(--r); }
+.sheet { border-radius: 10px 10px 0 0; }
+.is-side .sheet { border-radius: 10px 0 0 10px; }
+.announce-sheet { border-radius: 10px 10px 0 0; }
+.choice-ico, .tile-ico { border-radius: 6px; }
+.icon-round { border-radius: var(--r-s); width: 44px; height: 44px; }
+.choice, .gcard { background: var(--surface); }
+.choice:hover { background: var(--surface-2); }
+.choice-main, .choice-main:hover { background: var(--jaune); }
+.choice-main:hover { background: var(--jaune-2); }
+.choice::after { opacity: .7; }
+.tile, .tile:hover, .tile.kraft:hover, .tile.rose:hover { background: var(--surface); }
+.gcard { border-color: var(--ligne-2); }
+@media (hover: hover) { .gcard:hover { box-shadow: none; border-color: rgba(var(--c), .9); } }
+.gcard-no { background: #181312; }
+.btn { background: var(--surface); }
+.btn:hover:not(:disabled), .paper .btn:hover:not(:disabled) { background: var(--surface-2); }
+.icon-btn { background: var(--surface); }
+.input, .codebox-cell, .seg { background: #1A1514; }
+.chip { background: #1A1514; }
+.pen { background: var(--surface); }
+.pen-defi-txt { background: var(--surface-2); }
+.pen-big b, .pen-big-t { color: #FF8A6A; }
+.dock::before { background: #161211; border-top: 1px solid var(--ligne); }
+
+/* code du salon : lisible sur fond sombre */
+.paper .code, .invite .code { color: var(--jaune); }
+
+/* animations : courtes, sans rebond */
+.ecran { animation: entree .2s ease-out backwards; }
+.sheet { animation: monte .22s ease-out both; }
+.is-side .sheet { animation: glisse .22s ease-out both; }
+.sheet-wrap { animation: fondu .15s ease-out both; }
+.choice, .gcard, .tile { animation: tuile .22s ease-out backwards; }
+.choice:nth-child(2) { animation-delay: .04s; }
+.choice:nth-child(3) { animation-delay: .08s; }
+.gcard, .tile { animation-delay: calc(min(var(--n, 1), 4) * 30ms); }
+.choice, .gcard, .btn, .icon-btn, .key, .pgrid-btn, .maker-opt, .horse-btn, .seg-btn, .qo-vote, .menu-item, .dist-who, .pc-btn, .cran, .link, .multi-btn {
+  transition: scale .12s ease-out, background-color .12s ease, border-color .12s ease;
+}
+.btn:active:not(:disabled), .choice:active, .gcard:active { scale: .97; }
+.pose { animation: poser .2s ease-out both; }
+.ose-card.paper, .jn-card.paper, .qo-card.paper { animation: carte .22s ease-out both; }
+@keyframes carte { from { opacity: 0; transform: translateY(10px); } }
+.pen { animation: monte .22s ease-out both; }
+.pen-take { animation: monte .22s ease-out both; }
+.pen-big { animation: none; }
+.hippo-winner, .pipo-role, .verdict-who, .end-title, .report-head h2, .tc-verdict { animation: fondu .2s ease-out backwards; }
+.maker-preview, .av-win .bouille, .av-drink .bouille, .fire-n { animation-timing-function: ease-out; animation-duration: .2s; }
+.pen-dots i { transition: background-color .12s ease; }
+.pen-dots i.on { scale: 1; }
+.rules-fold summary::after { transition: transform .15s ease; }
+.flip3d-in { animation-duration: .25s; animation-timing-function: ease-out; }
+
+/* Purple jusqu'à la mort : bouton plein (pas de dégradé), titre en couleur pleine, lumières rouge, blanc et jaune */
+.btn-mort, .btn-mort:hover:not(:disabled) { background: var(--rouge); color: #FFF4EC; border: 1.5px solid #E5502F; }
+.btn-mort:hover:not(:disabled) { background: #B02A1A; }
+.btn-mort::after { display: none; }
+.btn-mort.is-armed { animation: none; background: var(--jaune); color: var(--encre); border-color: var(--jaune); outline: 0; }
+.mort { background: #120A09; animation: fondu .2s ease-out both; }
+.mort-title { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--jaune); }
+.mort-spots i { background: linear-gradient(180deg, rgba(229, 80, 47, .35), rgba(229, 80, 47, 0) 70%); mix-blend-mode: normal; filter: none; }
+.mort-spots i:nth-child(2) { background: linear-gradient(180deg, rgba(255, 210, 63, .28), rgba(255, 210, 63, 0) 70%); }
+.mort-spots i:nth-child(3) { background: linear-gradient(180deg, rgba(242, 234, 219, .16), rgba(242, 234, 219, 0) 60%); }
+.mort-spots i:nth-child(4) { background: linear-gradient(180deg, rgba(229, 80, 47, .22), rgba(229, 80, 47, 0) 60%); }
+.mort-card { animation: tombe-c .22s ease-out backwards; filter: none; }
+.mort-pair { animation: none; }
+.mort-taunt { animation: fondu .2s ease-out backwards; }
+.mort-end .tampon { color: var(--jaune); animation: tampon .2s ease-out both; }
+.mort.is-done::before { display: none; }
+.mort-count b { vertical-align: -3px; }
+.mort-close { animation: fondu .2s 1s ease-out both; }
+.mort-son { background: #1A1514; }
+
+/* Le 96 : gros total sans halo */
+.g96-big { background: rgba(18, 14, 13, .9); animation: g96-in .2s ease-out both, g96-out .25s ease-in 2.35s forwards; }
+.g96-big-n { text-shadow: none; animation: g96-pop .22s ease-out both; }
+@keyframes g96-pop { from { transform: scale(.85); opacity: 0; } }
+.fire-word { animation: fondu .2s ease-out both; }
+.boom-word, .ware-word, .ware-flash { animation-duration: .2s; animation-timing-function: ease-out; }
+.gcard.is-off { opacity: 1; }
+.gcard.is-off .game-art { opacity: .45; }
+.gcard.is-off .gcard-name { color: var(--poussiere); }
+.gcard.is-off .gcard-min { color: #F07A5E; }
+
+/* carrousel à la souris : flèches visibles seulement avec un pointeur fin (ordinateur) */
+.rail-nav { display: none; gap: 6px; }
+.rail-next .ico { transform: scaleX(-1); }
+@media (hover: hover) and (pointer: fine) {
+  .rail-nav { display: inline-flex; }
+  .games-tip { display: none; }
+  .games-rail { cursor: grab; scrollbar-width: thin; scrollbar-color: var(--ligne-2) transparent; }
+  .games-rail::-webkit-scrollbar { display: block; height: 6px; }
+  .games-rail::-webkit-scrollbar-thumb { background: var(--ligne-2); border-radius: 3px; }
+  .games-rail.is-drag { cursor: grabbing; scroll-snap-type: none; }
+  .games-rail.is-drag .gcard { pointer-events: none; }
+}
+.games-h { align-items: center; }
+/* grand écran : le carrousel prend toute la largeur de la fenêtre */
+@media (min-width: 700px) {
+  .games-rail { width: 100vw; margin-left: calc(50% - 50vw); margin-right: 0; padding-left: max(16px, calc(50vw - 264px)); padding-right: 32px; scroll-padding: 0 max(16px, calc(50vw - 264px)); }
+}

@@ -49,7 +49,7 @@ export function StatsScreen({ onBack }) {
           <thead><tr><th>Record</th><th>Qui</th><th>Valeur</th></tr></thead>
           <tbody>{RECORDS.map((r) => {
             const b = recs[r.k];
-            return <tr key={r.k}><td>{r.label}</td><td>{b ? b.nick : '—'}</td><td>{b ? `${b.v} ${r.unit}` : '—'}</td></tr>;
+            return <tr key={r.k}><td>{r.label}</td><td>{b ? b.nick : 'personne'}</td><td>{b ? `${b.v} ${r.unit}` : 'rien'}</td></tr>;
           })}</tbody>
         </table></div>
       ) : null}
@@ -59,7 +59,7 @@ export function StatsScreen({ onBack }) {
             <thead><tr><th>Joueur</th><th>Soirées</th><th>Bues</th><th>Données</th><th>Gages</th><th>Points</th><th>Records</th></tr></thead>
             <tbody>{profs.map((p) => (
               <tr key={p.nick}><td><span class="who"><Av p={p} size="s" /><b>{p.nick}</b></span></td><td>{p.soirees}</td><td>{p.sips}</td><td>{p.given}</td><td>{p.gages}</td><td>{p.points}</td>
-                <td class="small">{[p.best.degaine ? `${p.best.degaine} ms` : null, p.best.purple ? `série ${p.best.purple}` : null, p.best.ware ? `rafale ${p.best.ware}` : null].filter(Boolean).join(' · ') || '—'}</td></tr>
+                <td class="small">{[p.best.degaine ? `${p.best.degaine} ms` : null, p.best.purple ? `série ${p.best.purple}` : null, p.best.ware ? `rafale ${p.best.ware}` : null].filter(Boolean).join(' · ') || 'rien'}</td></tr>
             ))}</tbody>
           </table></div>
         ) : <p class="muted">Les profils se créent tout seuls, soirée après soirée.</p>

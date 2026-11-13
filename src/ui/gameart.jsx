@@ -21,12 +21,105 @@ function Card({ x, y, r = 0, s = 1, rank = 'A', suit = '♥', red = true, back =
   );
 }
 
+// décor derrière chaque affiche : tapis de jeu, mur de bar, scène, piste… (jamais un aplat de couleur)
+const SCENE = {
+  oserait: 'brique', 96: 'tapis', pipoteur: 'scene', purple: 'tapis', hippodrome: 'piste', toutankhamon: 'sable',
+  autres: 'brique', trouve: 'tapis', degaine: 'saloon', bombe: 'scene', ware: 'damier', jamais: 'brique',
+};
+function Scene({ kind, id }) {
+  const p = `sc-${id}`;
+  if (kind === 'tapis') {
+    return (
+      <>
+        <defs>
+          <pattern id={p} width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="14" height="14" fill="#1F5A3E" />
+            <rect width="1" height="14" fill="#2A6B4B" />
+          </pattern>
+        </defs>
+        <rect width="300" height="200" fill={`url(#${p})`} />
+        <ellipse cx="150" cy="104" rx="128" ry="70" fill="none" stroke="#E7C877" stroke-opacity=".35" stroke-width="2" />
+        <rect y="176" width="300" height="24" fill="#5A3A22" />
+        <rect y="176" width="300" height="3" fill="#7A5232" />
+      </>
+    );
+  }
+  if (kind === 'brique') {
+    return (
+      <>
+        <defs>
+          <pattern id={p} width="40" height="20" patternUnits="userSpaceOnUse">
+            <rect width="40" height="20" fill="#4A2A22" />
+            <rect x="1" y="1" width="38" height="8" fill="#6B3A2C" />
+            <rect x="-19" y="11" width="38" height="8" fill="#5E3327" />
+            <rect x="21" y="11" width="38" height="8" fill="#5E3327" />
+          </pattern>
+        </defs>
+        <rect width="300" height="200" fill={`url(#${p})`} />
+        <rect y="160" width="300" height="40" fill="#2A1A14" />
+        <rect y="160" width="300" height="4" fill="#8A5A36" />
+        {[40, 110, 190, 260].map((x, i) => <circle key={i} cx={x} cy="14" r="4" fill="#FFD9A0" />)}
+        <path d="M0 10 Q 75 26 150 12 T 300 12" stroke="#2A1A14" stroke-width="1.5" fill="none" />
+      </>
+    );
+  }
+  if (kind === 'scene') {
+    return (
+      <>
+        <rect width="300" height="200" fill="#2A1416" />
+        <path d="M0 0h56c-4 60 6 130 -10 200H0z" fill="#8E1F25" />
+        <path d="M300 0h-56c4 60 -6 130 10 200h46z" fill="#8E1F25" />
+        {[14, 30, 46].map((x) => <path key={x} d={`M${x} 0v200`} stroke="#6E161B" stroke-width="3" />)}
+        {[254, 270, 286].map((x) => <path key={x} d={`M${x} 0v200`} stroke="#6E161B" stroke-width="3" />)}
+        <rect width="300" height="16" fill="#6E161B" />
+        <rect y="168" width="300" height="32" fill="#4A2E1E" />
+        <rect y="168" width="300" height="3" fill="#7A5232" />
+      </>
+    );
+  }
+  if (kind === 'piste') {
+    return (
+      <>
+        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <rect key={i} y={i * 25} width="300" height="25" fill={i % 2 ? '#3E6B2E' : '#4A7A36'} />)}
+        <rect y="0" width="300" height="20" fill="#E9E1CF" />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => <rect key={i} x={i * 26} y="4" width="3" height="16" fill="#8A7E68" />)}
+      </>
+    );
+  }
+  if (kind === 'sable') {
+    return (
+      <>
+        <rect width="300" height="200" fill="#D9A55A" />
+        <rect width="300" height="120" fill="#E8B96A" />
+        <circle cx="244" cy="40" r="18" fill="#F6DE9C" />
+        <path d="M0 140 Q 80 118 160 138 T 300 132 V200 H0z" fill="#C88F48" />
+      </>
+    );
+  }
+  if (kind === 'saloon') {
+    return (
+      <>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => <rect key={i} x={i * 30} width="30" height="200" fill={i % 2 ? '#6B4528' : '#5E3C22'} />)}
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => <rect key={i} x={i * 30} width="1.5" height="200" fill="#3E2614" />)}
+        <rect y="170" width="300" height="30" fill="#3E2614" />
+      </>
+    );
+  }
+  // damier (arcade)
+  return (
+    <>
+      <rect width="300" height="200" fill="#1E1A24" />
+      {Array.from({ length: 60 }, (_, i) => <rect key={i} x={(i % 10) * 30} y={140 + Math.floor(i / 10) * 10} width="15" height="10" fill={(i + Math.floor(i / 10)) % 2 ? '#E9E1CF' : '#2A2430'} />)}
+      {[30, 90, 150, 210, 270].map((x) => <rect key={x} x={x - 6} y="20" width="12" height="12" fill="#FFD23F" fill-opacity=".5" />)}
+    </>
+  );
+}
+
 const ART = {
   oserait: () => (
     <>
       <path d="M92 46h116a18 18 0 0 1 18 18v52a18 18 0 0 1-18 18h-56l-22 22v-22h-38a18 18 0 0 1-18-18V64a18 18 0 0 1 18-18z" fill={CREME} />
       <text x="150" y="115" text-anchor="middle" font-size="64" fill={ENCRE} font-family="Bagel Fat One, sans-serif">?</text>
-      {[60, 240, 46, 254].map((x, i) => <circle key={i} cx={x} cy={i < 2 ? 70 : 150} r={i < 2 ? 15 : 11} fill="#fff" fill-opacity={i < 2 ? .25 : .15} />)}
     </>
   ),
   96: () => (
@@ -48,7 +141,6 @@ const ART = {
   ),
   purple: () => (
     <>
-      <circle cx="150" cy="100" r="62" fill="#B57CFF" fill-opacity=".35" />
       <Card x={128} y={102} r={-12} rank="A" suit="♥" s={1.15} />
       <Card x={172} y={98} r={10} rank="A" suit="♠" red={false} s={1.15} />
     </>
@@ -64,7 +156,8 @@ const ART = {
   ),
   toutankhamon: () => (
     <>
-      <path d="M150 34l92 132H58z" fill="#E7C877" fill-opacity=".25" />
+      <path d="M150 34l92 132H58z" fill="#B98A44" />
+      <path d="M150 34l92 132h-40z" fill="#9C7234" />
       {[[150, 62], [128, 104], [172, 104], [106, 146], [150, 146], [194, 146]].map(([x, y], i) => <Card key={i} x={x} y={y} s={.5} back />)}
     </>
   ),
@@ -81,25 +174,21 @@ const ART = {
     <>
       <Card x={130} y={104} back s={1.2} />
       <circle cx="184" cy="82" r="30" fill="none" stroke={CREME} stroke-width="9" />
-      <circle cx="184" cy="82" r="26" fill="#fff" fill-opacity=".15" />
       <path d="M205 104l26 26" stroke={CREME} stroke-width="12" stroke-linecap="round" />
     </>
   ),
   degaine: () => (
     <>
       <path d="M162 30L104 112h40l-14 60 64-90h-42z" fill="#FFD23F" stroke={ENCRE} stroke-width="3" stroke-linejoin="round" />
-      <circle cx="70" cy="100" r="20" fill={CREME} fill-opacity=".2" />
-      <circle cx="232" cy="100" r="20" fill={CREME} fill-opacity=".2" />
     </>
   ),
   bombe: () => (
     <>
       <circle cx="140" cy="114" r="52" fill={ENCRE} />
-      <circle cx="122" cy="96" r="12" fill="#fff" fill-opacity=".18" />
+      <circle cx="122" cy="96" r="10" fill="#4A453E" />
       <rect x="168" y="54" width="22" height="20" rx="4" fill="#5A544B" transform="rotate(32 179 64)" />
       <path d="M186 56c10-14 22-16 30-8" stroke="#C9A97A" stroke-width="5" fill="none" stroke-linecap="round" />
       <circle cx="218" cy="46" r="11" fill="#FFD23F" />
-      <circle cx="218" cy="46" r="20" fill="#FF8A3D" fill-opacity=".35" />
     </>
   ),
   ware: () => (
@@ -129,19 +218,8 @@ export function GameArt({ id, color = '255, 210, 63' }) {
   const gid = `ga-${id}`;
   return (
     <svg class="game-art" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color={`rgb(${color})`} />
-          <stop offset="1" stop-color={`rgb(${color})`} stop-opacity=".25" />
-        </linearGradient>
-        <radialGradient id={`${gid}-l`} cx=".3" cy=".2" r=".9">
-          <stop offset="0" stop-color="#fff" stop-opacity=".25" />
-          <stop offset="1" stop-color="#fff" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="300" height="200" fill="#1A1514" />
-      <rect width="300" height="200" fill={`url(#${gid})`} />
-      <rect width="300" height="200" fill={`url(#${gid}-l)`} />
+      <Scene kind={SCENE[id] || 'brique'} id={gid} />
+      <rect y="196" width="300" height="4" fill={`rgb(${color})`} />
       {draw ? draw() : null}
     </svg>
   );

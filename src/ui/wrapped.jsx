@@ -99,7 +99,7 @@ export async function drawWrapped(sum, { fullNames = false } = {}) {
     ctx.fillStyle = C.jaune; const s = fit(ctx, t.title.toUpperCase(), 740, 64, 900, TITRE);
     ctx.font = `900 ${s}px ${TITRE}`; ctx.fillText(t.title.toUpperCase(), 244, y - 30);
     ctx.fillStyle = C.papier; ctx.font = `700 38px ${TEXTE}`;
-    ctx.fillText(`${name(t.p.nick)} — ${t.detail}`, 244, y + 20);
+    ctx.fillText(`${name(t.p.nick)} : ${t.detail}`, 244, y + 20);
     y += 150;
   }
 

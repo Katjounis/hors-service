@@ -1,5 +1,5 @@
 // Écrans de la soirée : salle d'attente, jeu en cours, pénalités, menu.
-import { useEffect, useLayoutEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import qrcode from 'qrcode-generator';
 import { GAMES, GAME_LIST, GAME_META } from '../games/index.js';
 import { GameArt } from './gameart.jsx';
@@ -176,7 +176,61 @@ function Register({ dev, S, local, list }) {
   );
 }
 
+// Carrousel des jeux : au doigt on glisse ; à la souris, flèches, molette et cliquer-glisser
+function useRail() {
+  const ref = useRef(null);
+  const [edge, setEdge] = useState({ start: true, end: false });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const upd = () => setEdge({ start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth > el.scrollWidth - 8 });
+    upd();
+    // molette verticale → défilement horizontal (souris sans molette latérale)
+    const wheel = (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || el.scrollWidth <= el.clientWidth) return;
+      const atStart = el.scrollLeft <= 0 && e.deltaY < 0;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return; // au bout du carrousel, la page défile normalement
+      e.preventDefault();
+      el.scrollBy({ left: e.deltaY, behavior: 'auto' });
+    };
+    // cliquer-glisser à la souris (le toucher garde le défilement natif)
+    let drag = null;
+    const down = (e) => { if (e.pointerType !== 'mouse' || e.button !== 0) return; drag = { x: e.clientX, left: el.scrollLeft, moved: false }; };
+    const move = (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      if (!drag.moved && Math.abs(dx) > 6) { drag.moved = true; el.classList.add('is-drag'); }
+      if (drag.moved) el.scrollLeft = drag.left - dx;
+    };
+    const up = () => { if (drag && drag.moved) { const stop = (ev) => { ev.stopPropagation(); ev.preventDefault(); }; el.addEventListener('click', stop, { capture: true, once: true }); setTimeout(() => el.removeEventListener('click', stop, { capture: true }), 0); } drag = null; el.classList.remove('is-drag'); };
+    el.addEventListener('scroll', upd, { passive: true });
+    el.addEventListener('wheel', wheel, { passive: false });
+    el.addEventListener('pointerdown', down);
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('resize', upd);
+    return () => {
+      el.removeEventListener('scroll', upd);
+      el.removeEventListener('wheel', wheel);
+      el.removeEventListener('pointerdown', down);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('resize', upd);
+    };
+  }, []);
+  const step = (dir) => {
+    const el = ref.current;
+    if (!el) return;
+    const card = el.querySelector('.gcard');
+    const w = card ? card.getBoundingClientRect().width + 12 : el.clientWidth * 0.8;
+    el.scrollBy({ left: dir * w * Math.max(1, Math.floor(el.clientWidth / w)), behavior: 'smooth' });
+  };
+  return { ref, edge, step };
+}
+
 function Lobby({ dev, S, local }) {
+  const rail = useRail();
   const [sheet, setSheet] = useState(null);
   const list = seats(S);
   const active = list.filter((u) => isOnline(dev, u, local)).length;
@@ -187,8 +241,15 @@ function Lobby({ dev, S, local }) {
       <Register dev={dev} S={S} local={local} list={list} />
       {!local && !dev.isHost ? <p class="muted">L’hôte choisit le jeu. Tu peux lire les règles en attendant.</p> : null}
       <section class="sec games-sec">
-        <div class="games-h"><h2>Jeux</h2><span class="muted small">Glisse, puis touche un jeu</span></div>
-        <div class="games-rail">
+        <div class="games-h">
+          <h2>Jeux</h2>
+          <span class="muted small games-tip">Glisse, puis touche un jeu</span>
+          <span class="rail-nav">
+            <button type="button" class="icon-btn" aria-label="Jeux précédents" disabled={rail.edge.start} onClick={() => rail.step(-1)}><Icon name="back" /></button>
+            <button type="button" class="icon-btn rail-next" aria-label="Jeux suivants" disabled={rail.edge.end} onClick={() => rail.step(1)}><Icon name="back" /></button>
+          </span>
+        </div>
+        <div class="games-rail" ref={rail.ref}>
           {GAME_LIST.map((G) => {
             const m = GAME_META[G.id];
             const ban = local && G.local === false ? 'Un téléphone par joueur' : !local && G.solo ? 'Sur un seul téléphone' : active < G.min ? `Il faut ${G.min} joueurs` : null;
