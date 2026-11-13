@@ -26,6 +26,7 @@ const SCENE = {
   oserait: 'brique', 96: 'tapis', pipoteur: 'scene', purple: 'tapis', hippodrome: 'piste', toutankhamon: 'sable',
   autres: 'brique', trouve: 'tapis', degaine: 'saloon', bombe: 'scene', ware: 'damier', jamais: 'brique',
   garou: 'nuit', coinche: 'tapis', buzzer: 'scene', dessin: 'brique',
+  president: 'tapis', cercle: 'tapis', perudo: 'saloon', paranoia: 'nuit', actionverite: 'scene', tupref: 'brique',
 };
 function Scene({ kind, id }) {
   const p = `sc-${id}`;
@@ -127,6 +128,76 @@ function Scene({ kind, id }) {
 }
 
 const ART = {
+  president: () => (
+    <>
+      <Card x={112} y={118} r={-16} rank="2" suit="♠" red={false} />
+      <Card x={150} y={112} r={0} rank="2" suit="♥" />
+      <Card x={188} y={118} r={16} rank="2" suit="♣" red={false} />
+      <path d="M112 66 L124 34 L138 56 L150 26 L162 56 L176 34 L188 66 Z" fill="#E7B04A" stroke="#22201C" stroke-width="3" stroke-linejoin="round" />
+      <rect x="112" y="64" width="76" height="12" fill="#C99A3A" stroke="#22201C" stroke-width="3" />
+      <circle cx="150" cy="70" r="3.5" fill="#C8301E" />
+      <rect x="226" y="140" width="34" height="32" fill="#F2EADB" stroke="#22201C" stroke-width="2" />
+      <ellipse cx="243" cy="140" rx="17" ry="6" fill="#FFFDF6" stroke="#22201C" stroke-width="2" />
+      <ellipse cx="243" cy="140" rx="5" ry="2" fill="#8A7F6C" />
+    </>
+  ),
+  cercle: () => (
+    <>
+      {Array.from({ length: 12 }).map((_, i) => {
+        const a = (i / 12) * Math.PI * 2;
+        return <Card key={i} x={150 + Math.cos(a) * 96} y={102 + Math.sin(a) * 58} r={(a * 180) / Math.PI + 90} s={0.5} back />;
+      })}
+      <path d="M130 70 L170 70 L164 144 L136 144 Z" fill="#E7B04A" fill-opacity=".9" stroke="#22201C" stroke-width="3" />
+      <path d="M128 70 q6 -12 14 -6 q6 -10 16 -2 q8 -6 14 8 z" fill="#F2EADB" />
+      <path d="M118 158 q10 -22 32 -26 q22 4 32 26" fill="none" stroke="#E5502F" stroke-width="4" stroke-linecap="round" />
+      <path d="M140 160 q4 -12 10 -16 q6 4 10 16" fill="#FFD23F" />
+    </>
+  ),
+  perudo: () => (
+    <>
+      <path d="M106 150 L120 64 L180 64 L194 150 Z" fill="#7A4A2A" stroke="#22201C" stroke-width="3" />
+      <path d="M116 80 H184 M112 110 H188" stroke="#5A3420" stroke-width="3" />
+      <g transform="translate(206 128) rotate(14)"><rect x="-17" y="-17" width="34" height="34" rx="5" fill="#F2EADB" stroke="#22201C" stroke-width="2" /><circle cx="-8" cy="-8" r="3.5" fill="#22201C" /><circle cx="8" cy="8" r="3.5" fill="#22201C" /><circle cx="0" cy="0" r="3.5" fill="#22201C" /></g>
+      <g transform="translate(74 140) rotate(-12)"><rect x="-15" y="-15" width="30" height="30" rx="5" fill="#F2EADB" stroke="#22201C" stroke-width="2" /><circle cx="0" cy="0" r="4.5" fill="#C8301E" /></g>
+      <g transform="translate(240 160) rotate(-30)"><rect x="-12" y="-12" width="24" height="24" rx="4" fill="#F2EADB" stroke="#22201C" stroke-width="2" /><circle cx="-5" cy="-5" r="2.6" fill="#22201C" /><circle cx="5" cy="-5" r="2.6" fill="#22201C" /><circle cx="-5" cy="5" r="2.6" fill="#22201C" /><circle cx="5" cy="5" r="2.6" fill="#22201C" /></g>
+      <text x="150" y="44" text-anchor="middle" font-size="22" fill="#FFD23F" font-family="Dela Gothic One, sans-serif">MENTEUR !</text>
+    </>
+  ),
+  paranoia: () => (
+    <>
+      <path d="M150 30 L74 182 H226 Z" fill="#FFD23F" fill-opacity=".14" />
+      <path d="M92 106 Q150 52 208 106 Q150 160 92 106 Z" fill="#F2EADB" stroke="#22201C" stroke-width="3" />
+      <circle cx="160" cy="104" r="22" fill="#6B4FA8" />
+      <circle cx="160" cy="104" r="10" fill="#0B0E16" />
+      <circle cx="167" cy="97" r="4" fill="#FFFDF6" />
+      <path d="M100 92 l-10 -10 M120 76 l-6 -14 M150 70 v-16 M180 76 l6 -14 M200 92 l10 -10" stroke="#F2EADB" stroke-width="3" stroke-linecap="round" />
+      <text x="232" y="168" font-size="40" fill="#FFD23F" font-family="Dela Gothic One, sans-serif">?</text>
+      <text x="48" y="64" font-size="26" fill="#FFD23F" fill-opacity=".7" font-family="Dela Gothic One, sans-serif">?</text>
+    </>
+  ),
+  actionverite: () => (
+    <>
+      <g transform="rotate(-8 150 76)">
+        <rect x="60" y="56" width="180" height="40" fill="#E5502F" stroke="#22201C" stroke-width="3" />
+        <text x="150" y="85" text-anchor="middle" font-size="24" fill="#FFFDF6" font-family="Dela Gothic One, sans-serif">ACTION</text>
+      </g>
+      <text x="150" y="122" text-anchor="middle" font-size="16" fill="#F2EADB" font-family="Familjen Grotesk, sans-serif" font-weight="700">ou</text>
+      <g transform="rotate(6 150 150)">
+        <rect x="60" y="130" width="180" height="40" fill="#FFD23F" stroke="#22201C" stroke-width="3" />
+        <text x="150" y="159" text-anchor="middle" font-size="24" fill="#22201C" font-family="Dela Gothic One, sans-serif">VÉRITÉ</text>
+      </g>
+    </>
+  ),
+  tupref: () => (
+    <>
+      <rect x="146" y="40" width="8" height="140" fill="#5A3A22" />
+      <path d="M150 52 H236 L254 68 L236 84 H150 Z" fill="#5FBEC8" stroke="#22201C" stroke-width="3" />
+      <text x="198" y="75" text-anchor="middle" font-size="20" fill="#22201C" font-family="Dela Gothic One, sans-serif">A</text>
+      <path d="M150 96 H64 L46 112 L64 128 H150 Z" fill="#E5502F" stroke="#22201C" stroke-width="3" />
+      <text x="102" y="119" text-anchor="middle" font-size="20" fill="#FFFDF6" font-family="Dela Gothic One, sans-serif">B</text>
+      <text x="150" y="160" text-anchor="middle" font-size="18" fill="#FFD23F" font-family="Dela Gothic One, sans-serif" stroke="#22201C" stroke-width="4" paint-order="stroke">TU PRÉFÈRES ?</text>
+    </>
+  ),
   dessin: () => (
     <>
       <path d="M150 168 L120 196 M150 168 L180 196" stroke="#5A3A22" stroke-width="5" />

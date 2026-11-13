@@ -102,7 +102,7 @@ export function StreakFire({ streak, smokeKey = null, smoked = 0, label = 'Séri
 const TINTS = {
   oserait: '244, 166, 184', 96: '242, 140, 56', pipoteur: '108, 201, 168', purple: '155, 127, 212', hippodrome: '163, 196, 90',
   toutankhamon: '91, 141, 239', autres: '244, 166, 184', trouve: '255, 210, 63', degaine: '229, 80, 47', bombe: '242, 140, 56', ware: '91, 141, 239',
-  jamais: '255, 176, 88',
+  jamais: '255, 176, 88', president: '232, 196, 80', cercle: '240, 110, 60', perudo: '210, 140, 80', paranoia: '150, 110, 220', actionverite: '238, 84, 110', tupref: '96, 190, 200',
 };
 // trois couleurs par ambiance : lumière principale, seconde lumière, ampoules
 const PALETTES = {

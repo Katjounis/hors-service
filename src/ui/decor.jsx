@@ -12,7 +12,7 @@ const H = 300;
 export function sceneOf(key) {
   const k = String(key || '');
   if (k.startsWith('garou')) return 'foret';
-  if (['96', 'purple', 'hippodrome', 'toutankhamon', 'trouve', 'coinche'].includes(k)) return 'tapis';
+  if (['96', 'purple', 'hippodrome', 'toutankhamon', 'trouve', 'coinche', 'president', 'cercle', 'perudo'].includes(k)) return 'tapis';
   if (k === 'buzzer') return 'plateau';
   if (['ware', 'degaine', 'bombe'].includes(k)) return 'arcade';
   if (k === 'dessin') return 'atelier';

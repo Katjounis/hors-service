@@ -195,7 +195,7 @@ async function stressLocal(G, n, ms) {
     // parfois périmés (ancienne manche) ou incohérents, qui doivent être ignorés sans casser la partie
     if (G.solo && g.phase === 'ready' && Math.random() < 0.5) { arcadeMove(host, G, g); answers++; }
     // Je n'ai jamais sur un seul téléphone : on touche les avatars (parfois une ancienne carte, ou un inconnu)
-    if (G.id === 'jamais' && g.phase === 'ask' && Math.random() < 0.5) {
+    if ((G.id === 'jamais' || G.id === 'tupref') && g.phase === 'ask' && Math.random() < 0.5) {
       host.host('game', { id: 'who', arg: { step: Math.random() < 0.1 ? g.n - 1 : g.n, uids: [...g.pl.filter(() => Math.random() < 0.4), ...(Math.random() < 0.05 ? ['inconnu'] : [])] } });
       answers++;
     }
@@ -220,7 +220,8 @@ async function stressLocal(G, n, ms) {
 (async () => {
   const MS = Number(process.argv[2] || 14000);
   try {
-    for (const G of GAME_LIST) {
+    const only = process.argv[3] ? process.argv[3].split(',') : null;
+    for (const G of GAME_LIST.filter((x) => !only || only.includes(x.id))) {
       const n = G.id === 'pipoteur' ? 7 : Math.max(5, (G.min || 0) + 2);
       const e0 = errors.length;
       if (G.solo) {

@@ -1861,3 +1861,89 @@ h3 { font-size: 1.1rem; }
 .screen, .home { padding-top: calc(env(safe-area-inset-top, 0px) + 20px); }
 .screen-view { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); }
 .demo-bar { padding-top: calc(env(safe-area-inset-top, 0px) + 8px); }
+
+/* =====================================================================================================
+   Vague 2 : Président, Cercle de feu, Menteur aux dés, Paranoïa, Action ou vérité, Tu préfères
+   ===================================================================================================== */
+/* Tu préfères : deux panneaux face à face */
+.tp, .av, .pa, .cf, .pr, .pe { display: flex; flex-direction: column; gap: 12px; }
+.tp-lead { font: 400 1.25rem/1 var(--f-titre); text-transform: uppercase; color: var(--jaune); margin: 0; }
+.tp-duel { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 8px; }
+.tp-ou { align-self: center; font: 400 1rem var(--f-titre); color: var(--poussiere); text-transform: uppercase; }
+.tp-opt { padding: 14px 12px; display: flex; flex-direction: column; gap: 10px; border: 2px solid var(--encre); animation: tp-in .22s ease-out both; }
+.tp-a { background: #CDEFF2; color: var(--encre); }
+.tp-b { background: #FFD9CC; color: var(--encre); animation-delay: .06s; }
+.tp-opt.is-lose { outline: 4px solid var(--rouge-vif); outline-offset: 2px; }
+.tp-txt { margin: 0; font-weight: 700; font-size: 1.05rem; line-height: 1.25; }
+.tp-who { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.tp-who .muted { color: #5C554B; }
+.tp-answer { display: grid; gap: 10px; }
+.tp-answer .btn { white-space: normal; line-height: 1.2; text-align: left; }
+@keyframes tp-in { from { opacity: 0; transform: translateY(6px); } }
+@media (max-width: 420px) { .tp-duel { grid-template-columns: 1fr; } .tp-ou { justify-self: center; } }
+
+/* Action ou vérité, Paranoïa */
+.av-who { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.05rem; }
+.av-choice { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 18px 0; }
+.av-big { font: 400 clamp(1.6rem, 8vw, 2.4rem)/1 var(--f-titre); text-transform: uppercase; color: var(--papier); }
+.av-big:first-child { color: var(--rouge-vif); }
+.av-big:last-child { color: var(--jaune); }
+.jn-card.av-action .jn-badge { background: var(--rouge-vif); color: #FFFDF6; }
+.pa-card.is-hidden .jn-q { color: #6B6358; font-style: normal; letter-spacing: .02em; }
+.pa-secret { background: var(--papier); padding: 14px; font-weight: 700; font-size: 1.15rem; line-height: 1.25; color: var(--encre); border: 2px solid var(--encre); }
+
+/* Cercle de feu */
+.cf-ring { position: relative; width: 150px; height: 150px; margin: 0 auto; }
+.cf-dot { position: absolute; left: 50%; top: 50%; width: 16px; height: 24px; margin: -12px 0 0 -8px; background: #C9A97A; border: 1.5px solid var(--encre); transform: rotate(var(--a)) translateY(-62px); transition: opacity .2s; }
+.cf-dot.is-gone { opacity: .12; }
+.cf-cup { position: absolute; left: 50%; top: 50%; width: 38px; height: 46px; margin: -23px 0 0 -19px; border: 3px solid var(--papier); border-top: 0; background: linear-gradient(to top, var(--jaune-2) var(--lvl, 0%), transparent 0); /* raison : niveau du verre */ }
+.cf-cup.k1 { --lvl: 25%; } .cf-cup.k2 { --lvl: 50%; } .cf-cup.k3 { --lvl: 80%; }
+.cf-draw { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.cf-rule { padding: 12px; color: var(--encre); display: flex; flex-direction: column; gap: 6px; }
+.cf-rule p { margin: 0; line-height: 1.3; }
+.cf-rule .muted { color: #5C554B; }
+.cf-state { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Président et Menteur : la table */
+.pr-seats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.pr-seat { display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: var(--surface); border: 2px solid var(--filet); min-height: 44px; flex-wrap: wrap; }
+.pr-seat.is-turn { border-color: var(--jaune); }
+.pr-seat.is-pass { opacity: .55; }
+.pr-seat.is-out .pr-n { color: var(--jaune); }
+.pr-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 9ch; }
+.pr-n { margin-left: auto; font-size: .85rem; color: var(--poussiere); font-variant-numeric: tabular-nums; }
+.pr-title { font: 400 .7rem var(--f-titre); text-transform: uppercase; padding: 2px 6px; background: var(--papier); color: var(--encre); }
+.pr-title.t-president { background: var(--jaune); }
+.pr-title.t-trouduc { background: var(--rouge-vif); color: #FFFDF6; }
+.pr-title.t-vicetrou { background: #F2A08C; }
+.pr-pile { min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.pr-cards { display: flex; gap: 6px; }
+.pr-rank { margin: 6px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; color: var(--encre); }
+.pr-rank li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pr-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.pr-hand .pc-m { width: 38px; height: 54px; }
+.pr-hand .pc-m .pc-mid { font-size: 1.2rem; }
+.pr-hand .pc-btn:disabled { opacity: .4; }
+.pr-hand .pc-sel { transform: translateY(-8px); outline: 3px solid var(--jaune); }
+
+/* Menteur aux dés */
+.die { display: inline-grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); background: #F2EADB; border: 2px solid var(--encre); border-radius: 6px; vertical-align: middle; }
+.die i { display: block; margin: auto; border-radius: 50%; width: 60%; height: 60%; }
+.die i.on { background: var(--encre); }
+.die.is-paco i.on { background: var(--rouge); }
+.die.is-hi { background: var(--jaune); }
+.die-s { width: 22px; height: 22px; padding: 2px; }
+.die-m { width: 34px; height: 34px; padding: 3px; }
+.die-l { width: 48px; height: 48px; padding: 5px; }
+.pe-bid { padding: 14px; color: var(--encre); text-align: center; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.pe-big { font: 400 2.2rem/1 var(--f-titre); font-variant-numeric: tabular-nums; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+.pe-all { display: flex; flex-direction: column; gap: 4px; }
+.pe-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pe-row .pr-name { width: 9ch; color: var(--encre); }
+.pe-mine { display: flex; gap: 8px; justify-content: center; }
+.pe-pick { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.pe-face { min-height: 48px; background: var(--surface-2); border: 2px solid var(--filet); display: grid; place-items: center; cursor: pointer; }
+.pe-face.is-picked { border-color: var(--jaune); background: #3D362C; }
+.pe-q { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.pe-q .btn { min-width: 52px; min-height: 48px; font-size: 1.4rem; }
+@media (prefers-reduced-motion: reduce) { .tp-opt { animation: none; } }
