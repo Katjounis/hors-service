@@ -1,7 +1,7 @@
 // Service worker de Hors Service : une fois ouverte, l'appli se relance même sans réseau.
 // Stratégie : réseau d'abord (les mises à jour arrivent tout de suite), copie locale si hors connexion.
 // Les échanges avec le serveur de salons (autre domaine) ne passent jamais par ici.
-const CACHE = 'hors-service-596f2ac2ce';
+const CACHE = 'hors-service-4da2ed978d';
 const FILES = ["./","./index.html","./manifest.webmanifest","./assets/icons/apple-touch-icon.png","./assets/icons/favicon-32.png","./assets/icons/icon-192.png","./assets/icons/icon-512.png","./assets/icons/icon-maskable-512.png"];
 
 self.addEventListener('install', (event) => {
