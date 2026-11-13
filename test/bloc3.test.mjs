@@ -126,7 +126,16 @@ for (let t = 0; t < 400; t++) {
   const solving = solved < 6;
   try {
     if (solving) {
-      if (['tap', 'catch', 'big', 'odd', 'color', 'count'].includes(id)) {
+      if (id === 'feu') {
+        await page.locator('[data-feu="go"]').waitFor({ timeout: 2500 });
+        await page.locator('[data-feu="go"]').dispatchEvent('pointerdown');
+      } else if (id === 'rouge') {
+        for (let i = 0; i < 12 && await page.locator('.ware-play .mg-dot[data-ok="1"]').count(); i++) await page.locator('.ware-play .mg-dot[data-ok="1"]').first().dispatchEvent('pointerdown');
+      } else if (id === 'memo') {
+        const seq = await page.locator('[data-seq]').getAttribute('data-seq', { timeout: 1500 });
+        await page.locator('.mg-pad').waitFor({ timeout: 4000 });
+        for (const d of seq) await page.locator(`[data-arw="${d}"]`).dispatchEvent('pointerdown');
+      } else if (['tap', 'catch', 'big', 'odd', 'color', 'count', 'calc'].includes(id)) {
         const okBtn = page.locator('.ware-play [data-ok="1"]');
         await okBtn.first().waitFor({ timeout: 1500 });
         await okBtn.first().dispatchEvent('pointerdown');
@@ -159,7 +168,7 @@ await page.locator('.duel-res').waitFor({ timeout: 8000 });
 const r4 = await page.locator('.duel-res').textContent();
 const score = Number((r4.match(/enchaîne (\d+)/) || [])[1] || 0);
 ok(score >= 4, `des micro-jeux réussis pendant la rafale (${score} ; ${[...seen].join(', ')})`);
-ok(/3 vies perdues : 3 pénalités de 1 gorgée/.test(r4), `une vie perdue = une pénalité (${r4.slice(0, 120)})`);
+ok(/2 vies perdues : 2 pénalités de 1 gorgée/.test(r4), `une vie perdue = une pénalité (${r4.slice(0, 120)})`);
 ok(await page.locator('.pen', { hasText: 'Hors Service Ware' }).count() >= 1, 'les pénalités de la rafale arrivent dans les cartes');
 await shot('b3-06-ware-resultat');
 await settle();

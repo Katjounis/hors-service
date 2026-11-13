@@ -47,11 +47,11 @@ function Arrow({ deg = 0 }) {
 }
 function Tap({ lvl, win }) {
   const [p] = useState(() => ({ x: rand(14, 86), y: rand(16, 82) }));
-  const s = 96 - lvl * 9;
+  const s = Math.max(34, 84 - lvl * 9);
   return <button type="button" class="mg-target" data-ok="1" aria-label="Cible" style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${s}px`, height: `${s}px` }} onPointerDown={(e) => { stop(e); win(); }} />;
 }
 function Mash({ lvl, win }) {
-  const need = 6 + lvl * 2;
+  const need = 9 + lvl * 3;
   const n = useRef(0);
   const [left, setLeft] = useState(need);
   return (
@@ -97,15 +97,15 @@ function Swipe({ win, lose }) {
 }
 function Catch({ lvl, win }) {
   const [p] = useState(() => ({ y: rand(16, 80), rev: Math.random() < 0.5 }));
-  return <button type="button" class={`mg-target mg-runner${p.rev ? ' rev' : ''}`} data-ok="1" aria-label="Cible qui bouge" style={{ top: `${p.y}%`, '--d': `${(2.3 - lvl * 0.3).toFixed(2)}s` }} onPointerDown={(e) => { stop(e); win(); }} />;
+  return <button type="button" class={`mg-target mg-runner${p.rev ? ' rev' : ''}`} data-ok="1" aria-label="Cible qui bouge" style={{ top: `${p.y}%`, '--d': `${Math.max(0.55, 1.7 - lvl * 0.22).toFixed(2)}s`, width: `${Math.max(44, 80 - lvl * 7)}px`, height: `${Math.max(44, 80 - lvl * 7)}px` }} onPointerDown={(e) => { stop(e); win(); }} />;
 }
 function Count({ lvl, win, lose }) {
   const [q] = useState(() => {
-    const n = 3 + Math.floor(rand(0, 4 + lvl));
-    return { n, dots: Array.from({ length: n }, () => ({ x: rand(8, 88), y: rand(12, 80) })), opts: shuffle([n, n + 1, n > 3 ? n - 1 : n + 2]) };
+    const n = 5 + Math.floor(rand(0, 4 + lvl * 2));
+    return { n, dots: Array.from({ length: n }, () => ({ x: rand(8, 88), y: rand(12, 80) })), opts: shuffle([n, n + 1, n - 1, n + 2]) };
   });
   const [ask, setAsk] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setAsk(true), fast() ? 300 : 1100); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setAsk(true), fast() ? 300 : Math.max(450, 1000 - lvl * 110)); return () => clearTimeout(t); }, []);
   if (!ask) return <div class="mg-zone mg-dots" aria-label="Points à compter">{q.dots.map((d, i) => <i key={i} style={{ left: `${d.x}%`, top: `${d.y}%` }} />)}</div>;
   return <div class="mg-choices">{q.opts.map((v) => <button key={v} type="button" class="btn btn-big" data-ok={v === q.n ? '1' : undefined} onPointerDown={(e) => { stop(e); if (v === q.n) win(); else lose(); }}>{v}</button>)}</div>;
 }
@@ -123,9 +123,9 @@ function Couleur({ win, lose }) {
 function Biggest({ lvl, win, lose }) {
   const [q] = useState(() => {
     const base = Math.floor(rand(15, 80));
-    const spread = Math.max(3, 26 - lvl * 6);
+    const spread = Math.max(2, 14 - lvl * 3);
     const set = new Set();
-    while (set.size < 4) set.add(Math.max(1, Math.floor(base + rand(-spread, spread))));
+    while (set.size < (lvl >= 3 ? 6 : 4)) set.add(Math.max(1, Math.floor(base + rand(-spread, spread))));
     const nums = shuffle([...set]);
     return { nums, max: Math.max(...nums) };
   });
@@ -133,8 +133,8 @@ function Biggest({ lvl, win, lose }) {
 }
 const ODD = [['O', 'Q'], ['E', 'F'], ['8', 'B'], ['M', 'N'], ['6', '9'], ['b', 'd'], ['p', 'q'], ['V', 'W'], ['C', 'G']];
 function Odd({ lvl, win, lose }) {
-  const [q] = useState(() => { const [a, b] = pickOne(ODD); const n = lvl >= 2 ? 12 : 9; return { a, b, n, odd: Math.floor(rand(0, n)) }; });
-  return <div class={`mg-grid g3`}>{Array.from({ length: q.n }, (_, i) => <button key={i} type="button" class="btn mg-glyph" data-ok={i === q.odd ? '1' : undefined} onPointerDown={(e) => { stop(e); if (i === q.odd) win(); else lose(); }}>{i === q.odd ? q.b : q.a}</button>)}</div>;
+  const [q] = useState(() => { const [a, b] = pickOne(ODD); const n = lvl >= 4 ? 20 : lvl >= 2 ? 16 : 12; return { a, b, n, odd: Math.floor(rand(0, n)) }; });
+  return <div class={`mg-grid ${q.n > 12 ? 'g4' : 'g3'}`}>{Array.from({ length: q.n }, (_, i) => <button key={i} type="button" class="btn mg-glyph" data-ok={i === q.odd ? '1' : undefined} onPointerDown={(e) => { stop(e); if (i === q.odd) win(); else lose(); }}>{i === q.odd ? q.b : q.a}</button>)}</div>;
 }
 function Double({ win }) {
   const [p] = useState(() => ({ x: rand(16, 84), y: rand(18, 80) }));
@@ -142,7 +142,7 @@ function Double({ win }) {
   const [hit, setHit] = useState(false);
   return (
     <button type="button" class={`mg-target is-double${hit ? ' is-hit' : ''}`} data-double="1" aria-label="Cible à toucher deux fois" style={{ left: `${p.x}%`, top: `${p.y}%` }}
-      onPointerDown={(e) => { stop(e); const t = tnow(); if (t - last.current < 450) win(); else { last.current = t; setHit(true); } }}>×2</button>
+      onPointerDown={(e) => { stop(e); const t = tnow(); if (t - last.current < 330) win(); else { last.current = t; setHit(true); } }}>×2</button>
   );
 }
 function Shake({ lvl, win }) {
@@ -181,6 +181,71 @@ function Tilt({ win, lose }) {
   return <div class="mg-zone"><Arrow deg={dir < 0 ? 180 : 0} /><span class="mg-sub">penche à {dir < 0 ? 'gauche' : 'droite'}</span></div>;
 }
 
+// Feu vert : tape seulement quand ça passe au vert (taper trop tôt = perdu)
+function FeuVert({ lvl, win, lose }) {
+  const [go, setGo] = useState(false);
+  const goRef = useRef(false);
+  useEffect(() => { const t = setTimeout(() => { goRef.current = true; setGo(true); }, fast() ? 200 : rand(600, Math.max(900, 1800 - lvl * 120))); return () => clearTimeout(t); }, []);
+  return (
+    <button type="button" class={`mg-zone mg-feu${go ? ' is-go' : ''}`} data-feu={go ? 'go' : 'wait'} onPointerDown={(e) => { stop(e); if (goRef.current) win(); else lose(); }}>
+      <span class="mg-big">{go ? 'TAPE' : 'Attends…'}</span><span class="mg-sub">{go ? '' : 'trop tôt = perdu'}</span>
+    </button>
+  );
+}
+// Calcul : une opération éclair
+function Calcul({ lvl, win, lose }) {
+  const [q] = useState(() => {
+    const a = Math.floor(rand(2, 9 + lvl * 3));
+    const b = Math.floor(rand(2, 9 + lvl * 2));
+    const op = lvl >= 2 && Math.random() < 0.5 ? 'x' : Math.random() < 0.5 ? '+' : '-';
+    const r = op === 'x' ? a * b : op === '+' ? a + b : a - b;
+    const opts = shuffle([r, r + 1, r - 1, r + (op === 'x' ? a : 10)].filter((v, i, arr) => arr.indexOf(v) === i)).slice(0, 4);
+    if (!opts.includes(r)) opts[0] = r;
+    return { txt: `${a} ${op === 'x' ? '×' : op} ${b}`, r, opts: shuffle(opts) };
+  });
+  return (
+    <div class="mg-col">
+      <p class="mg-word">{q.txt}</p>
+      <div class="mg-grid">{q.opts.map((v) => <button key={v} type="button" class="btn btn-big mg-num" data-ok={v === q.r ? '1' : undefined} onPointerDown={(e) => { stop(e); if (v === q.r) win(); else lose(); }}>{v}</button>)}</div>
+    </div>
+  );
+}
+// Mémoire : retiens une suite de flèches, puis tape-la
+const ARW = [['haut', 270], ['droite', 0], ['bas', 90], ['gauche', 180]];
+function Memoire({ lvl, win, lose }) {
+  const [seq] = useState(() => Array.from({ length: 3 + Math.min(3, Math.floor(lvl / 2)) }, () => Math.floor(rand(0, 4))));
+  const [show, setShow] = useState(true);
+  const pos = useRef(0);
+  const [n, setN] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setShow(false), fast() ? 200 : 450 * seq.length); return () => clearTimeout(t); }, []);
+  if (show) return <div class="mg-col"><div class="mg-seq" data-seq={seq.join('')}>{seq.map((d, i) => <Arrow key={i} deg={ARW[d][1]} />)}</div><p class="mg-sub">retiens</p></div>;
+  const tap = (d) => { if (d !== seq[pos.current]) { lose(); return; } pos.current += 1; setN(pos.current); if (pos.current >= seq.length) win(); };
+  return (
+    <div class="mg-col">
+      <p class="mg-sub">{n} / {seq.length}</p>
+      <div class="mg-pad">{ARW.map(([nm, deg], i) => <button key={nm} type="button" class={`btn mg-arw a-${nm}`} aria-label={nm} data-arw={i} onPointerDown={(e) => { stop(e); tap(i); }}><Arrow deg={deg} /></button>)}</div>
+    </div>
+  );
+}
+// Pas le rouge : touche toutes les cibles sauf les rouges
+function PasRouge({ lvl, win, lose }) {
+  const [q] = useState(() => {
+    const n = 3 + Math.min(4, lvl);
+    const items = Array.from({ length: n + 2 }, (_, i) => ({ id: i, red: i >= n, x: rand(10, 86), y: rand(14, 80) }));
+    return { n, items };
+  });
+  const [done, setDone] = useState({});
+  const hit = useRef(0);
+  return (
+    <div class="mg-zone mg-free">
+      {q.items.map((t) => (done[t.id] ? null : (
+        <button key={t.id} type="button" class={`mg-dot${t.red ? ' is-red' : ''}`} aria-label={t.red ? 'cible rouge' : 'cible'} data-ok={t.red ? undefined : '1'} style={{ left: `${t.x}%`, top: `${t.y}%` }}
+          onPointerDown={(e) => { stop(e); if (t.red) { lose(); return; } setDone((d) => ({ ...d, [t.id]: true })); hit.current += 1; if (hit.current >= q.n) win(); }} />
+      )))}
+    </div>
+  );
+}
+
 export const MICRO = [
   { id: 'tap', word: 'Tape !', C: Tap },
   { id: 'mash', word: 'Martèle !', C: Mash },
@@ -188,18 +253,24 @@ export const MICRO = [
   { id: 'hold', word: 'Maintiens !', C: Hold },
   { id: 'swipe', word: 'Swipe !', C: Swipe },
   { id: 'catch', word: 'Attrape !', C: Catch },
-  { id: 'count', word: 'Compte !', C: Count },
+  { id: 'count', word: 'Compte !', C: Count, extra: 600 },
   { id: 'color', word: 'Couleur !', C: Couleur },
   { id: 'big', word: 'Le plus grand !', C: Biggest },
   { id: 'odd', word: 'L’intrus !', C: Odd },
   { id: 'double', word: 'Double tape !', C: Double },
+  { id: 'feu', word: 'Feu vert !', C: FeuVert },
+  { id: 'calc', word: 'Calcule !', C: Calcul },
+  { id: 'memo', word: 'Retiens !', C: Memoire, extra: 2200 },
+  { id: 'rouge', word: 'Pas le rouge !', C: PasRouge },
   { id: 'shake', word: 'Secoue !', C: Shake, sensor: true },
   { id: 'flip', word: 'Retourne !', C: Flip, sensor: true },
   { id: 'tilt', word: 'Penche !', C: Tilt, sensor: true },
 ];
 const WORD = Object.fromEntries(MICRO.map((m) => [m.id, m.word]));
-// 5 s au début, puis de plus en plus vite, jamais moins de 3 s
-export const microMs = (k) => Math.max(3000, 5000 - k * 170);
+// 3,4 s au début, puis de plus en plus vite, jusqu'à 1,4 s
+export const microMs = (k) => Math.max(1400, 3400 - k * 150);
+// en duel, ces micro-jeux ne marchent pas à deux (on gagne en ne faisant rien, ou capteurs du téléphone)
+const DUEL_OK = (m) => !m.sensor && !m.timeout && m.id !== 'hold';
 
 // ------------------------------------------------------------------ moteur
 const nextOf = (pl, u) => pl[(pl.indexOf(u) + 1) % pl.length];
@@ -221,16 +292,20 @@ const WARE = {
     'Chacun son tour, le téléphone en main : une consigne d’un mot s’affiche (« Tape ! », « Secoue ! », « Ne touche rien ! »…), tu as 3 à 5 secondes.',
     'Les micro-jeux s’enchaînent de plus en plus vite. Ton tour s’arrête quand tu n’as plus de vies.',
     'Chaque vie perdue est une pénalité. Le score (micro-jeux réussis) compte pour les records.',
+    'Mode duel : deux joueurs face à face, le téléphone posé entre eux, l’écran coupé en deux. Même consigne pour les deux : le premier qui réussit gagne la manche, celui qui se trompe la perd. Chaque manche perdue est une pénalité. Le vainqueur reste, le suivant le défie.',
     'Secoue, Retourne et Penche utilisent les capteurs du téléphone : sur iPhone, autorise-les avec le bouton avant de jouer. Sans capteurs, ces micro-jeux sont retirés.',
   ],
   options: [
-    { id: 'lives', label: 'Vies par tour', choices: [[3, '3 vies'], [1, '1 vie']], def: 3 },
+    { id: 'mode', label: 'Mode', choices: [['solo', 'Chacun son tour'], ['duel', 'Duel à deux']], def: 'solo' },
+    { id: 'to', label: 'Duel en', choices: [[3, '3 manches gagnantes'], [5, '5 manches gagnantes']], def: 5 },
+    { id: 'lives', label: 'Vies par tour (chacun son tour)', choices: [[3, '3 vies'], [2, '2 vies'], [1, '1 vie']], def: 2 },
     { id: 'sips', label: 'Une vie perdue', choices: [[1, '1 gorgée'], [2, '2 gorgées']], def: 1 },
   ],
 
   start(c) {
     const pl = c.activeUids();
-    const g = { pl, cur: pl[0], step: 1, phase: 'ready', res: null, stats: {}, hist: [] };
+    const duel = c.opts.mode === 'duel';
+    const g = { pl, cur: pl[0], step: 1, phase: 'ready', res: null, stats: {}, hist: [], duel: duel ? [pl[0], pl[1]] : null };
     pl.forEach((u) => stat(g, u));
     c.g = g;
     c.S.game.g = g;
@@ -268,6 +343,40 @@ const WARE = {
       g.phase = 'result';
       return true;
     }
+    if (id === 'duelres' && g.duel && g.phase === 'ready' && arg && arg.step === g.step) {
+      const [a, b] = g.duel;
+      const to = c.opts.to || 5;
+      const sa = Math.max(0, Math.min(to, Math.floor(Number(arg.a) || 0)));
+      const sb = Math.max(0, Math.min(to, Math.floor(Number(arg.b) || 0)));
+      if (sa !== to && sb !== to) return false;
+      const n = c.opts.sips || 1;
+      if (sb) c.pen(a, n * sb, `Hors Service Ware : ${plural(sb, 'manche perdue', 'manches perdues')} en duel`);
+      if (sa) c.pen(b, n * sa, `Hors Service Ware : ${plural(sa, 'manche perdue', 'manches perdues')} en duel`);
+      const w = sa >= sb ? a : b;
+      const l = w === a ? b : a;
+      stat(g, w).total += 1;
+      stat(g, w).runs += 1;
+      stat(g, l).runs += 1;
+      stat(g, l).lost += 1;
+      g.wins = g.wins || {};
+      g.wins[w] = (g.wins[w] || 0) + 1;
+      if (c.record) c.record(w, 'wareDuel', g.wins[w]);
+      g.res = { duel: true, w, l, sw: Math.max(sa, sb), sl: Math.min(sa, sb), n, t: c.now() };
+      g.phase = 'result';
+      return true;
+    }
+    if (g.duel && ((id === 'next' && g.phase === 'result') || (id === 'skip' && g.phase === 'ready'))) {
+      // le vainqueur reste, le joueur suivant le défie
+      const w = g.res && g.res.w ? g.res.w : g.duel[0];
+      const out = g.res && g.res.l ? g.res.l : g.duel[1];
+      let nx = nextOf(g.pl, out);
+      if (nx === w) nx = nextOf(g.pl, nx);
+      g.duel = [w, nx];
+      g.step += 1;
+      g.res = null;
+      g.phase = 'ready';
+      return true;
+    }
     if ((id === 'next' && g.phase === 'result') || (id === 'skip' && g.phase === 'ready')) {
       g.cur = nextOf(g.pl, g.cur);
       g.step += 1;
@@ -279,7 +388,7 @@ const WARE = {
     return false;
   },
 
-  turnOf(g) { return g.phase === 'ready' ? g.cur : null; },
+  turnOf(g) { return g.phase === 'ready' && !g.duel ? g.cur : null; },
   Table,
   Act: () => null,
 };
@@ -292,7 +401,7 @@ function WareRun({ lives: L, sensors, onDone }) {
   const [view, setView] = useState({ phase: 'intro', mg: null, k: 0, score: 0, lives: L });
   const later = (fn, ms) => { st.current.timers.push(setTimeout(fn, ms)); };
   const clear = () => { st.current.timers.forEach(clearTimeout); st.current.timers = []; };
-  const dur = (k) => (fast() ? 1100 : microMs(k));
+  const dur = (k, m) => (fast() ? 1100 : microMs(k) + ((m && m.extra) || 0));
   const settle = (won) => {
     const s = st.current;
     if (s.settled || !s.mg) return;
@@ -320,12 +429,12 @@ function WareRun({ lives: L, sensors, onDone }) {
     setView({ phase: 'intro', mg: m, k, score: s.score, lives: s.lives });
     later(() => {
       setView({ phase: 'play', mg: m, k, score: s.score, lives: s.lives });
-      later(() => settle(s.test ? !!s.test() : !!m.timeout), dur(k));
-    }, fast() ? 250 : Math.max(450, 800 - k * 25));
+      later(() => settle(s.test ? !!s.test() : !!m.timeout), dur(k, m));
+    }, fast() ? 250 : Math.max(300, 650 - k * 30));
   }
   useEffect(() => { next(); return clear; }, []);
   const { phase, mg, k, score, lives } = view;
-  const lvl = Math.min(4, Math.floor(k / 3));
+  const lvl = Math.min(6, Math.floor(k / 2));
   return (
     <Arena cls="ware" label="Hors Service Ware" state={phase}>
       <div class="ware-hud">
@@ -337,12 +446,77 @@ function WareRun({ lives: L, sensors, onDone }) {
         <div class="ware-play" data-mg={mg.id} key={`p${k}`}>
           <p class="ware-mini">{mg.word}</p>
           <mg.C lvl={lvl} win={() => settle(true)} lose={() => settle(false)} onTimeout={(fn) => { st.current.test = fn; }} />
-          <span class="ware-bar" style={{ '--d': `${dur(k)}ms` }} aria-hidden="true" />
+          <span class="ware-bar" style={{ '--d': `${dur(k, mg)}ms` }} aria-hidden="true" />
         </div>
       ) : null}
       {phase === 'win' ? <p class="ware-flash ok" key={`f${k}`}>Bien !</p> : null}
       {phase === 'lose' ? <p class="ware-flash ko" key={`f${k}`}>Raté !</p> : null}
       {phase === 'over' ? <div class="ware-over"><p class="ware-word">Hors service</p><p>{plural(score, 'micro-jeu réussi', 'micro-jeux réussis')}</p></div> : null}
+    </Arena>
+  );
+}
+
+// ------------------------------------------------------------------ duel : écran coupé en deux, même consigne
+function DuelRun({ a, b, to, onDone }) {
+  const pool = MICRO.filter(DUEL_OK);
+  const st = useRef({ k: 0, sc: [0, 0], timers: [], settled: true, mg: null });
+  const [view, setView] = useState({ phase: 'intro', mg: null, k: 0, sc: [0, 0], who: null });
+  const later = (fn, ms) => { st.current.timers.push(setTimeout(fn, ms)); };
+  const clear = () => { st.current.timers.forEach(clearTimeout); st.current.timers = []; };
+  const dur = (k, m) => (fast() ? 1100 : Math.max(1600, 3600 - k * 120) + ((m && m.extra) || 0));
+  // side : 0 (en haut, a) ou 1 (en bas, b) ; won : il a réussi (sinon il s'est trompé, l'autre marque)
+  const settle = (side, won) => {
+    const s = st.current;
+    if (s.settled || !s.mg) return;
+    s.settled = true;
+    clear();
+    const winner = side == null ? null : won ? side : 1 - side;
+    if (winner != null) { s.sc[winner] += 1; blip(winner ? 660 : 880, 0.08, 'triangle', 0.05); buzz(30); } else blip(200, 0.2, 'sawtooth', 0.04);
+    s.k += 1;
+    setView({ phase: 'point', mg: s.mg, k: s.k, sc: s.sc.slice(), who: winner });
+    later(next, fast() ? 200 : 900);
+  };
+  function next() {
+    const s = st.current;
+    if (s.sc[0] >= to || s.sc[1] >= to) {
+      setView((v) => ({ ...v, phase: 'over' }));
+      later(() => onDone({ a: s.sc[0], b: s.sc[1] }), fast() ? 300 : 2000);
+      return;
+    }
+    let m = pickOne(pool);
+    if (pool.length > 1) while (s.mg && m.id === s.mg.id) m = pickOne(pool);
+    s.mg = m;
+    s.settled = false;
+    const k = s.k;
+    setView({ phase: 'intro', mg: m, k, sc: s.sc.slice(), who: null });
+    later(() => {
+      setView({ phase: 'play', mg: m, k, sc: s.sc.slice(), who: null });
+      later(() => settle(null, false), dur(k, m)); // personne n'a réussi : manche nulle
+    }, fast() ? 250 : 700);
+  }
+  useEffect(() => { next(); return clear; }, []);
+  const { phase, mg, k, sc, who } = view;
+  const lvl = Math.min(6, 1 + Math.floor(k / 2));
+  const half = (side) => (
+    <div class={`wd-half ${side ? 'b' : 'a'}${phase === 'point' && who === side ? ' is-win' : ''}${phase === 'point' && who === 1 - side ? ' is-lose' : ''}`}>
+      <div class="wd-top"><span class="wd-name">{side ? b : a}</span><span class="wd-sc">{sc[side]}</span></div>
+      {phase === 'intro' && mg ? <p class="ware-word" key={`w${k}`}>{mg.word}</p> : null}
+      {phase === 'play' && mg ? (
+        <div class="ware-play" data-mg={mg.id} key={`p${k}${side}`}>
+          <p class="ware-mini">{mg.word}</p>
+          <mg.C lvl={lvl} win={() => settle(side, true)} lose={() => settle(side, false)} onTimeout={() => {}} />
+          <span class="ware-bar" style={{ '--d': `${dur(k, mg)}ms` }} aria-hidden="true" />
+        </div>
+      ) : null}
+      {phase === 'point' ? <p class={`ware-flash ${who === side ? 'ok' : 'ko'}`} key={`f${k}`}>{who == null ? 'Nul' : who === side ? 'Point !' : 'Raté'}</p> : null}
+      {phase === 'over' ? <p class="ware-word">{sc[side] >= to ? 'Gagné' : 'Hors service'}</p> : null}
+    </div>
+  );
+  return (
+    <Arena cls="ware ware-duel" label="Duel Hors Service Ware" state={phase}>
+      {half(0)}
+      <div class="duel-mid" aria-hidden="true" />
+      {half(1)}
     </Arena>
   );
 }
@@ -354,6 +528,33 @@ function Table({ S, g, uid, dev }) {
   useEffect(() => { if (!needsPermission()) probeSensors(900).then(setSensors); }, []);
   if (g.phase === 'end') return <End S={S} g={g} uid={uid} />;
   const L = (S.game.opts && S.game.opts.lives) || 3;
+  if (g.duel) {
+    const [a, b] = g.duel;
+    const to = (S.game.opts && S.game.opts.to) || 5;
+    return (
+      <div class="ware-table">
+        {run && g.phase === 'ready' ? (
+          <DuelRun a={nickOf(S, a)} b={nickOf(S, b)} to={to} key={g.step} onDone={(r) => dev.host('game', { id: 'duelres', arg: { step: g.step, ...r } })} />
+        ) : null}
+        <div class="duel-card paper pose">
+          {g.phase === 'ready' ? (
+            <>
+              <div class="duel-vs"><span><Av p={S.roster[a]} size="l" />{nickOf(S, a)}</span><em>contre</em><span><Av p={S.roster[b]} size="l" />{nickOf(S, b)}</span></div>
+              <p class="muted">Posez le téléphone entre vous deux. {nickOf(S, a)} joue en haut, {nickOf(S, b)} en bas. Même consigne pour les deux : le premier qui réussit marque, celui qui se trompe donne le point. Premier à {to}.</p>
+              <button type="button" class="btn btn-main btn-big btn-wide" onClick={() => { unlockAudio(); setRun(true); }}>Lancer le duel</button>
+            </>
+          ) : null}
+          {g.phase === 'result' && g.res ? (
+            <div class="duel-res">
+              <Stamp>{g.res.sw} – {g.res.sl}</Stamp>
+              <p><b>{nickOf(S, g.res.w)}</b> gagne le duel contre <b>{nickOf(S, g.res.l)}</b>.</p>
+              <p class="muted">Chaque manche perdue coûte {plural(g.res.n, 'gorgée', 'gorgées')}. Le vainqueur reste, le suivant le défie.</p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
   return (
     <div class="ware-table">
       {run && g.phase === 'ready' ? (

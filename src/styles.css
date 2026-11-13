@@ -1741,3 +1741,27 @@ h3 { font-size: 1.1rem; }
 .co-hand .pc-s .pc-mid { font-size: 1.1rem; }
 .co-hand .pc-s .pc-corner { font-size: .75rem; }
 .co-suits .btn-big { min-height: 48px; }
+
+/* ---------- Hors Service Ware : nouveaux micro-jeux et duel */
+.mg-grid.g4 { grid-template-columns: repeat(4, 1fr); }
+.mg-feu { background: #3A1414; }
+.mg-feu.is-go { background: #1F5A3E; }
+.mg-seq { display: flex; gap: 6px; justify-content: center; }
+.mg-seq .mg-arrow { width: 56px; height: 56px; }
+.mg-pad { display: grid; grid-template-columns: repeat(3, 72px); grid-template-rows: repeat(3, 72px); gap: 6px; }
+.mg-pad .mg-arrow { width: 40px; height: 40px; }
+.mg-arw.a-haut { grid-area: 1 / 2; } .mg-arw.a-gauche { grid-area: 2 / 1; } .mg-arw.a-droite { grid-area: 2 / 3; } .mg-arw.a-bas { grid-area: 3 / 2; }
+.mg-free { position: absolute; }
+.mg-dot { position: absolute; width: 58px; height: 58px; margin: 0; padding: 0; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid var(--papier); background: var(--jaune); touch-action: none; }
+.mg-dot.is-red { background: var(--rouge-vif); }
+.ware-duel { flex-direction: column; }
+.wd-half { position: relative; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.wd-half.a { transform: rotate(180deg); }
+.wd-half.is-win { background: rgba(108, 201, 168, .14); }
+.wd-half.is-lose { background: rgba(229, 80, 47, .14); }
+.wd-top { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; }
+.wd-name { font-weight: 700; }
+.wd-sc { font: 400 1.8rem/1 var(--f-titre); color: var(--jaune); }
+.wd-half .ware-word { font-size: clamp(2rem, 11vw, 3.4rem); }
+.wd-half .mg-big { font-size: 3.4rem; }
+.wd-half .mg-hold { width: 150px; height: 150px; }

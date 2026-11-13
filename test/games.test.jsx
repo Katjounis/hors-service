@@ -589,8 +589,8 @@ async function testSansAlcool() {
 async function testArcade() {
   console.log('Jeux arcade : Dégaine, Bombe, Hors Service Ware');
   ok(GAMES.degaine.solo && GAMES.bombe.solo && GAMES.ware.solo, 'les trois jeux arcade se jouent sur un seul téléphone');
-  ok(MICRO.length >= 10 && MICRO.length <= 15 && MICRO.filter((m) => m.sensor).length === 3, `Ware : ${MICRO.length} micro-jeux, dont 3 avec capteurs`);
-  ok(microMs(0) === 5000 && microMs(5) < 5000 && microMs(40) === 3000, 'Ware : de 5 s à 3 s par micro-jeu, de plus en plus vite');
+  ok(MICRO.length >= 16 && MICRO.filter((m) => m.sensor).length === 3, `Ware : ${MICRO.length} micro-jeux, dont 3 avec capteurs`);
+  ok(microMs(0) === 3400 && microMs(5) < 3400 && microMs(40) === 1400, 'Ware : de 3,4 s à 1,4 s par micro-jeu, de plus en plus vite');
   {
     // chacun son téléphone : le moteur refuse les jeux arcade (et pas seulement l'interface)
     const { host: h2 } = await party(3);
