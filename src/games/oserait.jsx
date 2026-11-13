@@ -82,7 +82,7 @@ const OSERAIT = {
     'Quand tout le monde a voté, les résultats s’affichent.',
     'Le ou les joueurs les plus désignés prennent autant de gorgées que de votes reçus (ou un gage, ou des points, pour qui joue sans alcool).',
     'De temps en temps, un « tour double » double les gorgées.',
-    'Avant de lancer, l’hôte choisit le paquet de questions : Classique, Alcool, Cul ou HARD. Cul et HARD sont désactivés par défaut : l’hôte les active dans les réglages de la soirée, et ils ne s’ouvrent que si tout le monde a réglé ses limites sur « Piquant ».',
+    'Avant de lancer, l’hôte choisit le paquet de questions : Classique, Alcool, Cul ou HARD. Cul et HARD sont désactivés par défaut : l’hôte les active avec l’interrupteur « Mode Cul et HARD » du salon, et ils ne s’ouvrent que si tout le monde a réglé ses limites sur « Piquant ».',
     'Avec l’option « votes révélés », on voit qui a voté pour qui.',
   ],
   options: [

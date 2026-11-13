@@ -67,7 +67,7 @@ const TUPREF = {
     'Révélation : ceux qui sont dans la minorité boivent. Seul contre tous : double peine.',
     'Égalité parfaite : tout le monde boit une gorgée. Tout le monde d’accord : personne ne boit.',
     'Sur un seul téléphone : à trois, tout le monde lève la main pour la première option, on touche ceux qui l’ont levée.',
-    'Niveaux Soft, HARD et Cul à mélanger. HARD et Cul s’activent dans les réglages de la soirée, si toute la table est en « Piquant ».',
+    'Niveaux Soft, HARD et Cul à mélanger. HARD et Cul s’activent avec l’interrupteur « Mode Cul et HARD » du salon, si toute la table est en « Piquant ».',
   ],
   options: [
     { id: 'levels', label: 'Niveaux (un ou plusieurs)', multi: true, choices: [['soft', 'Soft'], ['hard', 'HARD', 3, 'adult'], ['cul', 'Cul', 3, 'adult']], def: ['soft'] },

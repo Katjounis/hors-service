@@ -26,7 +26,9 @@ function fontCSS(inline) {
   }).join('\n');
 }
 
-const css = readFileSync('src/styles.css', 'utf8');
+import { lightCSS } from './tools/light-theme.mjs';
+const css0 = readFileSync('src/styles.css', 'utf8');
+const css = `${css0}\n${lightCSS(css0)}`;
 
 const common = {
   bundle: true,

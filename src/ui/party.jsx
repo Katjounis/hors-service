@@ -12,6 +12,7 @@ import { saveEvening, summarize } from '../lib/stats.js';
 import { WrappedView } from './wrapped.jsx';
 import { GagesEditor } from './stats.jsx';
 import { Mentions, Confidentialite } from './legal.jsx';
+import { PrefToggles } from './prefs.jsx';
 import { ProfileFields, Seg, PartyFields, AdultPacks, defaultProfile, penMode } from './screens.jsx';
 
 // ------------------------------------------------------------------ utilitaires
@@ -245,6 +246,7 @@ function Lobby({ dev, S, local }) {
       {!local && dev.isHost ? <QRBlock code={S.code} /> : null}
       <Register dev={dev} S={S} local={local} list={list} />
       {!local && !dev.isHost ? <p class="muted">L’hôte choisit le jeu. Tu peux lire les règles en attendant.</p> : null}
+      <SpicySwitch dev={dev} S={S} local={local} />
       <section class="sec games-sec">
         <div class="games-h">
           <h2>Jeux</h2>
@@ -288,6 +290,35 @@ function Lobby({ dev, S, local }) {
   );
 }
 
+// Interrupteur « Mode Cul et HARD », en vue dans le salon (plus besoin d'aller dans le menu).
+// L'activer passe aussi l'ambiance de la soirée en « Piquant » ; chacun garde ses propres limites.
+function SpicySwitch({ dev, S, local }) {
+  const [ask, setAsk] = useState(false);
+  const on = !!S.cfg.adult;
+  const host = !!local || dev.isHost;
+  const low = seats(S).filter((u) => (S.roster[u].lim || 3) < 3);
+  const flip = () => { if (!host) return; if (on) dev.host('settings', { adult: false }); else setAsk(true); };
+  return (
+    <div class={`spicy${on ? ' is-on' : ''}`}>
+      <button type="button" class="spicy-btn" role="switch" aria-checked={on ? 'true' : 'false'} disabled={!host} onClick={flip}>
+        <span class="spicy-knob" aria-hidden="true" />
+        <span class="spicy-t">Mode Cul et HARD</span>
+        <span class="spicy-s">{on ? 'Activé' : 'Désactivé'}</span>
+      </button>
+      {on && low.length ? <p class="small spicy-h">Limites plus basses pour {low.map((u) => S.roster[u].nick).join(', ')} : ces paquets restent fermés tant qu’ils n’ont pas mis « Piquant ».</p> : null}
+      {!host && !on ? <p class="small spicy-h">Seul l’hôte peut l’activer.</p> : null}
+      {ask ? (
+        <div class="quit paper tape pose" role="alertdialog" aria-label="Activer le mode Cul et HARD ?">
+          <p><b>Activer le mode Cul et HARD ?</b> Questions sexuelles et humour sur des situations limites, entre adultes. Tout le monde à la table est d’accord ?</p>
+          <div class="bus-btns two">
+            <button type="button" class="btn" onClick={() => setAsk(false)}>Annuler</button>
+            <button type="button" class="btn btn-main" onClick={() => { setAsk(false); dev.host('settings', { adult: true, level: 3 }); }}>Oui, activer</button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 function GameSheet({ dev, S, G, local, onClose }) {
   const [opts, setOpts] = useState(() => Object.fromEntries((G.options || []).map((o) => [o.id, o.def])));
   const present = seats(S).filter((u) => isOnline(dev, u, local));
@@ -341,7 +372,7 @@ function GameSheet({ dev, S, G, local, onClose }) {
                   </div>
                 ) : <Seg name={o.label} value={opts[o.id]} onChange={(v) => setOpts({ ...opts, [o.id]: v })} options={o.choices} off={off} />}
                 {o.multi && !opts[o.id].some((v) => !off(v)) ? <span class="field-h">Coche au moins un niveau.</span> : null}
-                {adultLocked ? <span class="field-h">Cul et HARD sont désactivés : l’hôte peut les activer dans Menu › Réglages de la soirée.</span> : null}
+                {adultLocked ? <span class="field-h">Cul et HARD sont désactivés : l’hôte les active avec l’interrupteur « Mode Cul et HARD » du salon.</span> : null}
                 {locked && !adultLocked ? <span class="field-h">Certains paquets demandent que tout le monde ait réglé ses limites sur « Piquant », et une ambiance « Piquant » pour la soirée.</span> : null}
               </div>
             );
@@ -751,6 +782,7 @@ function MenuSheet({ dev, S, local, onClose }) {
   return (
     <Sheet title="Menu" onClose={onClose}>
       <div class="menu">
+        <PrefToggles compact />
         {!local ? item('Mon profil', () => setTab('profile')) : null}
         {item('Compteur de la soirée', () => setTab('tally'))}
         {item('Récap de la soirée (story)', () => setTab('recap'))}

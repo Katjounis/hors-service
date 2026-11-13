@@ -1947,3 +1947,34 @@ h3 { font-size: 1.1rem; }
 .pe-q { display: flex; align-items: center; justify-content: center; gap: 18px; }
 .pe-q .btn { min-width: 52px; min-height: 48px; font-size: 1.4rem; }
 @media (prefers-reduced-motion: reduce) { .tp-opt { animation: none; } }
+
+/* Interrupteur « Mode Cul et HARD » dans le salon */
+.spicy { display: flex; flex-direction: column; gap: 6px; }
+.spicy-btn { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; background: var(--surface); border: 2px solid var(--filet); color: var(--papier); text-align: left; cursor: pointer; font: inherit; }
+.spicy-btn:disabled { cursor: default; }
+.spicy-knob { position: relative; width: 48px; height: 26px; background: var(--bitume-3); border: 2px solid var(--poussiere); }
+.spicy-knob::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--poussiere); transition: transform .18s ease-out, background-color .18s; }
+.spicy-t { font: 400 1.05rem/1.1 var(--f-titre); text-transform: uppercase; }
+.spicy-s { font-size: .9rem; color: var(--poussiere); font-weight: 700; }
+.spicy.is-on .spicy-btn { border-color: #EE305C; background: #3A1620; }
+.spicy.is-on .spicy-knob { background: #EE305C; border-color: #EE305C; }
+.spicy.is-on .spicy-knob::after { transform: translateX(22px); background: #FFFDF6; }
+.spicy.is-on .spicy-s { color: #FFB0C4; }
+.spicy-h { margin: 0; color: var(--poussiere); }
+@media (prefers-reduced-motion: reduce) { .spicy-knob::after { transition: none; } }
+
+/* Lisibilité des écrans de formulaire posés sur le décor (créer, rejoindre, ajouter un joueur) */
+.screen > .form, .screen .stack > .form { background: var(--surface); border: 2px solid var(--filet); padding: 14px 12px; }
+.screen > p, .screen > .hint, .top-sub { text-shadow: 0 1px 2px #000, 0 0 8px #000; }
+.screen > .hint { background: var(--surface); padding: 10px 12px; text-shadow: none; }
+.btn.btn-main:disabled { background: #5A5244; border-color: #5A5244; color: #E6DCC8; opacity: 1; }
+
+/* Mode clair et langue (accueil et menu) */
+.games-h { background: var(--surface); padding: 6px 8px; }
+.prefs { display: flex; gap: 8px; flex-wrap: wrap; }
+.pref-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; background: var(--surface); border: 2px solid var(--filet); color: var(--papier); font: 700 .95rem var(--f-texte); cursor: pointer; }
+.pref-btn:hover { border-color: var(--papier); }
+.pref-dot { width: 14px; height: 14px; border: 2px solid currentColor; background: #F2EADB; }
+.pref-dot.is-light { background: #1C1A17; }
+.prefs.is-compact { margin-bottom: 8px; }
+.prefs.is-compact .pref-btn { flex: 1; justify-content: center; }

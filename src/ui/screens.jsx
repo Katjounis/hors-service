@@ -1,4 +1,5 @@
 // Écrans hors soirée : âge, accueil, profil, créer, rejoindre.
+import { PrefToggles } from './prefs.jsx';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { normalizeCode, isPartyCode, sanitizeNick, avatarId } from '../lib/util.js';
 import { Av } from './common.jsx';
@@ -9,7 +10,7 @@ import { LEVELS, CS_CHOICES, DEFAULT_CFG } from '../core/host.js';
 export const LEVEL_HELP = {
   1: 'Questions et gages bon enfant.',
   2: 'Chambrage et situations absurdes.',
-  3: 'Coquin et limite, toujours pour rire. Les paquets Cul et HARD s’activent à part, dans les réglages.',
+  3: 'Coquin et limite, toujours pour rire. Les paquets Cul et HARD s’activent à part, avec l’interrupteur du salon.',
 };
 // ce que coûte une pénalité à ce joueur : gorgées, gages ou points (mode sans alcool)
 export const penMode = (p) => (!p || p.drink ? 'Gorgées' : p.sob === 'points' ? 'Points' : 'Gages');
@@ -243,6 +244,7 @@ export function Home({ dev, onLocal, onDemo, onResumeLocal, joinCode, preview, n
       </div>
       <h1 class="visually-hidden">Hors Service</h1>
       <p class="lead home-lead">Jeux de soirée, avec ou sans alcool.</p>
+      <PrefToggles />
       {dev.error ? <p class="panel panel-warn" role="alert">{dev.error}</p> : null}
       <div class="home-choices">
         {onResumeLocal ? (
