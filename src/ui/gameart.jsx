@@ -126,6 +126,16 @@ function Scene({ kind, id }) {
 }
 
 const ART = {
+  coinche: () => (
+    <>
+      <Card x={96} y={104} r={-22} rank="V" suit="♥" />
+      <Card x={130} y={96} r={-8} rank="9" suit="♥" />
+      <Card x={164} y={96} r={8} rank="A" suit="♠" red={false} />
+      <Card x={198} y={104} r={22} rank="10" suit="♣" red={false} />
+      <rect x="112" y="150" width="76" height="22" fill="#FFD23F" stroke="#22201C" stroke-width="2" transform="rotate(-6 150 161)" />
+      <text x="150" y="167" text-anchor="middle" font-size="15" fill="#22201C" font-family="Dela Gothic One, sans-serif" transform="rotate(-6 150 161)">COINCHE</text>
+    </>
+  ),
   garou: () => (
     <>
       <path d="M96 168 L104 92 L84 52 L116 74 L150 64 L184 74 L216 52 L196 92 L204 168 Z" fill="#4A4F5A" />

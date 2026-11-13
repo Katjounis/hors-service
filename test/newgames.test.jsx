@@ -4,6 +4,7 @@ import { Device } from '../src/core/device.js';
 import { GAMES } from '../src/games/index.js';
 import { Bot } from '../src/ui/demo.jsx';
 import { deal, ROLES } from '../src/games/garou.jsx';
+import { legal, winnerOf, deck32, points } from '../src/games/coinche.jsx';
 
 let passed = 0;
 let failed = 0;
@@ -89,6 +90,31 @@ async function testGarou() {
     const r = await botRun('garou', { version: v, sips: 3 }, n, (g) => g.phase === 'end', 60000);
     ok(r.done, `GlouGlou Garou ${v} à ${n} : partie terminée (${r.g.phase}, nuit ${r.g.night}, vainqueur ${r.g.winner})`);
     console.log(`   ${v} à ${n} : ${r.g.night} nuits, vainqueur ${r.g.winner}, morts ${Object.keys(r.g.dead).length}, actions hôte ${r.hostActs}`);
+  }
+}
+
+async function testCoinche() {
+  console.log('Coinche');
+  const d = deck32();
+  ok(d.length === 32 && new Set(d).size === 32, '32 cartes');
+  for (const t of ['S', 'H', 'D', 'C']) ok(d.reduce((a, c) => a + points(c, t), 0) === 152, `152 points à ${t}`);
+  // fournir
+  ok(legal(['7H', 'AS', 'KS'], [{ seat: 1, c: '9S' }], 'H', 2).join() === 'AS,KS', 'on fournit la couleur demandée');
+  // couper si l'adversaire est maître
+  ok(legal(['7H', 'AD'], [{ seat: 1, c: '9S' }], 'H', 2).join() === '7H', 'pas de pique : on coupe');
+  // partenaire maître : défausse libre
+  ok(legal(['7H', 'AD'], [{ seat: 0, c: 'AS' }, { seat: 1, c: '7S' }], 'H', 2).join() === '7H,AD', 'partenaire maître : défausse libre');
+  // monter à l'atout
+  ok(legal(['7H', 'JH', 'QH'], [{ seat: 1, c: '9H' }], 'H', 2).join() === 'JH', 'atout demandé : on monte si possible');
+  ok(legal(['7H', 'QH'], [{ seat: 1, c: '9H' }], 'H', 2).join() === '7H,QH', 'impossible de monter : n’importe quel atout');
+  // surcouper
+  ok(legal(['7H', 'JH', 'AD'], [{ seat: 0, c: 'AS' }, { seat: 1, c: 'TH' }], 'H', 2).join() === 'JH', 'adversaire a coupé : on surcoupe');
+  ok(winnerOf([{ seat: 0, c: 'AS' }, { seat: 1, c: '7H' }, { seat: 2, c: 'TS' }, { seat: 3, c: 'KS' }], 'H') === 1, 'le petit atout prend l’As');
+  ok(winnerOf([{ seat: 0, c: '9H' }, { seat: 1, c: 'AH' }, { seat: 2, c: 'JH' }], 'H') === 2, 'le Valet d’atout est maître');
+  for (const target of [0, 500]) {
+    const r = await botRun('coinche', { target, sips: 3 }, 4, (g) => g.phase === 'end' || (target === 0 && g.phase === 'score'), 60000);
+    ok(r.done, `Coinche en ${target || 'une donne'} : partie terminée (${r.g.phase}, donnes ${r.g.dealN}, score ${r.g.score})`);
+    console.log(`   ${target || 'une donne'} : ${r.g.dealN} donnes, score ${r.g.score.join(' – ')}`);
   }
 }
 
