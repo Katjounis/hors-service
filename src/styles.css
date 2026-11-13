@@ -1669,3 +1669,18 @@ h3 { font-size: 1.1rem; }
 .btn.btn-mort, .btn.btn-mort:hover:not(:disabled) { background: var(--rouge); color: #FFF4EC; border-color: var(--rouge-vif); }
 .btn.btn-mort:hover:not(:disabled) { background: #B02A1A; }
 .btn.btn-mort.is-armed { background: var(--jaune); color: var(--encre); border-color: var(--jaune); }
+/* décor v2 : salon sur toute la largeur, lampe posée au sol, cadres au mur */
+.amb-salon { left: 0; right: 0; translate: none; width: 100%; height: clamp(170px, 36vh, 360px); max-height: none; }
+.amb-cadres { position: absolute; top: calc(70px + env(safe-area-inset-top, 0px)); right: 3%; width: min(40vw, 240px); height: auto; opacity: .38; }
+.amb-lampe { display: none; }
+/* choix principal de l'accueil : jaune (le fond par défaut passait par-dessus) */
+.choice.choice-main, .choice.choice-main:hover { background: var(--jaune); border-color: var(--jaune); color: var(--encre); }
+.choice.choice-main:hover { background: var(--jaune-2); }
+.choice.choice-main .choice-d { color: #3A3328; }
+.choice.choice-main .choice-ico { background: rgba(34, 32, 28, .12); }
+:root { --deco-h: clamp(160px, 30vh, 300px); }
+.amb-salon { left: 50%; right: auto; translate: -50% 0; height: var(--deco-h); width: max(100%, calc(var(--deco-h) * 8 / 3)); }
+.amb-mur::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--deco-h) * 70 / 300); background: #2A1B12; border-top: 1px solid #1E130C; }
+.home { padding-bottom: calc(var(--deco-h) - 20px); }
+.home-foot { background: #1A1214; border: 2px solid var(--filet); padding: 10px 12px 2px; }
+@media (min-width: 900px) { :root { --deco-h: clamp(220px, 40vh, 380px); } }

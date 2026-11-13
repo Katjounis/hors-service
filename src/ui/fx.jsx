@@ -142,84 +142,112 @@ function Fenetre({ id }) {
   );
 }
 
-// ---- lampe sur pied : abat-jour et cône de lumière (teinte de l'ambiance)
-function Lampe({ id }) {
+// ---- cadres au mur (haut droite) : une affiche de concert, un paysage, un petit miroir rond
+function Cadres() {
   return (
-    <svg class="amb-lampe" viewBox="0 0 160 520" aria-hidden="true" focusable="false">
-      <defs>
-        <radialGradient id={`${id}-lp`} cx=".5" cy=".18" r=".7">
-          <stop offset="0" style={{ stopColor: 'rgb(var(--d1))', stopOpacity: 0.32 }} />
-          <stop offset="1" style={{ stopColor: 'rgb(var(--d1))', stopOpacity: 0 }} />
-        </radialGradient>
-      </defs>
-      <ellipse cx="80" cy="110" rx="80" ry="150" fill={`url(#${id}-lp)`} />
-      <path d="M44 40 H116 L132 104 H28 Z" style={{ fill: 'rgb(var(--d1))' }} fill-opacity=".55" />
-      <path d="M44 40 H116 L132 104 H28 Z" fill="none" stroke="#2A1F18" stroke-width="2" />
-      <path d="M80 104 V500" stroke="#2A2420" stroke-width="5" />
-      <ellipse cx="80" cy="506" rx="34" ry="8" fill="#2A2420" />
+    <svg class="amb-cadres" viewBox="0 0 220 260" aria-hidden="true" focusable="false">
+      <path d="M60 4 L36 40 M60 4 L84 40" stroke="#4A3A2E" stroke-width="1.5" />
+      <rect x="20" y="40" width="80" height="108" fill="#3A2E26" />
+      <rect x="27" y="47" width="66" height="94" fill="#C8301E" />
+      <circle cx="60" cy="84" r="20" fill="#FFD23F" />
+      <rect x="34" y="114" width="52" height="6" fill="#F2EADB" />
+      <rect x="40" y="125" width="40" height="4" fill="#F2EADB" fill-opacity=".7" />
+      <rect x="118" y="20" width="92" height="70" fill="#3A2E26" />
+      <rect x="124" y="26" width="80" height="58" fill="#2E4A5A" />
+      <path d="M124 70 L150 46 L170 62 L184 50 L204 68 V84 H124 Z" fill="#3E6B4A" />
+      <circle cx="190" cy="38" r="6" fill="#E9E1CF" fill-opacity=".8" />
+      <circle cx="164" cy="150" r="30" fill="#3A2E26" />
+      <circle cx="164" cy="150" r="24" fill="#5A6470" fill-opacity=".6" />
+      <path d="M150 140 L164 130" stroke="#E9E1CF" stroke-opacity=".5" stroke-width="3" />
     </svg>
   );
 }
 
-// ---- le salon en bas : canapé, table basse en fin de soirée (verres, bouteilles couchées, boîte de pizza,
-// paquet de chips, cartes à jouer, bougie), parquet. Dessin 400 × 220, posé en bas de l'écran.
+// ---- le salon en bas, sur toute la largeur (dessin 800 × 300, centré, recadré sur les côtés au téléphone) :
+// au mur un grand tableau et une étagère de vinyles ; au sol une plante, le canapé, la table basse en bazar
+// (pizza, bouteilles, verres, chips, cartes, bougie) et la lampe sur pied posée sur le parquet.
 function Salon({ id }) {
   const glass = { fill: 'rgba(255, 255, 255, .06)', stroke: 'rgba(255, 246, 230, .4)', 'stroke-width': 1.2, 'stroke-linejoin': 'round' };
   return (
-    <svg class="amb-salon" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
-      {/* canapé */}
-      <path d="M18 92 Q18 70 40 70 H360 Q382 70 382 92 V150 H18 Z" fill="#3B2430" />
-      <path d="M34 86 Q34 78 44 78 H196 V128 H34 Z" fill="#46293A" />
-      <path d="M204 78 H356 Q366 78 366 86 V128 H204 Z" fill="#46293A" />
-      <rect x="6" y="96" width="34" height="62" rx="8" fill="#33202A" />
-      <rect x="360" y="96" width="34" height="62" rx="8" fill="#33202A" />
-      <path d="M262 96 l26 -10 l14 26 l-28 8 z" fill="#C8301E" fill-opacity=".7" />
-      <path d="M70 98 q20 -14 44 0 l-6 22 h-34 z" fill="#E7C877" fill-opacity=".35" />
+    <svg class="amb-salon" viewBox="0 0 800 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id={`${id}-lp`} cx=".5" cy=".3" r=".6">
+          <stop offset="0" style={{ stopColor: 'rgb(var(--d1))', stopOpacity: 0.3 }} />
+          <stop offset="1" style={{ stopColor: 'rgb(var(--d1))', stopOpacity: 0 }} />
+        </radialGradient>
+      </defs>
+      {/* grand tableau au-dessus du canapé */}
+      <rect x="318" y="14" width="164" height="70" fill="#3A2E26" />
+      <rect x="325" y="21" width="150" height="56" fill="#E9DFC9" />
+      <path d="M325 60 Q360 30 400 52 T475 40 V77 H325 Z" fill="#C8301E" fill-opacity=".75" />
+      <circle cx="355" cy="40" r="9" fill="#FFD23F" />
+      {/* étagère de vinyles (à gauche) */}
+      <rect x="92" y="64" width="120" height="6" fill="#5A3A22" />
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => <rect key={i} x={98 + i * 9} y={30 + (i % 3) * 3} width="7" height={34 - (i % 3) * 3} fill={['#2E4A5A', '#C8301E', '#E7C877', '#3E6B4A', '#5A2430', '#F2EADB', '#22201C'][i]} />)}
+      <circle cx="185" cy="46" r="17" fill="#141110" />
+      <circle cx="185" cy="46" r="5" fill="#C8301E" />
+      <rect x="92" y="110" width="120" height="6" fill="#5A3A22" />
+      {[0, 1, 2, 3, 4].map((i) => <rect key={i} x={100 + i * 13} y={84 + (i % 2) * 4} width="10" height={26 - (i % 2) * 4} fill={['#E7C877', '#2E4A5A', '#F2EADB', '#C8301E', '#3E6B4A'][i]} />)}
+      {/* petit tableau à droite */}
+      <rect x="600" y="40" width="64" height="80" fill="#3A2E26" />
+      <rect x="606" y="46" width="52" height="68" fill="#1F5A3E" />
+      <path d="M632 60 l10 18 h-20 z" fill="#FFD23F" />
       {/* parquet */}
-      <rect x="0" y="150" width="400" height="70" fill="#2A1B12" />
-      {[0, 1, 2, 3, 4].map((i) => <path key={i} d={`M0 ${158 + i * 14} H400`} stroke="#1E130C" stroke-width="1.5" />)}
-      {[30, 110, 190, 270, 350, 70, 150, 230, 310].map((x, i) => <path key={i} d={`M${x} ${150 + (i < 5 ? 0 : 14)} v14`} stroke="#1E130C" stroke-width="1.5" />)}
+      <rect x="0" y="230" width="800" height="70" fill="#2A1B12" />
+      {[0, 1, 2, 3, 4].map((i) => <path key={i} d={`M0 ${238 + i * 14} H800`} stroke="#1E130C" stroke-width="1.5" />)}
+      {Array.from({ length: 20 }, (_, i) => <path key={i} d={`M${(i * 80 + (i % 2) * 40) % 800} ${230 + (i % 5) * 14} v14`} stroke="#1E130C" stroke-width="1.5" />)}
+      {/* plante */}
+      <rect x="120" y="196" width="40" height="36" fill="#8A4A2E" />
+      <rect x="116" y="192" width="48" height="8" fill="#9A5A3A" />
+      {[[-38, 70], [-20, 92], [0, 104], [20, 90], [38, 72]].map(([dx, h], i) => (
+        <path key={i} d={`M140 194 Q${140 + dx * 0.4} ${194 - h * 0.6} ${140 + dx} ${194 - h}`} stroke="#3E6B4A" stroke-width="9" stroke-linecap="round" fill="none" />
+      ))}
+      {/* canapé */}
+      <path d="M218 172 Q218 150 240 150 H560 Q582 150 582 172 V230 H218 Z" fill="#3B2430" />
+      <path d="M234 166 Q234 158 244 158 H396 V208 H234 Z" fill="#46293A" />
+      <path d="M404 158 H556 Q566 158 566 166 V208 H404 Z" fill="#46293A" />
+      <rect x="206" y="176" width="34" height="62" fill="#33202A" />
+      <rect x="560" y="176" width="34" height="62" fill="#33202A" />
+      <path d="M462 176 l26 -10 l14 26 l-28 8 z" fill="#C8301E" fill-opacity=".7" />
+      <path d="M270 178 q20 -14 44 0 l-6 22 h-34 z" fill="#E7C877" fill-opacity=".35" />
+      {/* lampe sur pied, posée au sol à droite */}
+      <ellipse cx="660" cy="150" rx="90" ry="110" fill={`url(#${id}-lp)`} />
+      <path d="M632 120 H688 L702 168 H618 Z" style={{ fill: 'rgb(var(--d1))' }} fill-opacity=".55" />
+      <path d="M632 120 H688 L702 168 H618 Z" fill="none" stroke="#2A1F18" stroke-width="2" />
+      <path d="M660 168 V284" stroke="#2A2420" stroke-width="4" />
+      <ellipse cx="660" cy="286" rx="22" ry="5" fill="#1A120C" />
       {/* table basse */}
-      <rect x="40" y="150" width="320" height="12" fill="#5A3A22" />
-      <rect x="40" y="150" width="320" height="3" fill="#7A5232" />
-      <rect x="54" y="162" width="10" height="40" fill="#4A2E1A" />
-      <rect x="336" y="162" width="10" height="40" fill="#4A2E1A" />
-      {/* boîte de pizza ouverte */}
-      <path d="M60 150 L64 140 H132 L128 150 Z" fill="#B88A55" />
-      <path d="M70 140 L76 116 H136 L132 140 Z" fill="#C99A62" />
-      <path d="M72 148 l18 -6 l10 6 z" fill="#E7B04A" fill-opacity=".8" />
-      <circle cx="84" cy="146" r="2" fill="#B23A22" />
-      {/* cartes éparpillées */}
-      <rect x="140" y="144" width="14" height="6" fill="#F2EADB" transform="rotate(-12 147 147)" />
-      <rect x="150" y="145" width="14" height="5" fill="#F2EADB" transform="rotate(8 157 147)" />
-      {/* bouteille couchée */}
-      <path d="M170 146 H206 Q212 146 214 144 H226 V150 H214 Q212 148 206 148 H170 Q166 148 166 147 Q166 146 170 146 Z" fill="#2E4A2A" />
-      {/* bouteilles debout */}
-      <path d="M232 150 V112 Q232 104 238 100 V86 H244 V100 Q250 104 250 112 V150 Z" fill="rgba(52, 36, 18, .9)" stroke="rgba(255, 236, 200, .25)" stroke-width="1" />
-      <rect x="235" y="118" width="12" height="14" fill="rgba(242, 234, 219, .35)" />
-      <path d="M256 150 V120 Q256 114 260 111 V100 H265 V111 Q269 114 269 120 V150 Z" fill="#1F3A2A" stroke="rgba(255, 236, 200, .2)" stroke-width="1" />
-      {/* verres */}
-      <path d="M182 124 C176 124 172 116 172 104 H192 C192 116 188 124 182 124 Z" {...glass} />
-      <path d="M173.3 112 C174 119 178 123 182 123 C186 123 190 119 190.7 112 Z" style={{ fill: 'rgba(var(--d2), .6)' }} />
-      <path d="M182 124 V146" {...glass} />
-      <ellipse cx="182" cy="148" rx="8" ry="2" {...glass} />
-      <path d="M200 126 L202 149 H216 L218 126 Z" {...glass} />
-      <path d="M200.8 136 L202.4 148 H215.6 L217.2 136 Z" style={{ fill: 'rgba(var(--d1), .5)' }} />
-      <path d="M278 132 L280 149 H292 L294 132 Z" {...glass} />
-      <path d="M296 128 L300 116 L308 118 L306 128 Z" {...glass} transform="rotate(64 302 124)" />
-      {/* paquet de chips */}
-      <path d="M312 150 L316 122 Q326 118 336 122 L340 150 Z" fill="#C8301E" fill-opacity=".85" />
-      <path d="M318 132 H334" stroke="#FFD23F" stroke-width="3" />
-      {/* bougie */}
-      <rect x="344" y="138" width="10" height="12" fill="rgba(242, 234, 219, .6)" />
-      <path d="M349 138 V134" stroke="#2A2622" stroke-width="1" />
+      <rect x="240" y="230" width="320" height="12" fill="#5A3A22" />
+      <rect x="240" y="230" width="320" height="3" fill="#7A5232" />
+      <rect x="254" y="242" width="10" height="40" fill="#4A2E1A" />
+      <rect x="536" y="242" width="10" height="40" fill="#4A2E1A" />
+      <path d="M260 230 L264 220 H332 L328 230 Z" fill="#B88A55" />
+      <path d="M270 220 L276 196 H336 L332 220 Z" fill="#C99A62" />
+      <path d="M272 228 l18 -6 l10 6 z" fill="#E7B04A" fill-opacity=".8" />
+      <rect x="340" y="224" width="14" height="6" fill="#F2EADB" transform="rotate(-12 347 227)" />
+      <rect x="350" y="225" width="14" height="5" fill="#F2EADB" transform="rotate(8 357 227)" />
+      <path d="M370 226 H406 Q412 226 414 224 H426 V230 H414 Q412 228 406 228 H370 Q366 228 366 227 Q366 226 370 226 Z" fill="#2E4A2A" />
+      <path d="M432 230 V192 Q432 184 438 180 V166 H444 V180 Q450 184 450 192 V230 Z" fill="rgba(52, 36, 18, .9)" stroke="rgba(255, 236, 200, .25)" stroke-width="1" />
+      <rect x="435" y="198" width="12" height="14" fill="rgba(242, 234, 219, .35)" />
+      <path d="M456 230 V200 Q456 194 460 191 V180 H465 V191 Q469 194 469 200 V230 Z" fill="#1F3A2A" stroke="rgba(255, 236, 200, .2)" stroke-width="1" />
+      <path d="M382 204 C376 204 372 196 372 184 H392 C392 196 388 204 382 204 Z" {...glass} />
+      <path d="M373.3 192 C374 199 378 203 382 203 C386 203 390 199 390.7 192 Z" style={{ fill: 'rgba(var(--d2), .6)' }} />
+      <path d="M382 204 V226" {...glass} />
+      <ellipse cx="382" cy="228" rx="8" ry="2" {...glass} />
+      <path d="M400 206 L402 229 H416 L418 206 Z" {...glass} />
+      <path d="M400.8 216 L402.4 228 H415.6 L417.2 216 Z" style={{ fill: 'rgba(var(--d1), .5)' }} />
+      <path d="M478 212 L480 229 H492 L494 212 Z" {...glass} />
+      <path d="M512 230 L516 202 Q526 198 536 202 L540 230 Z" fill="#C8301E" fill-opacity=".85" />
+      <path d="M518 212 H534" stroke="#FFD23F" stroke-width="3" />
+      <rect x="544" y="218" width="10" height="12" fill="rgba(242, 234, 219, .6)" />
+      <path d="M549 218 V214" stroke="#2A2622" stroke-width="1" />
     </svg>
   );
 }
 
 function Flamme({ id }) {
   return (
-    <svg class="amb-salon amb-flamme" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+    <svg class="amb-salon amb-flamme" viewBox="0 0 800 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
       <defs>
         <radialGradient id={`${id}-fl`}>
           <stop offset="0" stop-color="#FFD58A" stop-opacity=".5" />
@@ -227,8 +255,8 @@ function Flamme({ id }) {
           <stop offset="1" stop-color="#FF9F45" stop-opacity="0" />
         </radialGradient>
       </defs>
-      <circle cx="349" cy="130" r="26" fill={`url(#${id}-fl)`} />
-      <path d="M349 127 C352 130 352 133 349 135 C346 133 346 130 349 127 Z" fill="#FFE2A6" />
+      <circle cx="549" cy="210" r="26" fill={`url(#${id}-fl)`} />
+      <path d="M549 207 C552 210 552 213 549 215 C546 213 546 210 549 207 Z" fill="#FFE2A6" />
     </svg>
   );
 }
@@ -241,7 +269,7 @@ export function Ambiance({ game = null }) {
     <div class={`ambiance${game ? ' is-game' : ''}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
       <i class="amb-mur" />
       <Fenetre id={id} />
-      <Lampe id={id} />
+      <Cadres />
       <i class="amb-ombre" />
       <Salon id={id} />
       <Flamme id={id} />
