@@ -1982,3 +1982,22 @@ h3 { font-size: 1.1rem; }
 /* Tampons longs (« 1 gorgée chacun ») : ils passent à la ligne au lieu de déborder de l'écran */
 .tampon { white-space: normal; max-width: 100%; overflow-wrap: break-word; text-align: center; }
 .verdict-line .tampon-l { font-size: clamp(1.5rem, 7.5vw, 2.3rem); max-width: calc(100% - 12px); }
+
+/* Textes d'aide posés directement sur le décor (accueil, un seul téléphone, créer, rejoindre) : toujours sur un fond plein */
+.screen .hint, .screen > p.muted, .screen > .stack > p.muted, .screen > .lead, .local-setup > p, .lobby > p.muted {
+  background: var(--surface); border: 2px solid var(--filet); padding: 10px 12px; color: var(--papier); text-shadow: none;
+}
+.screen .hint { font-size: .9rem; }
+
+/* Mur de l'appart (src/ui/mur.jsx) : plein écran, recadré au centre, sous l'ombre et le salon */
+.sc-appart .amb-mur { background: #2A1D24; }
+.mu { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .78; }
+.mu-reflet { animation: reflet 2.6s ease-in-out infinite alternate; }
+.mu-reflet.r1 { animation-delay: -.9s; }
+.mu-reflet.r2 { animation-delay: -1.7s; }
+.mu-enseigne { animation: enseigne 7s steps(1) infinite; }
+.mu-halo { animation: vacille 4.5s ease-in-out infinite alternate; }
+@keyframes reflet { from { opacity: .1; } to { opacity: .9; } }
+@keyframes enseigne { 0%, 92% { opacity: 1; } 93% { opacity: .35; } 95% { opacity: 1; } 96% { opacity: .5; } 97%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mu-reflet, .mu-enseigne, .mu-halo { animation: none !important; } }
+.sc-appart .amb-ombre::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--deco-h) * 70 / 300); background: #2A1B12; border-top: 2px solid #1E130C; }

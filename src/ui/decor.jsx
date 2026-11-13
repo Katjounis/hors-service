@@ -6,6 +6,8 @@
 // Animations légères (transform / opacity) : fenêtres qui s'allument, bougie et lampe, bulles et vapeur,
 // silhouettes qui se balancent. Tout s'arrête avec prefers-reduced-motion.
 
+import { MurAppart } from './mur.jsx';
+
 const W = 800;
 const H = 300;
 
@@ -73,10 +75,36 @@ function Appart() {
       <Perso x={200} y={198} s={1.2} d={0} />
       <Perso x={252} y={196} s={1.1} flip d={0.8} />
       <Perso x={226} y={204} s={1.25} glass={false} d={1.6} />
-      {/* posters scotchés */}
-      <g transform="rotate(-4 335 70)"><rect x="300" y="24" width="56" height="78" fill="#C8301E" /><circle cx="328" cy="56" r="15" fill="#FFD23F" /><rect x="308" y="80" width="40" height="5" fill="#F2EADB" /><rect x="314" y="89" width="28" height="4" fill="#F2EADB" fill-opacity=".7" /><rect x="318" y="18" width="20" height="10" fill="#D9D0BD" fill-opacity=".85" /></g>
-      <g transform="rotate(3 525 64)"><rect x="490" y="22" width="76" height="84" fill="#2E4A5A" /><path d="M496 92 L520 56 L536 76 L548 62 L560 92 Z" fill="#6CC9A8" /><text x="528" y="44" text-anchor="middle" font-size="12" fill="#F2EADB" font-family="Dela Gothic One, sans-serif">FEST</text><rect x="516" y="16" width="22" height="10" fill="#D9D0BD" fill-opacity=".85" /></g>
-      <g transform="rotate(-2 420 56)"><rect x="386" y="30" width="68" height="52" fill="#F2EADB" /><text x="420" y="62" text-anchor="middle" font-size="14" fill="#22201C" font-family="Dela Gothic One, sans-serif">BAR</text><rect x="408" y="24" width="22" height="10" fill="#D9D0BD" fill-opacity=".85" /></g>
+      {/* affiches scotchées : un vrai concert, un photomaton, une affiche de film */}
+      <g transform="rotate(-4 335 70)">
+        <rect x="300" y="24" width="58" height="80" fill="#E7C877" />
+        <rect x="300" y="24" width="58" height="16" fill="#22201C" />
+        <text x="329" y="36" text-anchor="middle" font-size="9" fill="#E7C877" font-family="Dela Gothic One, sans-serif">CONCERT</text>
+        <circle cx="329" cy="60" r="14" fill="#C8301E" />
+        <path d="M322 84 L325 60 Q329 55 333 60 L336 84 Z" fill="#22201C" /><circle cx="329" cy="54" r="4" fill="#22201C" />
+        <path d="M314 70 L342 62 L343 65 L315 73 Z" fill="#22201C" />
+        <rect x="308" y="90" width="42" height="4" fill="#22201C" /><rect x="314" y="97" width="30" height="3" fill="#22201C" fill-opacity=".6" />
+        <rect x="318" y="18" width="20" height="10" fill="#D9D0BD" fill-opacity=".85" />
+      </g>
+      <g transform="rotate(-2 420 66)">
+        <rect x="398" y="22" width="44" height="96" fill="#F4EFE4" />
+        {[0, 1, 2].map((i) => (
+          <g key={i}>
+            <rect x="402" y={26 + i * 30} width="36" height="26" fill={['#C8301E', '#2E4A5A', '#E7C877'][i]} />
+            <circle cx={414 + (i % 2) * 6} cy={36 + i * 30} r="5" fill="#22201C" /><path d={`M${407 + (i % 2) * 6} ${52 + i * 30} q7 -10 14 0 z`} fill="#22201C" />
+            <circle cx={428 - (i % 2) * 4} cy={37 + i * 30} r="5" fill="#22201C" /><path d={`M${421 - (i % 2) * 4} ${52 + i * 30} q7 -10 14 0 z`} fill="#22201C" />
+          </g>
+        ))}
+        <rect x="410" y="16" width="20" height="10" fill="#D9D0BD" fill-opacity=".85" />
+      </g>
+      <g transform="rotate(3 525 64)">
+        <rect x="488" y="20" width="76" height="92" fill="#18203A" />
+        <circle cx="544" cy="42" r="11" fill="#E9E1CF" />
+        <path d="M488 84 L498 72 H504 V58 H512 V76 H520 V64 H530 V80 H540 V70 H550 V86 H564 V112 H488 Z" fill="#0C0F1A" />
+        {[494, 506, 516, 526, 536, 548, 556].map((x, i) => <rect key={i} x={x} y={80 + (i % 3) * 5} width="2.5" height="3" fill="#F2C46A" />)}
+        <text x="526" y="104" text-anchor="middle" font-size="11" fill="#E7C877" font-family="Dela Gothic One, sans-serif">LA NUIT</text>
+        <rect x="516" y="14" width="22" height="10" fill="#D9D0BD" fill-opacity=".85" />
+      </g>
       {/* parquet */}
       <rect x="0" y="230" width={W} height="70" fill="#2A1B12" />
       {[0, 1, 2, 3, 4].map((i) => <path key={i} d={`M0 ${238 + i * 14} H${W}`} stroke="#1E130C" stroke-width="1.5" />)}
@@ -293,7 +321,7 @@ export function DecorBas({ scene }) {
 }
 
 export function DecorHaut({ scene, Fenetre, Cadres, id }) {
-  if (scene === 'appart') return <><Fenetre id={id} /><Cadres /></>;
+  if (scene === 'appart') return <MurAppart id={id} />;
   if (scene === 'tapis') return <LampeSuspendue />;
   if (scene === 'plateau') return <Projecteurs />;
   if (scene === 'foret') {
