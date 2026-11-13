@@ -1587,6 +1587,15 @@ h3 { font-size: 1.25rem; }
 @media (min-width: 700px) {
   .games-rail { width: 100vw; margin-left: calc(50% - 50vw); margin-right: 0; padding-left: max(16px, calc(50vw - 264px)); padding-right: 32px; scroll-padding: 0 max(16px, calc(50vw - 264px)); }
 }
+/* boutons : les variantes passent après le fond par défaut (sinon le bouton principal perd son jaune) */
+.btn-main, .paper .btn-main { background: var(--jaune); border-color: var(--jaune); color: var(--encre); }
+.btn-main:hover:not(:disabled), .paper .btn-main:hover:not(:disabled) { background: var(--jaune-2); border-color: var(--jaune-2); }
+.btn-main:disabled { background: var(--jaune); color: var(--encre); }
+.btn-ghost, .btn-ghost:hover:not(:disabled) { background: transparent; }
+.btn.is-on { background: var(--papier); color: var(--encre); }
+.btn-mort, .btn-mort:hover:not(:disabled) { background: var(--rouge); }
+.btn-mort:hover:not(:disabled) { background: #B02A1A; }
+.btn-mort.is-armed { background: var(--jaune); }
 </style>
 </head>
 <body>
