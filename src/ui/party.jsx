@@ -407,7 +407,7 @@ function GameScreen({ dev, S, G, local }) {
       {req ? (
         <ErrorBoundary>
           <G.Act S={S} g={g} secret={dev.secret} uid={uid} req={req} clock={clock} dev={dev}
-            send={(k, v) => dev.gameInput(k, v)} post={(k, v) => dev.gameInput(k, v)} sent={dev.isSent(req.k)} />
+            send={(k, v) => dev.gameInput(k, v)} post={(k, v) => dev.gamePost(k, v)} sent={!req.live && dev.isSent(req.k)} />
           <Retry dev={dev} k={`${S.game.seq}:${req.k}`} />
         </ErrorBoundary>
       ) : null}
@@ -490,7 +490,7 @@ function LocalTurns({ dev, S, G, local }) {
     const d = local.deviceOf(u);
     if (!d) continue;
     const r = G.request({ S, g, secret: d.secret, uid: u, now: dev.backend.now(), local: true });
-    if (r && !d.isSent(r.k)) { pending = { u, d, r }; break; }
+    if (r && (r.live || !d.isSent(r.k))) { pending = { u, d, r }; break; }
   }
   if (!pending) return null;
   const { u, d, r } = pending;
@@ -509,7 +509,7 @@ function LocalTurns({ dev, S, G, local }) {
     <div class="local-act">
       <p class="local-who"><Av p={S.roster[u]} size="s" /> À <b>{nickOf(S, u)}</b></p>
       <G.Act S={S} g={g} secret={d.secret} uid={u} req={r} local clock={() => dev.backend.now()} dev={d}
-        send={(k, v) => { d.gameInput(k, v); setShown(null); }} post={(k, v) => d.gameInput(k, v)} sent={d.isSent(r.k)} />
+        send={(k, v) => { d.gameInput(k, v); setShown(null); }} post={(k, v) => d.gamePost(k, v)} sent={!r.live && d.isSent(r.k)} />
     </div>
   );
 }

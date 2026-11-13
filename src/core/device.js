@@ -299,6 +299,12 @@ export class Device {
     this.input(`${this.S.game.seq}:${k}`, v);
   }
 
+  // envois « en direct » (traits du dessin, propositions) : plusieurs envois sur la même demande, sans la marquer
+  gamePost(k, v) {
+    if (!this.S || !this.S.game) return;
+    this.input(`${this.S.game.seq}:${k}`, v, { mark: false });
+  }
+
   // vrai si l'action vient d'être envoyée (6 s) : au-delà, on peut la renvoyer
   recent(fullKey) {
     const t = this.sent[fullKey];

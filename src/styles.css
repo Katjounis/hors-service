@@ -1856,3 +1856,4 @@ h3 { font-size: 1.1rem; }
 .dc-pulse { transform-box: fill-box; transform-origin: center; animation: pulse-hp .48s ease-in-out infinite alternate; }
 @keyframes pulse-hp { from { transform: scale(.92); } to { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .dc-sway, .dc-bulle, .dc-fumee, .dc-flamme, .dc-lampe, .dc-pulse { animation: none !important; } }
+.dz-pad .dz-wrap { width: min(100%, 44vh); }
