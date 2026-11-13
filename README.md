@@ -12,9 +12,9 @@ Jeux de soirée sur téléphone, pour adultes (18 ans et plus), avec ou sans alc
 | # | Jeu | Le principe | Joueurs |
 |---|-----|-------------|---------|
 | 01 | Qui oserait… ? | Une question, un vote secret. Le plus désigné boit autant de gorgées que de votes reçus. | 3+ |
-| 02 | Le 96 | On additionne les cartes de tête sans dépasser 96. Le total n’est jamais affiché. Mauvaise annonce : cul sec. | 2+ |
-| 03 | Pipoteur | Tout le monde a le même mot, sauf le pipoteur, qui ne le sait pas. Indices à voix haute, vote secret. | 3+ |
-| 04 | Purple | Rouge, noir ou purple. Deux bonnes réponses d’affilée pour passer la main, sinon tu bois la pile. | 2+ |
+| 02 | Le 96 | On additionne les cartes de tête sans dépasser 96. Le total n’est jamais affiché, sauf quelques secondes en grand quand l’annonce est juste. Mauvaise annonce : cul sec. | 2+ |
+| 03 | Pipoteur | Tout le monde a le même mot, sauf le pipoteur, qui a un mot voisin et ne le sait pas. Familles de mots (un mot, plusieurs voisins possibles), niveaux Soft, HARD et Cul. | 3+ |
+| 04 | Purple | Rouge, noir ou purple. Deux bonnes réponses d’affilée pour passer la main, sinon tu bois la pile. Bouton « Purple jusqu’à la mort » : l’appli tire jusqu’au purple, une gorgée par carte avant. | 2+ |
 | 05 | Hippodrome | Quatre As en course. Tu paries des gorgées sur l’un d’eux : le classement décide qui distribue et qui boit. | 2+ |
 | 06 | Toutankhamon | Tu mémorises tes cartes, puis tu donnes ou tu bluffes à chaque carte retournée. Test de mémoire à la fin. | 2+ |
 | 07 | Quiz sur les autres | Une question sur un joueur. Chacun écrit une réponse en secret, puis on vote pour la meilleure. | 3+ |
@@ -24,7 +24,7 @@ Jeux de soirée sur téléphone, pour adultes (18 ans et plus), avec ou sans alc
 | 11 | Hors Service Ware | Une rafale de micro-jeux de 3 à 5 secondes, consigne d’un mot, de plus en plus vite. Chaque vie perdue est une pénalité. | 2+ · un seul téléphone |
 | 12 | Je n’ai jamais | Une carte, et tous ceux pour qui c’est vrai boivent. Trois niveaux à mélanger : Soft, HARD et Cul. | 2+ |
 
-Je n’ai jamais : trois niveaux à cocher, seuls ou ensemble (Soft, HARD hors sexe, Cul). HARD et Cul sont des paquets adultes, désactivés par défaut (Menu › Réglages de la soirée).
+Je n’ai jamais et Pipoteur : trois niveaux à cocher, seuls ou ensemble (Soft, HARD hors sexe, Cul). HARD et Cul sont des paquets adultes, désactivés par défaut (Menu › Réglages de la soirée).
 
 Aussi : stats et records gardés sur le téléphone, gages maison (partage par lien ou QR code), récap « story » de fin de soirée.
 
