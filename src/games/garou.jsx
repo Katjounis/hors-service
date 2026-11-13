@@ -49,8 +49,23 @@ const STEP_LABEL = {
   loups: 'Les Loups-Garous se réveillent et choisissent leur victime.',
   sorciere: 'La Sorcière se réveille et regarde ses potions.',
   mixologue: 'Le Mixologue se réveille et prépare ses cocktails.',
+  tour: 'Le téléphone fait le tour : chacun regarde en secret, agit s’il a un pouvoir, puis le passe.',
+  potions: 'Dernier tour de téléphone : quelqu’un prépare peut-être une potion…',
 };
-const ORDER = ['cupidon', 'voyante', 'pompette', 'barman', 'loups', 'sorciere', 'mixologue'];
+const ORDER = ['cupidon', 'loups', 'voyante', 'pompette', 'barman', 'sorciere', 'mixologue'];
+// un seul téléphone : un seul tour de téléphone par nuit (chacun fait son action, ou « je dors »),
+// plus un second tour rapide s'il y a une Sorcière ou un Mixologue (elle doit connaître la victime)
+const witchOf = (g) => g.dealt.find((r) => r === 'sorciere' || r === 'mixologue');
+export function localKind(g, role) {
+  if (g.step === 'tour') {
+    if (role === 'loup') return 'wolf';
+    if (role === 'cupidon') return g.night === 1 ? 'cupidon' : 'dummy';
+    if (role === 'voyante' || role === 'pompette' || role === 'barman') return role;
+    return 'dummy';
+  }
+  if (g.step === 'potions' && (role === 'sorciere' || role === 'mixologue')) return role;
+  return 'dummy';
+}
 
 const alive = (g) => g.pl.filter((u) => !g.dead[u]);
 const roleOf = (c, u) => c.priv.roles[u];
@@ -63,14 +78,15 @@ function pushSecret(c, u) {
   const s = { game: 'garou', gid: g.gid, role, alive: !g.dead[u], visions: P.visions[u] || [] };
   if (role === 'loup') s.mates = g.pl.filter((x) => x !== u && P.roles[x] === 'loup');
   if (P.lovers && P.lovers.includes(u)) s.lover = P.lovers.find((x) => x !== u);
-  if (role === 'sorciere' || role === 'mixologue') { s.potions = { ...P.potions }; s.victim = g.step === role ? P.victim : null; }
-  if (role === 'loup' && g.step === 'loups') s.wvotes = { ...P.wolfVotes };
+  if (role === 'sorciere' || role === 'mixologue') { s.potions = { ...P.potions }; s.victim = g.step === role || g.step === 'potions' ? P.victim : null; }
+  if (role === 'loup' && (g.step === 'loups' || g.step === 'tour')) s.wvotes = { ...P.wolfVotes };
   if (role === 'barman') s.last = P.lastServed || null;
   c.setSecret(u, s);
 }
 function pushAll(c) { for (const u of c.g.pl) if (c.roster[u]) pushSecret(c, u); }
 
 function stepsFor(c, g) {
+  if (g.local) return witchOf(g) ? ['tour', 'potions'] : ['tour'];
   return ORDER.filter((st) => {
     if (st === 'cupidon') return g.night === 1 && g.dealt.includes('cupidon');
     if (st === 'loups') return true;
@@ -91,6 +107,7 @@ function startNight(c) {
   P.served = null;
   P.wolfVotes = {};
   g.log.push({ t: 'night', n: g.night });
+  if (g.local) for (const u of g.pl) { if (P.visions[u]) P.visions[u] = P.visions[u].slice(); }
   nextStep(c);
 }
 
@@ -104,7 +121,7 @@ function nextStep(c) {
   const P = c.priv;
   // rôle mort (ou personne) : on fait semblant quelques secondes pour ne rien trahir
   const who = g.step === 'loups' ? null : holder(c, g, g.step);
-  P.fake = !g.local && g.step !== 'loups' && (!who || g.dead[who]) ? c.now() + 3500 + Math.random() * 3000 : 0;
+  P.fake = !g.local && g.step !== 'loups' && (!who || g.dead[who]) ? c.now() + 2000 + Math.random() * 1800 : 0;
   if (g.step === 'loups') { P.wolfVotes = {}; }
   pushAll(c);
 }
@@ -113,6 +130,13 @@ function nextStep(c) {
 function progress(c) {
   const g = c.g;
   const al = alive(g);
+  if (g.local) {
+    // un seul téléphone : l'étape est finie quand tout le monde est passé (et que la Voyante a vu sa vision)
+    if (!al.every((u) => g.done[u])) return;
+    if (al.some((u) => ['voyante', 'pompette'].includes(c.priv.roles[u]) && localKind(g, c.priv.roles[u]) !== 'dummy' && !g.done[`${u}ok`])) return;
+    if (g.step === 'tour') resolveWolves(c); else nextStep(c);
+    return;
+  }
   if (g.step === 'loups') {
     if (!wolvesAlive(c, g).every((w) => g.done[w])) return;
     if (g.local && !al.every((u) => g.done[u])) return;
@@ -311,6 +335,11 @@ const GAROU = {
     if (g.dead[uid] && g.phase !== 'shoot') return null;
     if (g.phase === 'night') {
       const k = `n${g.night}${g.step}`;
+      if (g.local) {
+        const kind = localKind(g, secret.role);
+        if (g.done[uid]) return (kind === 'voyante' || kind === 'pompette') && !g.done[`${uid}ok`] ? { k: `${k}ok`, kind: 'vision', secret: true } : null;
+        return { k, kind, secret: true };
+      }
       if (g.done[uid]) {
         // la Voyante voit le résultat avant de rendre le téléphone
         if ((g.step === 'voyante' || g.step === 'pompette') && secret.role === g.step && !g.done[`${uid}ok`]) return { k: `${k}ok`, kind: 'vision', secret: true };
@@ -342,6 +371,27 @@ const GAROU = {
       const role = P.roles[uid];
       if (k === `${base}ok` && g.done[uid]) { g.done[`${uid}ok`] = true; progress(c); return true; }
       if (k !== base || g.done[uid]) return false;
+      if (g.local) {
+        const kind = localKind(g, role);
+        if (kind === 'dummy') { g.done[uid] = true; progress(c); return true; }
+        if (kind === 'wolf') { if (!live(v) || P.roles[v] === 'loup') return false; P.wolfVotes[uid] = v; }
+        else if (kind === 'cupidon') { if (!Array.isArray(v) || v.length !== 2 || v[0] === v[1] || !v.every(live)) return false; P.lovers = v.slice(); }
+        else if (kind === 'barman') { if (!live(v) || v === P.lastServed) return false; P.served = v; P.lastServed = v; }
+        else if (kind === 'voyante' || kind === 'pompette') {
+          if (!live(v) || v === uid) return false;
+          let seen = P.roles[v];
+          if (kind === 'pompette' && Math.random() < 1 / 3) { const o = Object.keys(ROLES).filter((r) => r !== seen && g.dealt.includes(r)); seen = o[Math.floor(Math.random() * o.length)] || seen; }
+          P.visions[uid] = [...(P.visions[uid] || []), { u: v, role: seen, n: g.night }];
+        } else if (kind === 'sorciere' || kind === 'mixologue') {
+          if (!v || typeof v !== 'object') return false;
+          if (v.save && P.potions.vie && P.victim) { P.saved = true; P.potions.vie = false; }
+          if (v.kill && P.potions.mort && live(v.kill) && v.kill !== uid) { P.poison = v.kill; P.potions.mort = false; }
+        }
+        g.done[uid] = true;
+        pushAll(c);
+        progress(c);
+        return true;
+      }
       const mine = g.step === 'loups' ? role === 'loup' : role === g.step;
       if (!mine) {
         if (!g.local) return false;
@@ -480,7 +530,7 @@ const GAROU = {
     const any = (list) => list[Math.floor(Math.random() * list.length)];
     if (!req) return undefined;
     if (req.kind === 'role' || req.kind === 'vision') return true;
-    if (req.kind === 'dummy') return any(alive(g));
+    if (req.kind === 'dummy') return true;
     if (req.kind === 'wolf') return any(others.filter((u) => !(secret.mates || []).includes(u))) || any(others);
     if (req.kind === 'cupidon') { const a = any(alive(g)); return [a, any(alive(g).filter((u) => u !== a))]; }
     if (req.kind === 'sorciere' || req.kind === 'mixologue') return { save: Math.random() < 0.5, kill: Math.random() < 0.25 ? any(others) : null };
@@ -587,8 +637,9 @@ function End({ S, g, uid }) {
 
 // ---------------------------------------------------------------- actions secrètes
 
-function RoleCard({ secret }) {
+function RoleCard({ secret, small }) {
   const R = ROLES[secret.role];
+  if (small) return <p class="garou-mini">Ton rôle : <b>{R.name}</b>{secret.lover ? ' · amoureux' : ''}</p>;
   return (
     <div class={`garou-role word-card paper${secret.role === 'loup' ? ' is-wolf' : ''}`}>
       <span>Tu es</span>
@@ -706,8 +757,9 @@ function Act({ S, g, uid, req, send, sent, secret }) {
     return (
       <div class="act">
         <h3>Tu dors…</h3>
-        <p class="hint">Ce n’est pas ton tour. Fais semblant : touche un joueur au hasard, puis rends le téléphone.</p>
-        <PlayerGrid S={S} uids={alive(g)} onPick={(u) => send(req.k, u)} disabled={sent} />
+        <RoleCard secret={secret} small />
+        <p class="hint">Pas d’action pour toi cette fois. Prends ton temps comme si tu jouais, puis passe le téléphone.</p>
+        <button type="button" class="btn btn-main btn-big btn-wide" disabled={sent} onClick={() => send(req.k, true)}>Je dors, au suivant</button>
       </div>
     );
   }

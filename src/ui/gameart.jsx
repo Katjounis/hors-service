@@ -25,6 +25,7 @@ function Card({ x, y, r = 0, s = 1, rank = 'A', suit = '♥', red = true, back =
 const SCENE = {
   oserait: 'brique', 96: 'tapis', pipoteur: 'scene', purple: 'tapis', hippodrome: 'piste', toutankhamon: 'sable',
   autres: 'brique', trouve: 'tapis', degaine: 'saloon', bombe: 'scene', ware: 'damier', jamais: 'brique',
+  garou: 'nuit', coinche: 'tapis', buzzer: 'scene', dessin: 'brique',
 };
 function Scene({ kind, id }) {
   const p = `sc-${id}`;
@@ -156,15 +157,20 @@ const ART = {
   ),
   garou: () => (
     <>
-      <path d="M96 168 L104 92 L84 52 L116 74 L150 64 L184 74 L216 52 L196 92 L204 168 Z" fill="#4A4F5A" />
-      <path d="M118 104 l14 6 l-14 4 z M182 104 l-14 6 l14 4 z" fill="#FFD23F" />
-      <path d="M132 140 h36 l-6 12 h-24 z" fill="#22201C" />
-      <path d="M136 140 l4 6 l4 -6 M156 140 l4 6 l4 -6" fill="#F2EADB" />
-      <rect x="208" y="120" width="34" height="46" fill="#E7B04A" stroke="#22201C" stroke-width="2" />
-      <path d="M242 128 h8 a8 8 0 0 1 0 22 h-8" fill="none" stroke="#22201C" stroke-width="3" />
-      <rect x="206" y="112" width="38" height="12" fill="#F2EADB" />
+      <circle cx="196" cy="58" r="40" fill="#E9E1CF" />
+      <circle cx="182" cy="48" r="7" fill="#D6CCB4" />
+      <circle cx="210" cy="72" r="5" fill="#D6CCB4" />
+      <path d="M60 182 Q120 150 186 160 Q240 168 262 182 Z" fill="#1A1F2C" />
+      <path d="M92 168 C78 170 66 166 62 156 C72 161 84 160 92 155 L104 128 C110 112 122 100 134 92 L135 70 L143 81 L150 77 L176 58 L180 63 L163 79 L167 85 L152 94 C150 108 152 124 154 140 L157 168 Z" fill="#0B0E16" />
+      <path d="M118 168 L116 150 L124 150 L126 168 Z" fill="#0B0E16" />
+      <circle cx="148" cy="80" r="1.6" fill="#FFD23F" />
+      <rect x="196" y="140" width="26" height="30" fill="#E7B04A" stroke="#0B0E16" stroke-width="2" />
+      <path d="M222 146 h6 a6 6 0 0 1 0 16 h-6" fill="none" stroke="#0B0E16" stroke-width="3" />
+      <path d="M194 140 q4 -8 10 -4 q4 -7 10 -2 q6 -4 10 4 z" fill="#F2EADB" />
+      <path d="M200 148 v16 M208 148 v16 M216 148 v16" stroke="#C99A3A" stroke-width="1.5" />
     </>
   ),
+
   oserait: () => (
     <>
       <path d="M92 46h116a18 18 0 0 1 18 18v52a18 18 0 0 1-18 18h-56l-22 22v-22h-38a18 18 0 0 1-18-18V64a18 18 0 0 1 18-18z" fill={CREME} />

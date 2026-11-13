@@ -1307,7 +1307,7 @@ h3 { font-size: 1.25rem; }
 .register h2 { font-size: 1.1rem; margin: 0; }
 .register .players { flex-direction: row; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px 2px; }
 .register .players::-webkit-scrollbar { display: none; }
-.register .player, .register .player:first-child, .players .player { flex: none; flex-direction: column; flex-wrap: nowrap; gap: 4px; width: 68px; min-height: 0; padding: 4px 0; border: 0; text-align: center; }
+.register .player, .register .player:first-child { flex: none; flex-direction: column; flex-wrap: nowrap; gap: 4px; width: 68px; min-height: 0; padding: 4px 0; border: 0; text-align: center; }
 .register .player-n, .register .player-meta { display: none; }
 .register .player-name { flex: none; justify-content: center; font-size: .85rem; max-width: 68px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block; }
 .register .player-name em { display: none; }
@@ -1813,3 +1813,21 @@ h3 { font-size: 1.1rem; }
 .dz-tools .btn { padding: 4px; font-size: .82rem; }
 .dz-pad .dz-wrap { width: min(100%, 52vh); margin: 0 auto; }
 .dz .dz-canvas:not(.is-big) { width: min(100%, 48vh); margin: 0 auto; }
+
+/* listes de joueurs (préparation, menu « Joueurs et places ») : cartes côte à côte, pas une colonne */
+.players { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.register .players { display: flex; }
+.players .player, .players .player:first-child { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-height: 0;
+  padding: 8px; border: 2px solid var(--filet); background: var(--surface); }
+.players .player-n { width: auto; font-size: .75rem; }
+.players .player-name { flex: 1 1 60px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.players .player-meta { flex-basis: 100%; text-align: left; font-size: .8rem; order: 5; }
+.players .player .icon-btn { width: 36px; height: 36px; min-height: 36px; }
+.players .row-btns { flex-basis: 100%; justify-content: flex-end; }
+.players .player-mode { flex-basis: 100%; margin-top: 0; }
+.register .players .player { border: 0; background: transparent; padding: 4px 0; }
+.players .player { position: relative; padding-right: 46px; }
+.players .player > .icon-btn { position: absolute; top: 6px; right: 6px; }
+.players .player-mode .seg-btn { font-size: .78rem; padding: 4px 6px; min-height: 40px; }
+.players .player-mode .seg { flex-wrap: nowrap; }
+.players .player-n ~ .player-name { flex-basis: 100%; }
