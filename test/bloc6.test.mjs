@@ -1,0 +1,56 @@
+// Bloc 6 : mentions légales et confidentialité depuis l'accueil et le menu, effacement des données.
+import { createRequire } from 'node:module';
+import { createServer } from 'node:http';
+import { readFileSync, mkdirSync } from 'node:fs';
+
+const { chromium } = createRequire(import.meta.url)('playwright');
+const SHOTS = process.argv[2] || 'dist/shots';
+mkdirSync(SHOTS, { recursive: true });
+const html = readFileSync('dist/preview.html');
+const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
+await new Promise((r) => server.listen(5186, r));
+let pass = 0, fail = 0;
+const ok = (c, m) => { if (c) pass++; else { fail++; console.log('  ✗', m); } };
+const errors = [];
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+const page = await ctx.newPage();
+page.on('pageerror', (e) => errors.push(e.message));
+page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+
+await page.goto('http://localhost:5186/');
+await page.getByRole('button', { name: 'J’ai 18 ans ou plus' }).click();
+console.log('Bloc 6 : mentions légales');
+await page.getByRole('button', { name: 'Mentions légales' }).click();
+await page.waitForTimeout(400);
+ok(await page.evaluate(() => window.scrollY) === 0, 'la page s’ouvre en haut (titre visible), même depuis le bas de l’accueil');
+const m = await page.locator('.legal').innerText();
+ok(/rester anonymes/.test(m) && /1-1, II/.test(m), 'éditeurs non professionnels anonymes (LCEN, article 1-1, II)');
+ok(/GitHub, Inc\.[\s\S]*88 Colin P\. Kelly Jr\. Street, San Francisco, CA 94107/.test(m), 'hébergeur de l’appli : GitHub, Inc. avec son adresse');
+ok(/Cloudflare, Inc\.[\s\S]*101 Townsend Street, San Francisco, CA 94107/.test(m), 'hébergeur des salons : Cloudflare, Inc. avec son adresse');
+await page.screenshot({ path: `${SHOTS}/b6-01-mentions.png`, fullPage: true });
+await page.getByRole('button', { name: 'Retour' }).click();
+console.log('Bloc 6 : confidentialité');
+await page.getByRole('button', { name: 'Confidentialité' }).click();
+await page.waitForTimeout(400);
+const c = await page.locator('.legal').innerText();
+ok(/reste sur ce téléphone/.test(c) && /6 heures/.test(c) && /pseudos, les avatars/.test(c), 'tout reste sur le téléphone, sauf les échanges temporaires des salons (effacés après 6 h)');
+await page.screenshot({ path: `${SHOTS}/b6-02-confidentialite.png`, fullPage: true });
+await page.evaluate(() => localStorage.setItem('hs:gages', JSON.stringify(['test'])));
+await page.getByRole('button', { name: 'Effacer toutes mes données' }).click();
+await page.getByRole('button', { name: 'Tout effacer' }).click();
+ok(await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('hs:')).length) === 0, 'effacer toutes mes données vide le stockage de l’appli');
+await page.getByRole('button', { name: 'Retour' }).click();
+console.log('Bloc 6 : depuis le menu de la soirée');
+await page.reload();
+await page.getByRole('button', { name: 'J’ai 18 ans ou plus' }).click();
+await page.getByRole('button', { name: 'Jouer sur un seul téléphone' }).click();
+for (const nick of ['Thierry', 'Samuel']) { await page.locator('#local-nick').fill(nick); await page.getByRole('button', { name: `Ajouter ${nick}` }).click(); }
+await page.getByRole('button', { name: 'Mettre en service à 2' }).click();
+await page.getByRole('button', { name: 'Menu' }).click();
+ok(await page.getByRole('button', { name: 'Mentions légales' }).count() === 1 && await page.getByRole('button', { name: 'Confidentialité' }).count() === 1, 'les deux pages sont dans le menu');
+ok(errors.length === 0, `aucune erreur en console (${errors.slice(0, 3).join(' | ')})`);
+await browser.close();
+server.close();
+console.log(`\n${pass} vérifications (bloc 6) réussies, ${fail} échec(s)`);
+process.exit(fail ? 1 : 0);
