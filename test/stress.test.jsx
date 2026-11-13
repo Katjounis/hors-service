@@ -221,7 +221,7 @@ async function stressLocal(G, n, ms) {
   const MS = Number(process.argv[2] || 14000);
   try {
     for (const G of GAME_LIST) {
-      const n = G.id === 'pipoteur' ? 7 : G.id === 'toutankhamon' ? 5 : 5;
+      const n = G.id === 'pipoteur' ? 7 : Math.max(5, (G.min || 0) + 2);
       const e0 = errors.length;
       if (G.solo) {
         ok(await soloRefused(G), `${G.name} : refusé quand chacun a son téléphone`);
@@ -235,7 +235,7 @@ async function stressLocal(G, n, ms) {
       }
       if (G.local !== false) {
         const e1 = errors.length;
-        const l = await stressLocal(G, 4, Math.round(MS * 0.6));
+        const l = await stressLocal(G, Math.max(4, G.min || 0), Math.round(MS * 0.6));
         ok(errors.length === e1, `${G.name} (un seul téléphone) : aucune erreur (${errors.slice(e1, e1 + 1).join(' ').slice(0, 300)})`);
         ok(l.answers > 8, `${G.name} (un seul téléphone) : la partie avance (${l.answers} réponses, ${l.ends} fins)`);
         console.log(`${G.name} sur un téléphone : ${l.answers} réponses, ${l.ends} parties terminées`);

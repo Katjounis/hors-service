@@ -103,6 +103,18 @@ function Scene({ kind, id }) {
       </>
     );
   }
+  if (kind === 'nuit') {
+    return (
+      <>
+        <rect width="300" height="200" fill="#121828" />
+        <circle cx="226" cy="54" r="30" fill="#E9E1CF" />
+        <circle cx="216" cy="46" r="5" fill="#CFC5B0" />
+        {[[20, 8], [60, 30], [120, 14], [150, 40], [270, 20], [90, 50]].map(([x, y], i) => <rect key={i} x={x} y={y} width="2" height="2" fill="#E9E1CF" />)}
+        {[0, 34, 68, 230, 262].map((x, i) => <path key={i} d={`M${x + 18} 70 L${x + 40} 200 H${x - 4} Z`} fill="#0B1A14" />)}
+        <rect y="176" width="300" height="24" fill="#0E1410" />
+      </>
+    );
+  }
   // damier (arcade)
   return (
     <>
@@ -114,6 +126,17 @@ function Scene({ kind, id }) {
 }
 
 const ART = {
+  garou: () => (
+    <>
+      <path d="M96 168 L104 92 L84 52 L116 74 L150 64 L184 74 L216 52 L196 92 L204 168 Z" fill="#4A4F5A" />
+      <path d="M118 104 l14 6 l-14 4 z M182 104 l-14 6 l14 4 z" fill="#FFD23F" />
+      <path d="M132 140 h36 l-6 12 h-24 z" fill="#22201C" />
+      <path d="M136 140 l4 6 l4 -6 M156 140 l4 6 l4 -6" fill="#F2EADB" />
+      <rect x="208" y="120" width="34" height="46" fill="#E7B04A" stroke="#22201C" stroke-width="2" />
+      <path d="M242 128 h8 a8 8 0 0 1 0 22 h-8" fill="none" stroke="#22201C" stroke-width="3" />
+      <rect x="206" y="112" width="38" height="12" fill="#F2EADB" />
+    </>
+  ),
   oserait: () => (
     <>
       <path d="M92 46h116a18 18 0 0 1 18 18v52a18 18 0 0 1-18 18h-56l-22 22v-22h-38a18 18 0 0 1-18-18V64a18 18 0 0 1 18-18z" fill={CREME} />
