@@ -10,7 +10,7 @@ import { plural } from '../lib/util.js';
 const W = 1080;
 const H = 1920;
 const C = { bitume: '#1C1A17', bitume2: '#2B2721', papier: '#F2EADB', encre: '#22201C', jaune: '#FFD23F', rouge: '#E5502F', poussiere: '#A79F92', kraft: '#D9C3A0' };
-const TITRE = '"Bagel Fat One", "Arial Black", Impact, sans-serif';
+const TITRE = '"Dela Gothic One", "Arial Black", Impact, sans-serif';
 const TEXTE = '"Familjen Grotesk", system-ui, sans-serif';
 
 function avatarImage(av, mood) {

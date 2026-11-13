@@ -1,11 +1,11 @@
 // Fabrique les icônes PNG de l'appli (écran d'accueil, PWA, favicon) à partir de l'affichette « Hors service ».
 //   node tools/icones.mjs  → src/icons/*.png
-// Rendu par Chromium (Playwright) avec la vraie police Bagel Fat One, embarquée en base64.
+// Rendu par Chromium (Playwright) avec la vraie police Dela Gothic One, embarquée en base64.
 import { createRequire } from 'node:module';
 import { readFileSync, mkdirSync } from 'node:fs';
 
 const { chromium } = createRequire(import.meta.url)('playwright');
-const font = readFileSync('src/fonts/bagel-fat-one-400.woff2').toString('base64');
+const font = readFileSync('src/fonts/dela-gothic-one-400.woff2').toString('base64');
 mkdirSync('src/icons', { recursive: true });
 
 // card : largeur de l'affichette en fraction du côté ; mini : version « HS » pour les très petites tailles

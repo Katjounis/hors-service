@@ -58,8 +58,6 @@ function Scene({ kind, id }) {
         <rect width="300" height="200" fill={`url(#${p})`} />
         <rect y="160" width="300" height="40" fill="#2A1A14" />
         <rect y="160" width="300" height="4" fill="#8A5A36" />
-        {[40, 110, 190, 260].map((x, i) => <circle key={i} cx={x} cy="14" r="4" fill="#FFD9A0" />)}
-        <path d="M0 10 Q 75 26 150 12 T 300 12" stroke="#2A1A14" stroke-width="1.5" fill="none" />
       </>
     );
   }
@@ -119,7 +117,7 @@ const ART = {
   oserait: () => (
     <>
       <path d="M92 46h116a18 18 0 0 1 18 18v52a18 18 0 0 1-18 18h-56l-22 22v-22h-38a18 18 0 0 1-18-18V64a18 18 0 0 1 18-18z" fill={CREME} />
-      <text x="150" y="115" text-anchor="middle" font-size="64" fill={ENCRE} font-family="Bagel Fat One, sans-serif">?</text>
+      <text x="150" y="115" text-anchor="middle" font-size="64" fill={ENCRE} font-family="Dela Gothic One, sans-serif">?</text>
     </>
   ),
   96: () => (
@@ -127,7 +125,7 @@ const ART = {
       <Card x={110} y={108} r={-16} rank="9" suit="♠" red={false} />
       <Card x={150} y={100} r={0} rank="6" suit="♥" />
       <Card x={190} y={108} r={16} rank="R" suit="♦" />
-      <text x="150" y="52" text-anchor="middle" font-size="40" fill={CREME} font-family="Bagel Fat One, sans-serif">96</text>
+      <text x="150" y="52" text-anchor="middle" font-size="40" fill={CREME} font-family="Dela Gothic One, sans-serif">96</text>
     </>
   ),
   pipoteur: () => (
@@ -135,8 +133,8 @@ const ART = {
       <path d="M80 82c22-16 48-14 70 0 22-14 48-16 70 0 0 34-18 58-44 58-14 0-20-10-26-18-6 8-12 18-26 18-26 0-44-24-44-58z" fill={CREME} />
       <ellipse cx="118" cy="98" rx="15" ry="10" fill={ENCRE} />
       <ellipse cx="182" cy="98" rx="15" ry="10" fill={ENCRE} />
-      <text x="228" y="62" font-size="34" fill={CREME} font-family="Bagel Fat One, sans-serif">?</text>
-      <text x="58" y="66" font-size="24" fill={CREME} fill-opacity=".6" font-family="Bagel Fat One, sans-serif">?</text>
+      <text x="228" y="62" font-size="34" fill={CREME} font-family="Dela Gothic One, sans-serif">?</text>
+      <text x="58" y="66" font-size="24" fill={CREME} fill-opacity=".6" font-family="Dela Gothic One, sans-serif">?</text>
     </>
   ),
   purple: () => (
@@ -198,9 +196,9 @@ const ART = {
       <rect x="114" y="84" width="10" height="30" rx="3" fill={ENCRE} />
       <circle cx="182" cy="92" r="8" fill={ROUGE} />
       <circle cx="198" cy="108" r="8" fill={NUIT} />
-      <text x="62" y="52" font-size="22" fill={CREME} font-family="Bagel Fat One, sans-serif">3</text>
-      <text x="226" y="50" font-size="26" fill={CREME} font-family="Bagel Fat One, sans-serif">2</text>
-      <text x="236" y="168" font-size="30" fill={CREME} font-family="Bagel Fat One, sans-serif">1</text>
+      <text x="62" y="52" font-size="22" fill={CREME} font-family="Dela Gothic One, sans-serif">3</text>
+      <text x="226" y="50" font-size="26" fill={CREME} font-family="Dela Gothic One, sans-serif">2</text>
+      <text x="236" y="168" font-size="30" fill={CREME} font-family="Dela Gothic One, sans-serif">1</text>
     </>
   ),
   jamais: () => (

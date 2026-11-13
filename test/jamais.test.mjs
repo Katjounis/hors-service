@@ -124,8 +124,8 @@ async function small(page) {
 {
   console.log('Décor : petit écran en portrait, mouvement réduit');
   const page = await newPage(360, 640, { reducedMotion: 'reduce' });
-  ok(await page.locator('.ambiance .amb-lights').count() === 3 && await page.locator('.ambiance .amb-verres').count() === 2, 'décor dessiné : guirlande, verres et bougie');
-  ok(await page.evaluate(() => getComputedStyle(document.querySelector('.amb-lights.a')).animationName) === 'none', 'mouvement réduit : les lumières ne bougent plus');
+  ok(await page.locator('.ambiance .amb-fenetre').count() === 1 && await page.locator('.ambiance .amb-salon').count() === 2, 'décor dessiné : fenêtre, lampe, salon et bougie');
+  ok(await page.evaluate(() => getComputedStyle(document.querySelector('.amb-flamme')).animationName) === 'none', 'mouvement réduit : la bougie ne bouge plus');
   ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'aucun défilement horizontal à 360 px');
   await page.screenshot({ path: `${SHOTS}/jn-04-accueil-360.png` });
   const note = page.locator('.mode .panel');

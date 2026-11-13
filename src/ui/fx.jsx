@@ -112,124 +112,123 @@ const PALETTES = {
 };
 export const paletteOf = (k) => PALETTES[k] || (TINTS[k] ? [TINTS[k], '255, 186, 96', '255, 222, 168'] : PALETTES.base);
 
-// guirlande : deux arcs par motif de 360 × 120, répétés sur toute la largeur
-const GW = 360;
-const GH = 120;
-const WIRE = 'M0 12 Q90 112 180 12 Q270 112 360 12';
-const BULBS = (() => {
-  const out = [];
-  for (const x0 of [0, 180]) {
-    for (const t of [0.1, 0.26, 0.42, 0.58, 0.74, 0.9]) {
-      const x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * (x0 + 90) + t * t * (x0 + 180);
-      const y = (1 - t) ** 2 * 12 + 2 * (1 - t) * t * 112 + t * t * 12;
-      out.push({ x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, c: [3, 1, 3, 2][out.length % 4] });
+// ---- fenêtre de nuit : immeubles d'en face, fenêtres allumées (quelques-unes s'allument et s'éteignent)
+const IMM = [[0, 70, 46], [48, 40, 34], [84, 92, 40], [126, 58, 30], [158, 104, 44], [204, 76, 40]];
+function Fenetre({ id }) {
+  const lit = [];
+  IMM.forEach(([x, top, w], k) => {
+    for (let y = top + 8; y < 186; y += 14) {
+      for (let xx = x + 5; xx < x + w - 6; xx += 10) {
+        const h = (xx * 7 + y * 13 + k * 31) % 17;
+        if (h < 5) lit.push({ x: xx, y, blink: h === 0 ? 1 : h === 1 ? 2 : 0 });
+      }
     }
-  }
-  return out;
-})();
-const col = (c, a) => ({ fill: `rgba(var(--d${c}), ${a})` });
-
-function Garland({ id, part }) {
-  const pid = `${id}-${part}`;
-  const bulbs = part === 'base' ? BULBS : BULBS.filter((_, i) => i % 2 === (part === 'a' ? 0 : 1));
+  });
   return (
-    <svg class={`amb-lights ${part}`} width="100%" height={GH} aria-hidden="true" focusable="false">
-      <defs>
-        {part !== 'base' ? [1, 2, 3].map((c) => (
-          <radialGradient key={c} id={`${pid}-g${c}`}>
-            <stop offset="0" style={{ stopColor: `rgb(var(--d${c}))`, stopOpacity: 0.62 }} />
-            <stop offset="0.38" style={{ stopColor: `rgb(var(--d${c}))`, stopOpacity: 0.2 }} />
-            <stop offset="1" style={{ stopColor: `rgb(var(--d${c}))`, stopOpacity: 0 }} />
-          </radialGradient>
-        )) : null}
-        <pattern id={`${pid}-p`} width={GW} height={GH} patternUnits="userSpaceOnUse">
-          {part === 'base' ? (
-            <>
-              <path d={WIRE} fill="none" stroke="#0E0C0A" stroke-width="1.8" />
-              <path d={WIRE} fill="none" stroke="rgba(255, 236, 200, .14)" stroke-width=".7" />
-              {bulbs.map((b, i) => (
-                <g key={i}>
-                  <rect x={b.x - 1.7} y={b.y - 1} width="3.4" height="4.2" rx=".8" fill="#2A2622" />
-                  <ellipse cx={b.x} cy={b.y + 7.4} rx="3.3" ry="4.7" style={col(b.c, 0.45)} />
-                </g>
-              ))}
-            </>
-          ) : bulbs.map((b, i) => (
-            <g key={i}>
-              <circle cx={b.x} cy={b.y + 7.4} r="20" fill={`url(#${pid}-g${b.c})`} />
-              <ellipse cx={b.x} cy={b.y + 7.4} rx="3.3" ry="4.7" style={col(b.c, 1)} />
-              <circle cx={b.x - 1} cy={b.y + 5.6} r="1.3" fill="rgba(255, 255, 255, .85)" />
-            </g>
-          ))}
-        </pattern>
-      </defs>
-      <rect width="100%" height={GH} fill={`url(#${pid}-p)`} />
+    <svg class="amb-fenetre" viewBox="0 0 250 230" aria-hidden="true" focusable="false">
+      <rect x="8" y="8" width="234" height="196" fill="#0B0D16" />
+      <circle cx="196" cy="44" r="13" fill="#E9E1CF" fill-opacity=".85" />
+      <circle cx="191" cy="40" r="13" fill="#0B0D16" />
+      {IMM.map(([x, top, w], i) => <rect key={i} x={x + 8} y={top + 8} width={w} height={196 - top} fill={i % 2 ? '#141824' : '#181C2A'} />)}
+      {lit.map((l, i) => <rect key={i} class={l.blink ? `amb-win b${l.blink}` : null} x={l.x + 8} y={l.y + 8} width="5" height="7" fill="#F2C46A" fill-opacity=".7" />)}
+      {/* croisée et cadre */}
+      <rect x="4" y="4" width="242" height="204" fill="none" stroke="#3A2E26" stroke-width="8" />
+      <path d="M125 8 V204 M8 104 H242" stroke="#3A2E26" stroke-width="5" />
+      <rect x="0" y="206" width="250" height="10" fill="#4A3A2E" />
+      {/* rideau */}
+      <path d="M232 0 C222 60 238 140 226 230 H250 V0 Z" fill="#5A2430" />
+      <path d="M238 0 C232 70 244 150 236 230" stroke="#3E1820" stroke-width="2" fill="none" />
     </svg>
   );
 }
 
-// verres sur la table : vin, whisky avec glaçons, bière, cocktail, et une bougie (dessin 400 × 170, pieds à y = 150)
-function Verres({ id }) {
-  const glass = { fill: 'rgba(255, 255, 255, .05)', stroke: 'rgba(255, 246, 230, .32)', 'stroke-width': 1.3, 'stroke-linejoin': 'round' };
-  const shine = { fill: 'none', stroke: 'rgba(255, 255, 255, .4)', 'stroke-width': 1.6, 'stroke-linecap': 'round' };
+// ---- lampe sur pied : abat-jour et cône de lumière (teinte de l'ambiance)
+function Lampe({ id }) {
   return (
-    <svg class="amb-verres" viewBox="0 0 400 170" aria-hidden="true" focusable="false">
+    <svg class="amb-lampe" viewBox="0 0 160 520" aria-hidden="true" focusable="false">
       <defs>
-        <linearGradient id={`${id}-refl`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" style={{ stopColor: 'rgb(var(--d1))', stopOpacity: 0.22 }} />
+        <radialGradient id={`${id}-lp`} cx=".5" cy=".18" r=".7">
+          <stop offset="0" style={{ stopColor: 'rgb(var(--d1))', stopOpacity: 0.32 }} />
           <stop offset="1" style={{ stopColor: 'rgb(var(--d1))', stopOpacity: 0 }} />
-        </linearGradient>
+        </radialGradient>
       </defs>
-      {/* reflets sur la table */}
-      <rect x="80" y="151" width="30" height="16" fill={`url(#${id}-refl)`} />
-      <rect x="153" y="151" width="34" height="16" fill={`url(#${id}-refl)`} />
-      <rect x="227" y="151" width="26" height="18" fill={`url(#${id}-refl)`} />
-      <rect x="296" y="151" width="28" height="14" fill={`url(#${id}-refl)`} />
-      {/* verre de vin */}
-      <path d="M95 98 C84 98 76 84 76 58 L114 58 C114 84 106 98 95 98 Z" {...glass} />
-      <path d="M78.6 74 C80 88 86 96 95 96 C104 96 110 88 111.4 74 Z" style={col(2, 0.55)} />
-      <path d="M95 98 V143" {...glass} />
-      <ellipse cx="95" cy="147.5" rx="16" ry="3.2" {...glass} />
-      <path d="M81.5 64 C81.5 78 85 87 89 91" {...shine} />
-      {/* whisky et glaçons */}
-      <path d="M150 98 L154 149 L186 149 L190 98 Z" {...glass} />
-      <path d="M151.4 114 L154.4 147 L185.6 147 L188.6 114 Z" style={col(1, 0.42)} />
-      <rect x="157" y="106" width="12.5" height="11.5" rx="2.4" fill="rgba(255, 255, 255, .2)" transform="rotate(-8 163 112)" />
-      <rect x="171" y="109" width="12" height="11" rx="2.4" fill="rgba(255, 255, 255, .16)" transform="rotate(10 177 114)" />
-      <path d="M155 104 L158 142" {...shine} />
-      {/* bouteille de bière */}
-      <path d="M229 150 V93 C229 85 234 81 236.5 76 V52 H243.5 V76 C246 81 251 85 251 93 V150 Z" fill="rgba(52, 36, 18, .78)" stroke-width="1.2" style={{ stroke: 'rgba(var(--d1), .35)' }} />
-      <rect x="235.5" y="46.5" width="9" height="6" rx="1" style={col(3, 0.5)} />
-      <rect x="231" y="108" width="18" height="20" rx="1.5" fill="rgba(242, 234, 219, .3)" />
-      <path d="M233.5 96 V144" {...shine} style={{ stroke: 'rgba(255, 255, 255, .22)' }} />
-      {/* cocktail */}
-      <path d="M286 70 L334 70 L310 101 Z" {...glass} />
-      <path d="M290.5 74 L329.5 74 L310 98.5 Z" style={col(2, 0.5)} />
-      <path d="M318.5 57 L306 95" stroke-width="2.2" stroke-linecap="round" style={{ stroke: 'rgba(var(--d2), .85)' }} />
-      <circle cx="331.5" cy="70" r="6.5" fill="rgba(255, 214, 90, .45)" stroke="rgba(255, 236, 160, .5)" stroke-width="1" />
-      <path d="M310 101 V143" {...glass} />
-      <ellipse cx="310" cy="147.5" rx="14" ry="3" {...glass} />
-      {/* bougie */}
-      <rect x="351" y="136" width="20" height="13" rx="2" fill="rgba(242, 234, 219, .55)" />
-      <ellipse cx="361" cy="136" rx="10" ry="2.4" fill="rgba(255, 246, 230, .7)" />
-      <path d="M361 136 V131" stroke="#2A2622" stroke-width="1.2" />
+      <ellipse cx="80" cy="110" rx="80" ry="150" fill={`url(#${id}-lp)`} />
+      <path d="M44 40 H116 L132 104 H28 Z" style={{ fill: 'rgb(var(--d1))' }} fill-opacity=".55" />
+      <path d="M44 40 H116 L132 104 H28 Z" fill="none" stroke="#2A1F18" stroke-width="2" />
+      <path d="M80 104 V500" stroke="#2A2420" stroke-width="5" />
+      <ellipse cx="80" cy="506" rx="34" ry="8" fill="#2A2420" />
     </svg>
   );
 }
 
-// flamme de la bougie et son halo : un calque à part, qui vacille (seule son opacité bouge)
+// ---- le salon en bas : canapé, table basse en fin de soirée (verres, bouteilles couchées, boîte de pizza,
+// paquet de chips, cartes à jouer, bougie), parquet. Dessin 400 × 220, posé en bas de l'écran.
+function Salon({ id }) {
+  const glass = { fill: 'rgba(255, 255, 255, .06)', stroke: 'rgba(255, 246, 230, .4)', 'stroke-width': 1.2, 'stroke-linejoin': 'round' };
+  return (
+    <svg class="amb-salon" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+      {/* canapé */}
+      <path d="M18 92 Q18 70 40 70 H360 Q382 70 382 92 V150 H18 Z" fill="#3B2430" />
+      <path d="M34 86 Q34 78 44 78 H196 V128 H34 Z" fill="#46293A" />
+      <path d="M204 78 H356 Q366 78 366 86 V128 H204 Z" fill="#46293A" />
+      <rect x="6" y="96" width="34" height="62" rx="8" fill="#33202A" />
+      <rect x="360" y="96" width="34" height="62" rx="8" fill="#33202A" />
+      <path d="M262 96 l26 -10 l14 26 l-28 8 z" fill="#C8301E" fill-opacity=".7" />
+      <path d="M70 98 q20 -14 44 0 l-6 22 h-34 z" fill="#E7C877" fill-opacity=".35" />
+      {/* parquet */}
+      <rect x="0" y="150" width="400" height="70" fill="#2A1B12" />
+      {[0, 1, 2, 3, 4].map((i) => <path key={i} d={`M0 ${158 + i * 14} H400`} stroke="#1E130C" stroke-width="1.5" />)}
+      {[30, 110, 190, 270, 350, 70, 150, 230, 310].map((x, i) => <path key={i} d={`M${x} ${150 + (i < 5 ? 0 : 14)} v14`} stroke="#1E130C" stroke-width="1.5" />)}
+      {/* table basse */}
+      <rect x="40" y="150" width="320" height="12" fill="#5A3A22" />
+      <rect x="40" y="150" width="320" height="3" fill="#7A5232" />
+      <rect x="54" y="162" width="10" height="40" fill="#4A2E1A" />
+      <rect x="336" y="162" width="10" height="40" fill="#4A2E1A" />
+      {/* boîte de pizza ouverte */}
+      <path d="M60 150 L64 140 H132 L128 150 Z" fill="#B88A55" />
+      <path d="M70 140 L76 116 H136 L132 140 Z" fill="#C99A62" />
+      <path d="M72 148 l18 -6 l10 6 z" fill="#E7B04A" fill-opacity=".8" />
+      <circle cx="84" cy="146" r="2" fill="#B23A22" />
+      {/* cartes éparpillées */}
+      <rect x="140" y="144" width="14" height="6" fill="#F2EADB" transform="rotate(-12 147 147)" />
+      <rect x="150" y="145" width="14" height="5" fill="#F2EADB" transform="rotate(8 157 147)" />
+      {/* bouteille couchée */}
+      <path d="M170 146 H206 Q212 146 214 144 H226 V150 H214 Q212 148 206 148 H170 Q166 148 166 147 Q166 146 170 146 Z" fill="#2E4A2A" />
+      {/* bouteilles debout */}
+      <path d="M232 150 V112 Q232 104 238 100 V86 H244 V100 Q250 104 250 112 V150 Z" fill="rgba(52, 36, 18, .9)" stroke="rgba(255, 236, 200, .25)" stroke-width="1" />
+      <rect x="235" y="118" width="12" height="14" fill="rgba(242, 234, 219, .35)" />
+      <path d="M256 150 V120 Q256 114 260 111 V100 H265 V111 Q269 114 269 120 V150 Z" fill="#1F3A2A" stroke="rgba(255, 236, 200, .2)" stroke-width="1" />
+      {/* verres */}
+      <path d="M182 124 C176 124 172 116 172 104 H192 C192 116 188 124 182 124 Z" {...glass} />
+      <path d="M173.3 112 C174 119 178 123 182 123 C186 123 190 119 190.7 112 Z" style={{ fill: 'rgba(var(--d2), .6)' }} />
+      <path d="M182 124 V146" {...glass} />
+      <ellipse cx="182" cy="148" rx="8" ry="2" {...glass} />
+      <path d="M200 126 L202 149 H216 L218 126 Z" {...glass} />
+      <path d="M200.8 136 L202.4 148 H215.6 L217.2 136 Z" style={{ fill: 'rgba(var(--d1), .5)' }} />
+      <path d="M278 132 L280 149 H292 L294 132 Z" {...glass} />
+      <path d="M296 128 L300 116 L308 118 L306 128 Z" {...glass} transform="rotate(64 302 124)" />
+      {/* paquet de chips */}
+      <path d="M312 150 L316 122 Q326 118 336 122 L340 150 Z" fill="#C8301E" fill-opacity=".85" />
+      <path d="M318 132 H334" stroke="#FFD23F" stroke-width="3" />
+      {/* bougie */}
+      <rect x="344" y="138" width="10" height="12" fill="rgba(242, 234, 219, .6)" />
+      <path d="M349 138 V134" stroke="#2A2622" stroke-width="1" />
+    </svg>
+  );
+}
+
 function Flamme({ id }) {
   return (
-    <svg class="amb-verres amb-flamme" viewBox="0 0 400 170" aria-hidden="true" focusable="false">
+    <svg class="amb-salon amb-flamme" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
       <defs>
         <radialGradient id={`${id}-fl`}>
-          <stop offset="0" stop-color="#FFD58A" stop-opacity=".55" />
-          <stop offset=".45" stop-color="#FF9F45" stop-opacity=".16" />
+          <stop offset="0" stop-color="#FFD58A" stop-opacity=".5" />
+          <stop offset=".45" stop-color="#FF9F45" stop-opacity=".14" />
           <stop offset="1" stop-color="#FF9F45" stop-opacity="0" />
         </radialGradient>
       </defs>
-      <circle cx="361" cy="124" r="34" fill={`url(#${id}-fl)`} />
-      <path d="M361 119 C365 124 365 129 361 131 C357 129 357 124 361 119 Z" fill="#FFE2A6" />
+      <circle cx="349" cy="130" r="26" fill={`url(#${id}-fl)`} />
+      <path d="M349 127 C352 130 352 133 349 135 C346 133 346 130 349 127 Z" fill="#FFE2A6" />
     </svg>
   );
 }
@@ -240,15 +239,11 @@ export function Ambiance({ game = null }) {
   const id = useMemo(() => `amb${(ambN += 1)}`, []);
   return (
     <div class={`ambiance${game ? ' is-game' : ''}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
-      <i class="amb-halo h1" />
-      <i class="amb-halo h2" />
-      <i class="amb-halo h3" />
-      <i class="amb-bokeh" />
-      <Garland id={id} part="base" />
-      <Garland id={id} part="a" />
-      <Garland id={id} part="b" />
-      <i class="amb-table" />
-      <Verres id={id} />
+      <i class="amb-mur" />
+      <Fenetre id={id} />
+      <Lampe id={id} />
+      <i class="amb-ombre" />
+      <Salon id={id} />
       <Flamme id={id} />
     </div>
   );

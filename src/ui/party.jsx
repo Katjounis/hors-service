@@ -256,11 +256,11 @@ function Lobby({ dev, S, local }) {
             return (
               <button type="button" key={G.id} class={`gcard${ban ? ' is-off' : ''}`} style={{ '--c': m.color, '--n': Number(m.no) }} onClick={() => setSheet(G.id)}
                 aria-label={`Jeu ${m.no}, ${G.name}${ban ? `, ${ban}` : ''}`}>
-                <GameArt id={G.id} color={m.color} />
+                <span class="gcard-art"><GameArt id={G.id} color={m.color} />{ban ? <span class="tile-ban" aria-hidden="true"><span>{ban}</span></span> : null}</span>
                 <span class="gcard-no">{m.no}</span>
                 <span class="gcard-body">
                   <span class="gcard-name">{G.name}</span>
-                  <span class="gcard-min">{ban || `${G.min}+ joueurs${G.solo ? ' · un seul téléphone' : ''}`}</span>
+                  <span class="gcard-min">{`${G.min}+ joueurs${G.solo ? ' · un seul téléphone' : ''}`}</span>
                 </span>
               </button>
             );

@@ -10,7 +10,7 @@ const TITLE = 'Hors Service';
 
 // [famille, fichier, graisse]
 const FONT_FILES = [
-  ['Bagel Fat One', 'bagel-fat-one-400.woff2', '400 900'],
+  ['Dela Gothic One', 'dela-gothic-one-400.woff2', '400 900'],
   ['Familjen Grotesk', 'familjen-grotesk-400.woff2', 400],
   ['Familjen Grotesk', 'familjen-grotesk-600.woff2', 600],
   ['Familjen Grotesk', 'familjen-grotesk-700.woff2', '700 900'],

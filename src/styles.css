@@ -1568,3 +1568,104 @@ h3 { font-size: 1.25rem; }
 .btn-mort, .btn-mort:hover:not(:disabled) { background: var(--rouge); }
 .btn-mort:hover:not(:disabled) { background: #B02A1A; }
 .btn-mort.is-armed { background: var(--jaune); }
+
+/* =====================================================================================================
+   Style « chantier » choisi avec Samuel (13/11) : angles vifs, filets francs, ruban jaune et noir,
+   tampons. Titres en Dela Gothic One, texte en Familjen Grotesk. Décor : appart en fin de soirée.
+   ===================================================================================================== */
+:root {
+  --f-titre: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
+  --r: 0px;
+  --r-s: 2px;
+  --surface: #262320;
+  --surface-2: #302C28;
+  --filet-fort: #F2EADB;
+}
+h1 { font-size: 1.8rem; line-height: 1.1; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+.brand-name { font-size: clamp(2.1rem, 10.5vw, 3rem); line-height: .95; }
+.brand-s .brand-name { font-size: 1.15rem; }
+.lobby h1, .game-head h1 { font-size: clamp(1.25rem, 5.6vw, 1.6rem); }
+.choice-t { font-size: 1.15rem; line-height: 1.15; }
+.gcard-name { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .01em; }
+.pen-kind { font-size: 1.05rem; text-transform: uppercase; }
+.pen-big b { font-size: 2.6rem; }
+.pen-big-t { font-size: 1.8rem; }
+.turn-who { font-size: 1.2rem; }
+.end-title { font-size: 1.15rem; }
+.mort-title { font-size: clamp(1.4rem, 6.4vw, 2rem); }
+.g96-big-n { font-size: clamp(6.5rem, 38vw, 12rem); }
+.tile-name, .sheet-head h2 { font-size: 1.25rem; }
+.tampon { font-family: var(--f-titre); }
+
+/* angles vifs partout (les cartes à jouer gardent leurs coins, les avatars restent ronds) */
+.btn, .icon-btn, .icon-round, .choice, .choice-ico, .gcard, .tile, .tile-ico, .paper, .panel, .pen, .act, .sheet, .is-side .sheet,
+.announce-sheet, .input, .codebox-cell, .seg, .chip, .you, .tag, .role-tag, .gcard-no, .dock-mini, .jn-badge, .multi-btn, .avatar-btn,
+.pgrid-btn, .horse-btn, .key, .qo-vote, .gage-list li, .maker-opt:not(.is-color), .seat, .bus-slot, .purple-pass, .banner, .legal-host,
+.chip-btn, .side-art, .toast, .rules-fold, .mort-son, .note, .qr, .g96-q, .recall-slot, .tc-hint, .myword, .pen-defi-txt, .wrapped-img { border-radius: var(--r-s); }
+
+/* filets francs */
+.btn { border: 2px solid var(--papier); background: var(--surface); }
+.btn-ghost { border-color: transparent; }
+.btn-main, .paper .btn-main { border: 2px solid var(--jaune); }
+.btn-danger { border-color: var(--rouge-vif); }
+.icon-btn { border: 2px solid var(--papier); }
+.choice { border: 2px solid var(--papier); background: var(--surface); }
+.choice-main { border-color: var(--jaune); }
+.choice-ico { background: rgba(242, 234, 219, .08); }
+.gcard { border: 2px solid var(--papier); background: var(--surface); }
+@media (hover: hover) { .gcard:hover { border-color: var(--jaune); } }
+.gcard-art { position: relative; display: block; overflow: hidden; border-bottom: 2px solid var(--papier); }
+.gcard-art .game-art rect:last-child { display: none; }
+.gcard-no { background: var(--jaune); color: var(--encre); border-radius: 0; font-weight: 700; }
+.gcard.is-off .gcard-name { color: var(--papier); }
+.gcard.is-off .game-art { opacity: .55; }
+.gcard .tile-ban { top: 46%; }
+.gcard .tile-ban span { font-family: var(--f-titre); font-weight: 400; font-size: .82rem; }
+.paper, .act, .panel { border: 2px solid var(--filet); }
+.act { border-color: var(--papier); background: var(--surface); }
+.pen { border: 2px solid var(--papier); }
+.pen-give { border-color: var(--jaune); }
+.pen-take { border-color: var(--rouge-vif); }
+.ose-card.paper, .jn-card.paper, .qo-card.paper, .word-card.paper { border: 2px solid var(--encre); }
+.chip { border: 1px solid var(--ligne-2); }
+.sheet { border-top: 2px solid var(--papier); }
+.is-side .sheet { border-left: 2px solid var(--papier); border-top: 0; }
+.side-art { border: 2px solid var(--papier); }
+.rules-fold { border: 2px solid var(--filet); }
+.topbar { border-bottom: 2px solid var(--filet); }
+
+/* ruban jaune et noir : sous les en-têtes, comme une rubalise */
+.game > .ruban, .game-head + .ruban { display: block; height: 8px; border-radius: 0; margin-top: -4px; }
+.games-h { padding-bottom: 8px; border-bottom: 0; position: relative; }
+.games-h::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: var(--ruban); }
+.home-choices::before { content: ''; display: block; height: 8px; background: var(--ruban); margin-bottom: 4px; }
+
+/* ---------- décor : appart en fin de soirée (fenêtre de nuit, lampe, canapé, table basse en bazar) */
+.ambiance { background: #1D1518; }
+.amb-mur { position: absolute; inset: 0; background:
+  repeating-linear-gradient(90deg, rgba(255, 236, 210, .025) 0 2px, transparent 2px 34px),
+  linear-gradient(180deg, #221A1E 0%, #1E1619 60%, #1A1214 100%); /* raison : papier peint rayé du décor */ }
+.amb-fenetre { position: absolute; top: calc(64px + env(safe-area-inset-top, 0px)); left: 3%; width: min(46vw, 300px); height: auto; opacity: .5; }
+.amb-lampe { position: absolute; top: 30px; right: 1%; height: min(72vh, 620px); width: auto; opacity: .75; }
+.amb-ombre { position: absolute; inset: 0; background: radial-gradient(70% 55% at 50% 45%, rgba(18, 12, 14, .7), rgba(18, 12, 14, .15) 100%); }
+.amb-salon { position: absolute; left: 50%; bottom: 0; translate: -50% 0; width: min(100vw, 760px); height: auto; max-height: 32vh; }
+.amb-flamme { animation: vacille 2.6s ease-in-out infinite alternate; will-change: opacity; }
+.amb-win.b1 { animation: fenetre 9s steps(1) infinite; }
+.amb-win.b2 { animation: fenetre 13s steps(1) -4s infinite; }
+@keyframes fenetre { 0%, 60% { opacity: 1; } 61%, 100% { opacity: .1; } }
+@media (prefers-reduced-motion: reduce) { .amb-flamme, .amb-win { animation: none !important; } }
+.btn-mort, .btn-mort:hover:not(:disabled) { background: var(--rouge); color: #FFF4EC; border: 2px solid var(--rouge-vif); }
+.btn-mort:hover:not(:disabled) { background: #B02A1A; }
+.btn-mort.is-armed { background: var(--jaune); color: var(--encre); border-color: var(--jaune); }
+.amb-fenetre { opacity: .38; }
+.amb-lampe { opacity: .55; }
+/* variantes de boutons : toujours après le fond par défaut */
+.btn.btn-main, .paper .btn.btn-main, .btn.btn-main:disabled { background: var(--jaune); border-color: var(--jaune); color: var(--encre); }
+.btn.btn-main:hover:not(:disabled) { background: var(--jaune-2); border-color: var(--jaune-2); }
+.btn.btn-ghost, .btn.btn-ghost:hover:not(:disabled) { background: transparent; border-color: transparent; }
+.btn.is-on { background: var(--papier); color: var(--encre); }
+.btn.btn-mort, .btn.btn-mort:hover:not(:disabled) { background: var(--rouge); color: #FFF4EC; border-color: var(--rouge-vif); }
+.btn.btn-mort:hover:not(:disabled) { background: #B02A1A; }
+.btn.btn-mort.is-armed { background: var(--jaune); color: var(--encre); border-color: var(--jaune); }
