@@ -49,11 +49,11 @@ export function Ribbon({ children, anim = true }) {
 }
 
 // Le joueur dont c'est le tour, en grand
-export function Turn({ S, uid, me, label: lab = 'Au tour de', meLabel = 'À toi de jouer' }) {
+export function Turn({ S, uid, me, label: lab = 'Au tour de', meLabel = 'À toi de jouer', meSmall = 'Ton tour' }) {
   const mine = me && uid === me;
   return (
     <div class={`turn${mine ? ' is-me' : ''}`} aria-live="polite">
-      <span class="turn-l">{mine ? 'Ton tour' : lab}</span>
+      <span class="turn-l">{mine ? meSmall : lab}</span>
       <span class="turn-who"><Av p={S.roster[uid]} size="m" /> {mine ? meLabel : nickOf(S, uid)}</span>
     </div>
   );

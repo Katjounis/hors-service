@@ -1978,3 +1978,7 @@ h3 { font-size: 1.1rem; }
 .pref-dot.is-light { background: #1C1A17; }
 .prefs.is-compact { margin-bottom: 8px; }
 .prefs.is-compact .pref-btn { flex: 1; justify-content: center; }
+
+/* Tampons longs (« 1 gorgée chacun ») : ils passent à la ligne au lieu de déborder de l'écran */
+.tampon { white-space: normal; max-width: 100%; overflow-wrap: break-word; text-align: center; }
+.verdict-line .tampon-l { font-size: clamp(1.5rem, 7.5vw, 2.3rem); max-width: calc(100% - 12px); }

@@ -182,6 +182,8 @@ const JAMAIS = {
   },
 
   turnOf(g) { return g.phase === 'end' ? null : g.reader; },
+  // tout le monde répond : le joueur affiché est seulement celui qui lit la carte à voix haute
+  turnText() { return { label: 'Lit la carte', meSmall: 'Lecteur', meLabel: 'Tu lis la carte' }; },
   // teinte du décor : celle du niveau de la carte en cours
   tintOf(g) { return `jamais-${(g && g.card && g.card.lv) || 'soft'}`; },
 

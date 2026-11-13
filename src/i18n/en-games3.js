@@ -54,7 +54,7 @@ export default [
   ['Laisser faire', 'Let it happen'], ['Personne ne sort', 'Nobody leaves'], ['Tu dors…', 'You’re asleep…'], ['Pas d’action pour toi cette fois. Prends ton temps comme si tu jouais, puis passe le téléphone.', 'Nothing for you this time. Take your time as if you were playing, then pass the phone.'],
   ['Je dors, au suivant', 'Asleep, next'], ['Ton vote secret', 'Your secret vote'], ['Qui est un Loup-Garou ?', 'Who’s a Werewolf?'],
   // Je n'ai jamais
-  ['Moi si !', 'I have!'], ['Moi aussi !', 'Me too!'], ['Moi non plus', 'Me neither'], ['Pas moi', 'Not me'], ['Je n’ai jamais', 'Never have I ever'],
+  ['Lit la carte', 'Reads the card'], ['Lecteur', 'Reader'], ['Tu lis la carte', 'You read the card'], ['Moi si !', 'I have!'], ['Moi aussi !', 'Me too!'], ['Moi non plus', 'Me neither'], ['Pas moi', 'Not me'], ['Je n’ai jamais', 'Never have I ever'],
   ['Une carte, et tous ceux pour qui c’est vrai boivent. Trois niveaux à mélanger : Soft, HARD et Cul.', 'One card, and everyone it’s true for drinks. Three levels to mix: Soft, HARD and Dirty.'],
   ['Une carte s’affiche et le lecteur du tour la lit à voix haute. La lecture tourne dans l’ordre des places.', 'A card appears and this turn’s reader reads it out loud. Reading goes round in seat order.'],
   ['« Je n’ai jamais… » : ceux qui l’ont déjà fait répondent « Moi si ! » et prennent la pénalité.', '“Never have I ever…”: those who have done it answer “I have!” and take the penalty.'],

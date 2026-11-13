@@ -431,7 +431,7 @@ function GameScreen({ dev, S, G, local }) {
         </div>
       ) : null}
       <Ribbon key={S.game.seq} />
-      {turn && !ended && S.roster[turn] ? <Turn S={S} uid={turn} me={uid} /> : null}
+      {turn && !ended && S.roster[turn] ? <Turn S={S} uid={turn} me={uid} {...(G.turnText ? G.turnText(g) : {})} /> : null}
       <ErrorBoundary>
         {ended ? <Report S={S} G={G} g={g}>{table}</Report> : table}
       </ErrorBoundary>
