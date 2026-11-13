@@ -1857,3 +1857,7 @@ h3 { font-size: 1.1rem; }
 @keyframes pulse-hp { from { transform: scale(.92); } to { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .dc-sway, .dc-bulle, .dc-fumee, .dc-flamme, .dc-lampe, .dc-pulse { animation: none !important; } }
 .dz-pad .dz-wrap { width: min(100%, 44vh); }
+/* iPhone (appli installée, plein écran) : le haut de page ne passe plus sous l'heure et la batterie */
+.screen, .home { padding-top: calc(env(safe-area-inset-top, 0px) + 20px); }
+.screen-view { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); }
+.demo-bar { padding-top: calc(env(safe-area-inset-top, 0px) + 8px); }
