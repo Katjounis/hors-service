@@ -1,6 +1,7 @@
 // Effets d'ambiance : vibration, confettis, feu de série. Uniquement transform et opacity,
 // coupés par prefers-reduced-motion (sauf la vibration, qui n'est pas un mouvement à l'écran).
 import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { sceneOf, DecorBas, DecorHaut } from './decor.jsx';
 
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 
@@ -267,14 +268,13 @@ let ambN = 0;
 export function Ambiance({ game = null }) {
   const [d1, d2, d3] = paletteOf(game);
   const id = useMemo(() => `amb${(ambN += 1)}`, []);
+  const scene = sceneOf(game);
   return (
-    <div class={`ambiance${game ? ' is-game' : ''}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
+    <div class={`ambiance${game ? ' is-game' : ''} sc-${scene}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
       <i class="amb-mur" />
-      <Fenetre id={id} />
-      <Cadres />
+      <DecorHaut scene={scene} Fenetre={Fenetre} Cadres={Cadres} id={id} />
       <i class="amb-ombre" />
-      <Salon id={id} />
-      <Flamme id={id} />
+      <DecorBas scene={scene} />
     </div>
   );
 }

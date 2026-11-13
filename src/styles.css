@@ -1831,3 +1831,28 @@ h3 { font-size: 1.1rem; }
 .players .player-mode .seg-btn { font-size: .78rem; padding: 4px 6px; min-height: 40px; }
 .players .player-mode .seg { flex-wrap: nowrap; }
 .players .player-n ~ .player-name { flex-basis: 100%; }
+
+/* ---------- décor v3 : une scène par type de jeu */
+.sc-foret .amb-mur { background: linear-gradient(180deg, #0E1424 0%, #121A2C 70%, #0E1410 100%); }
+.sc-foret .amb-mur::after { background: #0E1410; border-top-color: #0A0E0C; }
+.sc-plateau .amb-mur { background: #120E1A; }
+.sc-plateau .amb-mur::after { background: #141018; border-top-color: #0A080E; }
+.sc-arcade .amb-mur { background: #15121C; }
+.sc-arcade .amb-mur::after { background: #1E1A24; }
+.dc-top { position: absolute; pointer-events: none; }
+.dc-suspendue { top: 40px; left: 50%; translate: -50% 0; width: min(80vw, 420px); height: auto; opacity: .8; }
+.dc-projos { top: 0; left: 0; width: 100%; height: 40vh; opacity: .9; }
+.dc-lune { top: 60px; right: 2%; width: min(50vw, 320px); height: auto; opacity: .7; }
+.dc-neon { top: 70px; right: 4%; width: min(46vw, 260px); height: auto; }
+.dc-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: balance 3.2s ease-in-out infinite alternate; }
+@keyframes balance { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+.dc-bulle { animation: bulle 2.2s ease-in infinite; }
+@keyframes bulle { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-12px); opacity: 0; } }
+.dc-fumee { animation: fumee-v 3.6s ease-in-out infinite; }
+@keyframes fumee-v { 0% { opacity: 0; transform: translateY(4px); } 40% { opacity: .8; } 100% { opacity: 0; transform: translateY(-10px); } }
+.dc-flamme { animation: vacille 2.4s ease-in-out infinite alternate; }
+.dc-lampe { animation: gresille 7s steps(1) infinite; }
+@keyframes gresille { 0%, 91%, 94%, 100% { opacity: 1; } 92% { opacity: .55; } 93% { opacity: .85; } }
+.dc-pulse { transform-box: fill-box; transform-origin: center; animation: pulse-hp .48s ease-in-out infinite alternate; }
+@keyframes pulse-hp { from { transform: scale(.92); } to { transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .dc-sway, .dc-bulle, .dc-fumee, .dc-flamme, .dc-lampe, .dc-pulse { animation: none !important; } }
