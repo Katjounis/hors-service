@@ -70,7 +70,10 @@ export class Bot {
             // réponse asynchrone
             d.sent[`${S2.game.seq}:${r2.k}`] = Date.now() + 60000;
             v.then((val) => { delete d.sent[`${S2.game.seq}:${r2.k}`]; if (val !== undefined) d.gameInput(r2.k, val); }).catch(() => { delete d.sent[`${S2.game.seq}:${r2.k}`]; });
-          } else if (v !== undefined) d.gameInput(r2.k, v);
+          } else if (v !== undefined) {
+            // demandes « en direct » (dessin, propositions) : on peut envoyer plusieurs fois de suite
+            if (r2.live) d.input(`${S2.game.seq}:${r2.k}`, v, { mark: false }); else d.gameInput(r2.k, v);
+          }
           else if (r2.optional) this.skip.add(`${S2.game.seq}:${r2.k}`);
         });
       }

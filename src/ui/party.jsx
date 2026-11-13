@@ -1,7 +1,7 @@
 // Écrans de la soirée : salle d'attente, jeu en cours, pénalités, menu.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import qrcode from 'qrcode-generator';
-import { GAMES, GAME_LIST, GAME_META } from '../games/index.js';
+import { GAMES, GAME_LIST, GAME_META, CATS, catsOf } from '../games/index.js';
 import { GameArt } from './gameart.jsx';
 import { seats, sipsOf, csValue } from '../core/host.js';
 import { plural } from '../lib/util.js';
@@ -229,8 +229,13 @@ function useRail() {
   return { ref, edge, step };
 }
 
+const CAT_KEY = 'hs:cat';
+function loadCat() { try { return localStorage.getItem(CAT_KEY) || 'tous'; } catch (e) { return 'tous'; } }
 function Lobby({ dev, S, local }) {
   const rail = useRail();
+  const [cat, setCatState] = useState(loadCat);
+  const setCat = (v) => { setCatState(v); try { localStorage.setItem(CAT_KEY, v); } catch (e) { /* stockage bloqué */ } if (rail.ref.current) rail.ref.current.scrollLeft = 0; };
+  const shown = cat === 'tous' ? GAME_LIST : GAME_LIST.filter((G) => catsOf(G).includes(cat));
   const [sheet, setSheet] = useState(null);
   const list = seats(S);
   const active = list.filter((u) => isOnline(dev, u, local)).length;
@@ -243,6 +248,12 @@ function Lobby({ dev, S, local }) {
       <section class="sec games-sec">
         <div class="games-h">
           <h2>Jeux</h2>
+          <label class="cat-pick"><span class="visually-hidden">Catégorie</span>
+            <select class="cat-select" value={cat} onChange={(e) => setCat(e.currentTarget.value)}>
+              <option value="tous">Tous les jeux ({GAME_LIST.length})</option>
+              {CATS.map(([id, label]) => { const n = GAME_LIST.filter((G) => catsOf(G).includes(id)).length; return n ? <option key={id} value={id}>{label} ({n})</option> : null; })}
+            </select>
+          </label>
           <span class="muted small games-tip">Glisse, puis touche un jeu</span>
           <span class="rail-nav">
             <button type="button" class="icon-btn" aria-label="Jeux précédents" disabled={rail.edge.start} onClick={() => rail.step(-1)}><Icon name="back" /></button>
@@ -250,7 +261,7 @@ function Lobby({ dev, S, local }) {
           </span>
         </div>
         <div class="games-rail" ref={rail.ref}>
-          {GAME_LIST.map((G) => {
+          {shown.map((G) => {
             const m = GAME_META[G.id];
             const ban = local && G.local === false ? 'Un téléphone par joueur' : !local && G.solo ? 'Sur un seul téléphone' : active < G.min ? `Il faut ${G.min} joueurs` : null;
             return (

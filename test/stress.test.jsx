@@ -186,9 +186,9 @@ async function stressLocal(G, n, ms) {
       const mm = mems.get(d.uid);
       if (G.observe) G.observe(mm, g, d.secret);
       const r = G.request({ S, g, secret: d.secret, uid: d.uid, now: d.backend.now(), local: true });
-      if (!r || d.isSent(r.k)) continue;
+      if (!r || (d.isSent(r.k) && !r.live)) continue;
       const v = G.bot({ S, g, secret: d.secret, uid: d.uid, req: r, mem: mm, dev: d });
-      if (v !== undefined && !(v && typeof v.then === 'function')) { d.gameInput(r.k, v); answers++; }
+      if (v !== undefined && !(v && typeof v.then === 'function')) { if (r.live) d.input(`${S.game.seq}:${r.k}`, v, { mark: false }); else d.gameInput(r.k, v); answers++; }
       break;
     }
     // jeux arcade : la mini-partie tourne dans l'interface ; ici on envoie des résultats au hasard,

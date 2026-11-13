@@ -118,6 +118,53 @@ async function testCoinche() {
   }
 }
 
+async function testBuzzer() {
+  console.log('Quiz buzzer');
+  const { QUIZ } = await import('../src/content/buzzer.js');
+  ok(QUIZ.length >= 100 && QUIZ.every((q) => q.length === 6 && new Set(q.slice(2)).size === 4), `${QUIZ.length} questions à 4 réponses distinctes`);
+  const r = await botRun('buzzer', { rounds: 10, gorg: 1, sips: 3 }, 4, (g) => g.phase === 'end' || (g.phase === 'reveal' && g.r >= 10), 90000);
+  ok(r.done, `Quiz buzzer : 10 questions sans blocage (${r.g.phase}, ${r.g.r})`);
+  // équité : le buzz le plus tôt gagne, même reçu en second
+  const { host, devs } = await party(3);
+  await start(host, devs, 'buzzer', { rounds: 10 });
+  await sleep(50);
+  const e = host.engine;
+  const g = G(host);
+  const now = host.backend.now();
+  e.input(devs[1].uid, `${host.S.game.seq}:z${g.r}.${g.tries}`, now - 10);
+  e.input(devs[2].uid, `${host.S.game.seq}:z${g.r}.${g.tries}`, now - 120);
+  await sleep(400);
+  ok(G(host).buzz === devs[2].uid, 'le buzz le plus rapide (heure du téléphone) obtient la main');
+  await host.endParty();
+}
+
+async function testDessin() {
+  console.log('Dessine et devine');
+  const r = await botRun('dessin', { time: 60, tours: 1 }, 4, (g) => g.phase === 'reveal' || g.phase === 'end', 75000);
+  ok(r.done && r.g.strokes.length > 0, `Dessine et devine : un dessin complet par les joueurs automatiques (${r.g.phase}, ${r.g.strokes.length} traits)`);
+  const { host, devs } = await party(3);
+  await start(host, devs, 'dessin', { time: 60, tours: 1 });
+  await sleep(80);
+  const e = host.engine;
+  const seq = host.S.game.seq;
+  let g = G(host);
+  const dr = g.drawer;
+  const word = e.secrets[dr].choices[1];
+  e.input(dr, `${seq}:c${g.r}`, word);
+  e.input(dr, `${seq}:d${g.r}`, { id: 1, p: [10, 10, 200, 200] });
+  e.input(dr, `${seq}:d${g.r}`, { id: 1, p: [300, 250] });
+  g = G(host);
+  ok(g.phase === 'draw' && g.strokes.length === 1 && g.strokes[0].p.length === 6, 'le trait arrive par morceaux dans le dessin public');
+  ok(!JSON.stringify(g).includes(word), 'le mot n’apparaît pas dans l’état public pendant le dessin');
+  const others = devs.map((d) => d.uid).filter((u) => u !== dr);
+  e.input(others[0], `${seq}:g${g.r}`, 'n’importe quoi');
+  e.input(others[0], `${seq}:g${g.r}`, word.toUpperCase());
+  ok(G(host).found[0] === others[0] && G(host).score[others[0]] === 3 && G(host).score[dr] === 1, 'bonne réponse (sans tenir compte des majuscules) : 3 points, 1 au dessinateur');
+  e.input(others[1], `${seq}:g${g.r}`, word);
+  ok(G(host).phase === 'reveal' && G(host).word === word, 'tout le monde a trouvé : le mot est révélé');
+  await host.endParty();
+}
+
 (async () => {
   try {
     const only = process.argv[2];

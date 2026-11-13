@@ -1765,3 +1765,51 @@ h3 { font-size: 1.1rem; }
 .wd-half .ware-word { font-size: clamp(2rem, 11vw, 3.4rem); }
 .wd-half .mg-big { font-size: 3.4rem; }
 .wd-half .mg-hold { width: 150px; height: 150px; }
+
+/* ---------- Quiz buzzer */
+.bz { display: flex; flex-direction: column; gap: 10px; }
+.bz-opts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.bz-opts li { border: 2px solid var(--papier); padding: 8px 10px; font-weight: 700; background: var(--surface); }
+.bz-opts li b { font-family: var(--f-titre); font-weight: 400; color: var(--jaune); margin-right: 4px; }
+.bz-opts li.is-good { background: #1F5A3E; border-color: #6CC9A8; }
+.bz-opts li.is-wrong { opacity: .45; text-decoration: line-through; }
+.bz-who { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; }
+.bz-scores { display: flex; flex-wrap: wrap; gap: 6px; }
+.bz-sc { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--ligne-2); padding: 4px 8px; font-size: .9rem; }
+.bz-sc b { font-family: var(--f-titre); font-weight: 400; color: var(--jaune); }
+.bz-sc.is-locked { opacity: .5; }
+.bz-act { align-items: center; }
+.bz-btn { width: min(70vw, 260px); aspect-ratio: 1; border-radius: 50%; border: 6px solid #7A1A10; background: var(--rouge-vif); color: #FFF4EC;
+  font: 400 2.6rem/1 var(--f-titre); cursor: pointer; touch-action: manipulation; transition: scale .08s ease-out; }
+.bz-btn:active:not(:disabled) { scale: .93; }
+.bz-btn:disabled { background: #5A3A34; border-color: #3A2420; }
+.bz-ans { display: grid; gap: 6px; }
+.bz-ans .btn { justify-content: flex-start; text-align: left; }
+.bz.is-screen .bz-opts li { font-size: 1.5rem; padding: 14px 18px; }
+.bz.is-screen .ose-q { font-size: clamp(1.8rem, 3.4vw, 3rem); }
+/* filtre des jeux par catégorie */
+.games-h { flex-wrap: wrap; row-gap: 8px; }
+.cat-pick { flex: 1 1 180px; min-width: 0; }
+.cat-select { width: 100%; min-height: 44px; padding: 8px 36px 8px 10px; appearance: none; -webkit-appearance: none; border: 2px solid var(--papier); border-radius: var(--r-s);
+  background: #1A1514 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23F2EADB' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;
+  color: var(--papier); font: 700 .95rem var(--f-texte); cursor: pointer; }
+.cat-select:focus-visible { outline: 3px solid var(--jaune); outline-offset: 2px; }
+.games-tip { display: none; }
+
+/* ---------- Dessine et devine */
+.dz { display: flex; flex-direction: column; gap: 10px; }
+.dz-canvas { display: block; width: 100%; aspect-ratio: 1; border: 2px solid var(--papier); background: var(--papier); }
+.dz-canvas.is-big { max-height: 62vh; width: auto; margin: 0 auto; }
+.dz-hint { font: 400 1.3rem var(--f-titre); letter-spacing: .25em; text-align: center; }
+.dz-word { display: flex; align-items: center; gap: 10px; justify-content: center; font-size: 1.1rem; }
+.dz-feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: .9rem; }
+.dz-feed li.is-ok { color: #6CC9A8; font-weight: 700; }
+.bz-sc.is-found { border-color: #6CC9A8; }
+.dz-pad { display: flex; flex-direction: column; gap: 8px; }
+.dz-secret { cursor: pointer; }
+.dz-wrap { position: relative; }
+.dz-touch { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
+.dz-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.dz-tools .btn { padding: 4px; font-size: .82rem; }
+.dz-pad .dz-wrap { width: min(100%, 52vh); margin: 0 auto; }
+.dz .dz-canvas:not(.is-big) { width: min(100%, 48vh); margin: 0 auto; }

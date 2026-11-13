@@ -126,6 +126,24 @@ function Scene({ kind, id }) {
 }
 
 const ART = {
+  dessin: () => (
+    <>
+      <path d="M150 168 L120 196 M150 168 L180 196" stroke="#5A3A22" stroke-width="5" />
+      <rect x="86" y="34" width="128" height="120" fill="#F2EADB" stroke="#5A3A22" stroke-width="6" />
+      <path d="M104 132 Q124 70 150 104 T196 70" stroke="#22201C" stroke-width="5" fill="none" stroke-linecap="round" />
+      <circle cx="176" cy="60" r="10" fill="none" stroke="#C8301E" stroke-width="4" />
+      <path d="M214 120 l26 -40 l10 6 l-26 40 z" fill="#FFD23F" stroke="#22201C" stroke-width="2" />
+    </>
+  ),
+  buzzer: () => (
+    <>
+      <rect x="96" y="136" width="108" height="30" fill="#22201C" />
+      <ellipse cx="150" cy="136" rx="54" ry="14" fill="#3A3530" />
+      <path d="M108 136 Q108 92 150 92 Q192 92 192 136 Z" fill="#E5502F" />
+      <ellipse cx="136" cy="108" rx="12" ry="6" fill="#FF9A80" />
+      <text x="150" y="60" text-anchor="middle" font-size="26" fill="#FFD23F" font-family="Dela Gothic One, sans-serif">BUZZ !</text>
+    </>
+  ),
   coinche: () => (
     <>
       <Card x={96} y={104} r={-22} rank="V" suit="♥" />

@@ -14,16 +14,39 @@ import WARE from './ware.jsx';
 import JAMAIS from './jamais.jsx';
 import GAROU from './garou.jsx';
 import COINCHE from './coinche.jsx';
+import BUZZER from './buzzer.jsx';
+import DESSIN from './dessin.jsx';
 
-export const GAME_LIST = [OSERAIT, G96, PIPOTEUR, PURPLE, HIPPODROME, TOUTANKHAMON, AUTRES, TC, DEGAINE, BOMBE, WARE, JAMAIS, GAROU, COINCHE];
+export const GAME_LIST = [OSERAIT, G96, PIPOTEUR, PURPLE, HIPPODROME, TOUTANKHAMON, AUTRES, TC, DEGAINE, BOMBE, WARE, JAMAIS, GAROU, COINCHE, BUZZER, DESSIN];
 export const GAMES = Object.fromEntries(GAME_LIST.map((G) => [G.id, G]));
 
 // numéro, picto et teinte du papier de la tuile (crème, kraft ou rose de facture)
 const PAPERS = ['', 'kraft', 'rose'];
 const TILTS = ['tilt-a', 'tilt-b', 'tilt-c', 'tilt-d'];
 // couleur propre à chaque jeu (r, g, b) : liseré de la tuile et halo de l'icône
-const COLORS = { oserait: '238, 98, 74', '96': '255, 196, 64', pipoteur: '108, 201, 168', purple: '168, 112, 240', hippodrome: '232, 160, 72', toutankhamon: '214, 182, 92', autres: '92, 160, 240', trouve: '240, 120, 160', degaine: '250, 84, 64', bombe: '255, 140, 40', ware: '120, 220, 220', jamais: '238, 72, 120', garou: '120, 150, 210', coinche: '90, 180, 120' };
-const ICONS = { oserait: 'g-oserait', '96': 'g-96', pipoteur: 'g-pipo', purple: 'g-purple', hippodrome: 'g-hippo', toutankhamon: 'g-tomb', autres: 'g-autres', trouve: 'g-trouve', degaine: 'g-degaine', bombe: 'g-bombe', ware: 'g-ware', jamais: 'g-jamais', garou: 'g-pipo', coinche: 'g-trouve' };
+const COLORS = { oserait: '238, 98, 74', '96': '255, 196, 64', pipoteur: '108, 201, 168', purple: '168, 112, 240', hippodrome: '232, 160, 72', toutankhamon: '214, 182, 92', autres: '92, 160, 240', trouve: '240, 120, 160', degaine: '250, 84, 64', bombe: '255, 140, 40', ware: '120, 220, 220', jamais: '238, 72, 120', garou: '120, 150, 210', coinche: '90, 180, 120', buzzer: '255, 120, 60', dessin: '92, 180, 240' };
+const ICONS = { oserait: 'g-oserait', '96': 'g-96', pipoteur: 'g-pipo', purple: 'g-purple', hippodrome: 'g-hippo', toutankhamon: 'g-tomb', autres: 'g-autres', trouve: 'g-trouve', degaine: 'g-degaine', bombe: 'g-bombe', ware: 'g-ware', jamais: 'g-jamais', garou: 'g-pipo', coinche: 'g-trouve', buzzer: 'g-autres', dessin: 'g-oserait' };
+// catégories pour filtrer la liste des jeux dans le salon (un jeu peut être dans plusieurs)
+export const CATS = [
+  ['cartes', 'Jeux de cartes'],
+  ['alcool', 'Jeux à boire'],
+  ['coquin', 'Coquins (paquets Cul et HARD)'],
+  ['bluff', 'Bluff et déduction'],
+  ['ambiance', 'Ambiance et questions'],
+  ['reflexe', 'Réflexes et arcade'],
+  ['culture', 'Culture et quiz'],
+  ['equipe', 'En équipes'],
+  ['ecran', 'Avec la télé (mode Écran)'],
+  ['solo', 'Sur un seul téléphone'],
+];
+const GAME_CATS = {
+  oserait: ['alcool', 'ambiance', 'coquin'], '96': ['cartes', 'alcool'], pipoteur: ['bluff', 'ambiance', 'coquin'], purple: ['cartes', 'alcool'],
+  hippodrome: ['cartes', 'alcool'], toutankhamon: ['cartes', 'bluff', 'alcool'], autres: ['ambiance'], trouve: ['cartes', 'alcool'],
+  degaine: ['reflexe'], bombe: ['reflexe', 'alcool'], ware: ['reflexe'], jamais: ['alcool', 'ambiance', 'coquin'],
+  garou: ['bluff', 'alcool', 'ecran'], coinche: ['cartes', 'equipe', 'ecran'], buzzer: ['culture', 'reflexe', 'ecran'], dessin: ['ambiance', 'ecran'],
+};
+export const catsOf = (G) => [...(GAME_CATS[G.id] || []), ...(G.local !== false ? ['solo'] : [])];
+
 export const GAME_META = Object.fromEntries(GAME_LIST.map((G, i) => [G.id, {
   no: String(i + 1).padStart(2, '0'),
   icon: ICONS[G.id] || 'alert',
