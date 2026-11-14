@@ -69,20 +69,31 @@ export function emitter() {
   };
 }
 
-// Avatar : le personnage « bouille » (voir ui/avatar.jsx), codé « couleur.expression.tête.visage.plus ».
+// Avatar : le portrait au feutre (voir ui/avatar.jsx),
+// codé « couleur.expression.tête.visage.plus.coiffure.peau.cheveux.espèce ».
 // Nombre de choix pour chaque partie :
-export const AV_COUNTS = [10, 8, 11, 6, 5];
-const AV_RE = /^\d{1,2}(\.\d{1,2}){4}$/;
+export const AV_COUNTS = [10, 8, 11, 6, 5, 8, 5, 6, 8];
+const AV_RE = /^\d{1,2}(\.\d{1,2}){4,8}$/;
 
-// Ancien profil (emoji, picto) ou valeur inconnue : on attribue un personnage stable.
+function avHash(s) {
+  let h = 7;
+  for (const ch of String(s || '')) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  return h;
+}
+// Ancien profil (emoji, picto, code à 5 parties) ou valeur inconnue : on complète avec un personnage stable.
 export function avatarId(av) {
   if (typeof av === 'string' && AV_RE.test(av)) {
     const p = av.split('.').map(Number);
-    if (p.every((x, i) => x < AV_COUNTS[i])) return av;
+    if (p.every((x, i) => x < AV_COUNTS[i])) {
+      if (p.length === AV_COUNTS.length) return av;
+      const h = avHash(av);
+      const fill = [(h >>> 3) % 8, (h >>> 7) % 5, (h >>> 11) % 6, 0];
+      while (p.length < AV_COUNTS.length) p.push(p.length >= 5 ? fill[p.length - 5] : 0);
+      return p.join('.');
+    }
   }
-  let h = 7;
-  for (const ch of String(av || '')) h = (h * 31 + ch.codePointAt(0)) >>> 0;
-  return [h % 10, (h >>> 4) % 8, (h >>> 8) % 11, 0, 0].join('.');
+  const h = avHash(av);
+  return [h % 10, (h >>> 4) % 8, (h >>> 8) % 11, 0, 0, (h >>> 3) % 8, (h >>> 7) % 5, (h >>> 11) % 6, 0].join('.');
 }
 
 export function sanitizeNick(s) {

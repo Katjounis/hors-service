@@ -33,18 +33,15 @@ const TILTS = ['tilt-a', 'tilt-b', 'tilt-c', 'tilt-d'];
 const COLORS = { oserait: '238, 98, 74', '96': '255, 196, 64', pipoteur: '108, 201, 168', purple: '168, 112, 240', hippodrome: '232, 160, 72', toutankhamon: '214, 182, 92', autres: '92, 160, 240', trouve: '240, 120, 160', degaine: '250, 84, 64', bombe: '255, 140, 40', ware: '120, 220, 220', jamais: '238, 72, 120', garou: '120, 150, 210', coinche: '90, 180, 120', buzzer: '255, 120, 60', dessin: '92, 180, 240', president: '232, 196, 80', cercle: '240, 96, 48', perudo: '200, 120, 72', paranoia: '150, 110, 220', actionverite: '238, 84, 110', tupref: '96, 190, 200' };
 const ICONS = { oserait: 'g-oserait', '96': 'g-96', pipoteur: 'g-pipo', purple: 'g-purple', hippodrome: 'g-hippo', toutankhamon: 'g-tomb', autres: 'g-autres', trouve: 'g-trouve', degaine: 'g-degaine', bombe: 'g-bombe', ware: 'g-ware', jamais: 'g-jamais', garou: 'g-pipo', coinche: 'g-trouve', buzzer: 'g-autres', dessin: 'g-oserait', president: 'g-trouve', cercle: 'g-trouve', perudo: 'g-tomb', paranoia: 'g-pipo', actionverite: 'g-oserait', tupref: 'g-jamais' };
 // catégories pour filtrer la liste des jeux dans le salon (un jeu peut être dans plusieurs)
+// filtres du salon : peu de familles, une seule ligne d'onglets (« Cul et hard » seulement si le mode est actif)
 export const CATS = [
-  ['cartes', 'Jeux de cartes'],
-  ['alcool', 'Jeux à boire'],
-  ['coquin', 'Coquins (paquets Cul et HARD)'],
-  ['bluff', 'Bluff et déduction'],
-  ['ambiance', 'Ambiance et questions'],
-  ['reflexe', 'Réflexes et arcade'],
-  ['culture', 'Culture et quiz'],
-  ['equipe', 'En équipes'],
-  ['ecran', 'Avec la télé (mode Écran)'],
-  ['solo', 'Sur un seul téléphone'],
+  ['cartes', 'Cartes'],
+  ['questions', 'Questions'],
+  ['bluff', 'Bluff'],
+  ['vite', 'Réflexes'],
+  ['coquin', 'Cul et hard'],
 ];
+const CAT_OF = { cartes: ['cartes'], questions: ['ambiance', 'culture'], bluff: ['bluff'], vite: ['reflexe'], coquin: ['coquin'] };
 const GAME_CATS = {
   oserait: ['alcool', 'ambiance', 'coquin'], '96': ['cartes', 'alcool'], pipoteur: ['bluff', 'ambiance', 'coquin'], purple: ['cartes', 'alcool'],
   hippodrome: ['cartes', 'alcool'], toutankhamon: ['cartes', 'bluff', 'alcool'], autres: ['ambiance'], trouve: ['cartes', 'alcool'],
@@ -53,7 +50,7 @@ const GAME_CATS = {
   president: ['cartes', 'alcool'], cercle: ['cartes', 'alcool', 'ambiance'], perudo: ['bluff', 'alcool'], paranoia: ['ambiance', 'alcool', 'coquin'],
   actionverite: ['ambiance', 'coquin', 'alcool'], tupref: ['ambiance', 'alcool', 'coquin'],
 };
-export const catsOf = (G) => [...(GAME_CATS[G.id] || []), ...(G.local !== false ? ['solo'] : [])];
+export const catsOf = (G) => { const own = GAME_CATS[G.id] || []; return Object.keys(CAT_OF).filter((k) => CAT_OF[k].some((c) => own.includes(c))); };
 
 export const GAME_META = Object.fromEntries(GAME_LIST.map((G, i) => [G.id, {
   no: String(i + 1).padStart(2, '0'),

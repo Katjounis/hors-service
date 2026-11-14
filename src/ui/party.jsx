@@ -231,12 +231,14 @@ function useRail() {
 }
 
 const CAT_KEY = 'hs:cat';
-function loadCat() { try { return localStorage.getItem(CAT_KEY) || 'tous'; } catch (e) { return 'tous'; } }
+function loadCat() { try { const c = localStorage.getItem(CAT_KEY); return CATS.some(([id]) => id === c) ? c : 'tous'; } catch (e) { return 'tous'; } }
 function Lobby({ dev, S, local }) {
   const rail = useRail();
   const [cat, setCatState] = useState(loadCat);
   const setCat = (v) => { setCatState(v); try { localStorage.setItem(CAT_KEY, v); } catch (e) { /* stockage bloqué */ } if (rail.ref.current) rail.ref.current.scrollLeft = 0; };
-  const shown = cat === 'tous' ? GAME_LIST : GAME_LIST.filter((G) => catsOf(G).includes(cat));
+  const tabs = [['tous', 'Tous'], ...CATS.filter(([id]) => id !== 'coquin' || S.cfg.adult)];
+  const cur = tabs.some(([id]) => id === cat) ? cat : 'tous';
+  const shown = cur === 'tous' ? GAME_LIST : GAME_LIST.filter((G) => catsOf(G).includes(cur));
   const [sheet, setSheet] = useState(null);
   const list = seats(S);
   const active = list.filter((u) => isOnline(dev, u, local)).length;
@@ -250,17 +252,21 @@ function Lobby({ dev, S, local }) {
       <section class="sec games-sec">
         <div class="games-h">
           <h2>Jeux</h2>
-          <label class="cat-pick"><span class="visually-hidden">Catégorie</span>
-            <select class="cat-select" value={cat} onChange={(e) => setCat(e.currentTarget.value)}>
-              <option value="tous">Tous les jeux ({GAME_LIST.length})</option>
-              {CATS.map(([id, label]) => { const n = GAME_LIST.filter((G) => catsOf(G).includes(id)).length; return n ? <option key={id} value={id}>{label} ({n})</option> : null; })}
-            </select>
-          </label>
           <span class="muted small games-tip">Glisse, puis touche un jeu</span>
           <span class="rail-nav">
             <button type="button" class="icon-btn" aria-label="Jeux précédents" disabled={rail.edge.start} onClick={() => rail.step(-1)}><Icon name="back" /></button>
             <button type="button" class="icon-btn rail-next" aria-label="Jeux suivants" disabled={rail.edge.end} onClick={() => rail.step(1)}><Icon name="back" /></button>
           </span>
+        </div>
+        <div class="cat-tabs" role="group" aria-label="Catégorie">
+          {tabs.map(([id, label]) => {
+            const n = id === 'tous' ? GAME_LIST.length : GAME_LIST.filter((G) => catsOf(G).includes(id)).length;
+            return (
+              <button type="button" key={id} class={`cat-tab${cur === id ? ' is-on' : ''}${id === 'coquin' ? ' is-hot' : ''}`} aria-pressed={cur === id ? 'true' : 'false'} onClick={() => setCat(id)}>
+                {label}<span class="cat-n">{n}</span>
+              </button>
+            );
+          })}
         </div>
         <div class="games-rail" ref={rail.ref}>
           {shown.map((G) => {

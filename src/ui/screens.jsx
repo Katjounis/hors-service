@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { normalizeCode, isPartyCode, sanitizeNick, avatarId } from '../lib/util.js';
 import { Av } from './common.jsx';
 import { Icon } from './icons.jsx';
-import { Character, AV_COLORS, AV_NAMES, AV_PARTS, parseAv, makeAv, randomAv, describeAv } from './avatar.jsx';
+import { Character, AV_NAMES, AV_PARTS, AV_EDIT, AV_SWATCH, KIND_SKINS, KIND_HAIR, parseAv, makeAv, randomAv, describeAv } from './avatar.jsx';
 import { LEVELS, CS_CHOICES, DEFAULT_CFG } from '../core/host.js';
 
 export const LEVEL_HELP = {
@@ -55,7 +55,7 @@ export function Crans({ value, onChange, name, options }) {
 export const LEVEL_OPTS = [1, 2, 3].map((l) => [l, LEVELS[l], LEVEL_HELP[l]]);
 
 // Atelier du personnage : aperçu en grand, puis couleur, expression et accessoires.
-const PART_LABEL = { color: 'Couleur', expr: 'Expression', head: 'Sur la tête', face: 'Sur le visage', extra: 'En plus' };
+const PART_LABEL = { kind: 'Personnage', skin: 'Peau', hair: 'Coiffure', hairCol: 'Cheveux', expr: 'Expression', color: 'Tee-shirt', head: 'Sur la tête', face: 'Sur le visage', extra: 'En plus' };
 export function AvatarMaker({ value, onChange, idp }) {
   const parts = parseAv(value);
   const [mood, setMood] = useState(null);
@@ -84,24 +84,28 @@ export function AvatarMaker({ value, onChange, idp }) {
           </div>
         </div>
       </div>
-      {AV_PARTS.map((k, i) => (
-        <div class="maker-row" key={k}>
-          <span class="maker-l">{PART_LABEL[k]}</span>
-          <div class="maker-strip" role="radiogroup" aria-label={PART_LABEL[k]}>
-            {AV_NAMES[k].map((name, x) => {
-              const p = parts.slice();
-              p[i] = x;
-              const on = parts[i] === x;
-              return (
-                <button type="button" key={x} role="radio" aria-checked={on ? 'true' : 'false'} aria-label={name} title={name}
-                  class={`maker-opt${on ? ' is-on' : ''}${k === 'color' ? ' is-color' : ''}`} onClick={() => set(i, x)}>
-                  {k === 'color' ? <span class="swatch" style={{ background: AV_COLORS[x] }} /> : <Character av={makeAv(p)} size={46} bg={false} />}
-                </button>
-              );
-            })}
+      {AV_EDIT.filter((k) => (k !== 'hair' && k !== 'hairCol') || KIND_HAIR[parts[8]]).map((k) => {
+        const i = AV_PARTS.indexOf(k);
+        const sw = k === 'skin' ? KIND_SKINS[parts[8]] : AV_SWATCH[k];
+        return (
+          <div class="maker-row" key={k}>
+            <span class="maker-l">{k === 'skin' && parts[8] !== 0 && parts[8] !== 2 && parts[8] !== 3 ? 'Teinte' : PART_LABEL[k]}</span>
+            <div class="maker-strip" role="radiogroup" aria-label={PART_LABEL[k]}>
+              {AV_NAMES[k].map((name, x) => {
+                const p = parts.slice();
+                p[i] = x;
+                const on = parts[i] === x;
+                return (
+                  <button type="button" key={x} role="radio" aria-checked={on ? 'true' : 'false'} aria-label={name} title={name}
+                    class={`maker-opt${on ? ' is-on' : ''}${sw ? ' is-color' : ''}`} onClick={() => set(i, x)}>
+                    {sw ? <span class="swatch" style={{ background: sw[x] }} /> : <Character av={makeAv(p)} size={52} bg={false} />}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

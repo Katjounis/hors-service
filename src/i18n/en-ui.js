@@ -226,4 +226,10 @@ export default [
   ['{0} et {1}', '{0} and {1}'], ['{0} : {1}', '{0}: {1}'], ['Série : {0}', 'Streak: {0}'],
   ['carte', 'card'], ['cartes', 'cards'], ['joueur', 'player'], ['joueurs', 'players'], ['manche', 'round'], ['manches', 'rounds'], ['tour', 'turn'], ['tours', 'turns'], ['question', 'question'], ['questions', 'questions'], ['point', 'point'], ['points', 'points'], ['partie', 'game'], ['parties', 'games'],
   ['As', 'Ace'], ['Deux', 'Two'], ['Trois', 'Three'], ['Quatre', 'Four'], ['Cinq', 'Five'], ['Six', 'Six'], ['Sept', 'Seven'], ['Huit', 'Eight'], ['Neuf', 'Nine'], ['Dix', 'Ten'], ['Valet', 'Jack'], ['Dame', 'Queen'], ['Roi', 'King'],
+  ['Tous', 'All'], ['Cartes', 'Cards'], ['Questions', 'Questions'], ['Bluff', 'Bluff'], ['Réflexes', 'Reflexes'], ['Cul et hard', 'Dirty and hard'],
+  ['Peau', 'Skin'], ['Coiffure', 'Hairstyle'], ['Cheveux', 'Hair'], ['Tee-shirt', 'T-shirt'],
+  ['Rasé', 'Shaved'], ['Court', 'Short'], ['Mèche', 'Side swept'], ['Bouclé', 'Curly'], ['Long', 'Long'], ['Chignon', 'Bun'], ['Crête', 'Mohawk'], ['Carré', 'Bob'],
+  ['Très claire', 'Very light'], ['Claire', 'Light'], ['Mate', 'Tan'], ['Foncée', 'Dark'], ['Très foncée', 'Very dark'],
+  ['Noirs', 'Black'], ['Bruns', 'Brown'], ['Châtains', 'Chestnut'], ['Blonds', 'Blond'], ['Roux', 'Red'], ['Roses', 'Pink'],
+  ['Personnage', 'Character'], ['Teinte', 'Tint'], ['Humain', 'Human'], ['Alien', 'Alien'], ['Cubique', 'Blocky'], ['Glitché', 'Glitched'], ['Robot', 'Robot'], ['Zombie', 'Zombie'], ['Fantôme', 'Ghost'], ['Squelette', 'Skeleton'],
 ];

@@ -2280,3 +2280,31 @@ h3 { font-size: 1.1rem; }
 .register .player { animation: obj-pose .2s ease-out backwards; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .22s; }
 @media (prefers-reduced-motion: reduce) { .hot-stamp { display: none; } .feutre-prev { display: none; } }
+
+/* filtres des jeux : une rangée d'onglets façon étiquettes de boîte de jeu, le choix en cours en carte crème */
+.cat-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 4px -16px 12px; padding: 2px 16px; }
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px;
+  border: 1px solid rgba(242, 234, 219, .22); border-radius: 6px; background: transparent; color: var(--texte-feutre, #F2EADB);
+  font: 400 .95rem/1 var(--f-titre); letter-spacing: .01em; cursor: pointer; transition: background-color .15s ease, color .15s ease;
+}
+.cat-tab:hover { background: rgba(242, 234, 219, .08); }
+.cat-tab .cat-n { font: 600 .78rem/1 var(--f-texte); opacity: .6; font-variant-numeric: tabular-nums; }
+.cat-tab.is-on { background: #F6EFDF; border-color: #F6EFDF; color: #1C1915; rotate: -1.5deg; }
+.cat-tab.is-hot { color: #F08AA0; border-color: rgba(240, 138, 160, .4); }
+.cat-tab.is-hot.is-on { background: #D9334E; border-color: #D9334E; color: #FFF4F0; }
+.cat-tab:active { scale: .97; }
+:root[data-theme="light"][lang] .cat-tab { border-color: rgba(34, 32, 28, .2); color: #2A241D; }
+:root[data-theme="light"][lang] .cat-tab:hover { background: rgba(34, 32, 28, .06); }
+:root[data-theme="light"][lang] .cat-tab.is-on { background: #2A241D; border-color: #2A241D; color: #F6EFDF; }
+:root[data-theme="light"][lang] .cat-tab.is-hot { color: #B5223A; }
+:root[data-theme="light"][lang] .cat-tab.is-hot.is-on { background: #B5223A; color: #FFF4F0; }
+
+/* personnage glitché : les tranches décalées sautent de temps en temps */
+@keyframes gl-saut { 0%, 86%, 100% { translate: 0 0; } 88% { translate: -3px 0; } 92% { translate: 2px 0; } 95% { translate: -1px 0; } }
+@keyframes gl-saut2 { 0%, 70%, 100% { translate: 0 0; } 72% { translate: 2.4px 0; } 76% { translate: -2px 0; } }
+.bouille.is-glitch .gl-s1 { animation: gl-saut 2.8s steps(1) infinite; }
+.bouille.is-glitch .gl-s2 { animation: gl-saut2 3.4s steps(1) infinite; }
+.bouille.is-glitch .gl-c { animation: gl-saut2 4.1s steps(1) infinite; }
+@media (prefers-reduced-motion: reduce) { .bouille.is-glitch g { animation: none !important; } }
