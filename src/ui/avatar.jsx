@@ -68,6 +68,8 @@ export function describeAv(av) {
 // Chaque forme est posée en deux temps : l'aplat de couleur, un peu décalé comme un coloriage au feutre,
 // puis le trait noir par-dessus, doublé d'un second passage plus fin pour l'effet « repassé au feutre ».
 const OFF = 'translate(.9 .7)';
+// épaisseur du trait (1 = feutre épais d'origine)
+const LW = 0.62;
 // trait tremblé : chaque coordonnée bouge un peu, toujours de la même façon pour un même tracé
 const jitCache = new Map();
 function jit(d, amp = 0.32) {
@@ -89,13 +91,13 @@ function F({ d: d0, fill, w = 2.2, line = true, sketch = true, op, j = 0.32 }) {
   return (
     <g>
       {fill && fill !== 'none' ? <path d={d} fill={fill} transform={OFF} opacity={op} /> : null}
-      {line ? <path d={d} fill="none" stroke={INK} stroke-width={w} stroke-linecap="round" stroke-linejoin="round" /> : null}
-      {line && sketch ? <path d={d2} fill="none" stroke={INK} stroke-width={w * 0.35} stroke-linecap="round" opacity=".5" transform="translate(.4 -.3)" /> : null}
+      {line ? <path d={d} fill="none" stroke={INK} stroke-width={w * LW} stroke-linecap="round" stroke-linejoin="round" /> : null}
+      {line && sketch ? <path d={d2} fill="none" stroke={INK} stroke-width={w * 0.3 * LW} stroke-linecap="round" opacity=".45" transform="translate(.4 -.3)" /> : null}
     </g>
   );
 }
 function L({ d, w = 2, color = INK, j = 0.22 }) {
-  return <path d={j ? jit(d, j) : d} fill="none" stroke={color} stroke-width={w} stroke-linecap="round" stroke-linejoin="round" />;
+  return <path d={j ? jit(d, j) : d} fill="none" stroke={color} stroke-width={color === INK ? w * LW : w * 0.85} stroke-linecap="round" stroke-linejoin="round" />;
 }
 function Dot({ x, y, r = 1.5, c = INK }) {
   return <ellipse cx={x} cy={y} rx={r * 0.9} ry={r * 1.15} fill={c} />;
@@ -282,7 +284,7 @@ function Hat({ k, c }) {
     );
     case 6: return (
       <g>
-        <path d="M19.4 7.6 C19.4 4.4 25 2.4 32 2.4 C39 2.4 44.6 4.4 44.6 7.6 C44.6 10.8 39 12.6 32 12.6 C25 12.6 19.4 10.8 19.4 7.6 Z" fill="none" stroke={INK} stroke-width="5.4" />
+        <path d="M19.4 7.6 C19.4 4.4 25 2.4 32 2.4 C39 2.4 44.6 4.4 44.6 7.6 C44.6 10.8 39 12.6 32 12.6 C25 12.6 19.4 10.8 19.4 7.6 Z" fill="none" stroke={INK} stroke-width="4.4" />
         <path d="M19.4 7.6 C19.4 4.4 25 2.4 32 2.4 C39 2.4 44.6 4.4 44.6 7.6 C44.6 10.8 39 12.6 32 12.6 C25 12.6 19.4 10.8 19.4 7.6 Z" fill="none" stroke={YEL} stroke-width="2.6" />
       </g>
     );
@@ -435,14 +437,14 @@ function CubeHead({ expr, mood, sk, hc, hair, shirt }) {
   return (
     <g>
       {/* pas de cou : la tête-bloc est posée directement sur le buste, les bras de chaque côté */}
-      <rect x="5.6" y="41.2" width="12" height="26" fill={shade(shirt, 0.82)} stroke={INK} stroke-width="2" />
-      <rect x="46.4" y="41.2" width="12" height="26" fill={shade(shirt, 0.82)} stroke={INK} stroke-width="2" />
-      <rect x="5.6" y="52" width="12" height="15" fill={sk} stroke={INK} stroke-width="2" />
-      <rect x="46.4" y="52" width="12" height="15" fill={sk} stroke={INK} stroke-width="2" />
-      <rect x={PX0} y="41.2" width={PX * 8} height="26" fill={shirt} stroke={INK} stroke-width="2" />
+      <rect x="5.6" y="41.2" width="12" height="26" fill={shade(shirt, 0.82)} stroke={INK} stroke-width="1.3" />
+      <rect x="46.4" y="41.2" width="12" height="26" fill={shade(shirt, 0.82)} stroke={INK} stroke-width="1.3" />
+      <rect x="5.6" y="52" width="12" height="15" fill={sk} stroke={INK} stroke-width="1.3" />
+      <rect x="46.4" y="52" width="12" height="15" fill={sk} stroke={INK} stroke-width="1.3" />
+      <rect x={PX0} y="41.2" width={PX * 8} height="26" fill={shirt} stroke={INK} stroke-width="1.3" />
       <rect x={PX0 + 0.9} y="42.2" width={PX * 8 - 1.8} height="2.4" fill={shade(shirt, 0.86)} />
       {cells}
-      <rect x={PX0} y={PY0} width={PX * 8} height={PX * 8} fill="none" stroke={INK} stroke-width="2.2" />
+      <rect x={PX0} y={PY0} width={PX * 8} height={PX * 8} fill="none" stroke={INK} stroke-width="1.4" />
     </g>
   );
 }
