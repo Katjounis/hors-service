@@ -2065,8 +2065,8 @@ h3 { font-size: 1.1rem; }
 :root .choice:nth-child(odd) { transform: rotate(-1.2deg); }
 :root .choice:nth-child(even) { transform: rotate(1deg); }
 :root .choice::after { display: none; }
-:root .choice::before { content: 'A\A♠'; white-space: pre; position: absolute; left: 18px; top: 14px; font: 400 1.5rem/1 var(--f-titre); text-align: center; color: #1C1915; }
-:root .choice:nth-child(2)::before { content: 'R\A♥'; color: #B8261A; }
+:root .choice::before { content: 'A\A♠'; content: 'A\A♠' / ''; white-space: pre; position: absolute; left: 18px; top: 14px; font: 400 1.5rem/1 var(--f-titre); text-align: center; color: #1C1915; }
+:root .choice:nth-child(2)::before { content: 'R\A♥'; content: 'R\A♥' / ''; color: #B8261A; }
 :root .choice:nth-child(3)::before { content: 'D\A♣'; }
 :root .choice:nth-child(4)::before { content: 'V\A♦'; color: #B8261A; }
 :root .choice-ico { display: none; }
@@ -2161,16 +2161,21 @@ h3 { font-size: 1.1rem; }
 :root .bz-opts li.is-wrong { background: rgba(120, 24, 14, .55); }
 :root .tp-lead { color: #F2D27A; text-transform: none; }
 
-/* ---- objets posés sur la table : rendus 3D (verre de bière sur son sous-bock, cartes, jetons, dés, capsules).
+/* ---- objets posés sur la table : rendus 3D (verre de bière, cartes de l'app, château de cartes, pizza).
    Images détourées avec leurs ombres, placées aux bords pour laisser le centre libre. */
 .obj { position: absolute; display: block; background: no-repeat center / contain; pointer-events: none; transition: opacity .25s ease; }
-.obj-verre { background-image: url(img/table-verre.webp); aspect-ratio: 560 / 561; width: 46vw; top: -3vh; right: -12vw; transform: rotate(-6deg); }
-.obj-cartes { background-image: url(img/table-cartes.webp); aspect-ratio: 1000 / 528; width: 108vw; bottom: -5vh; left: -24vw; transform: rotate(4deg); }
-.obj-jetons { background-image: url(img/table-jetons.webp); aspect-ratio: 700 / 487; width: 70vw; top: 38vh; right: -40vw; transform: rotate(-12deg); opacity: .9; }
+/* même échelle pour tous les objets : --k = longueur d'écran pour 1 cm de table, chaque largeur = taille réelle de l'image en cm */
+.ambiance { --k: 1.35vw; }
+.obj-verre { background-image: url(img/table-verre.webp); aspect-ratio: 560 / 607; width: calc(var(--k) * 18.2); top: 47vh; right: calc(var(--k) * -8); transform: rotate(-6deg); }
+.obj-cartes { background-image: url(img/table-cartes.webp); aspect-ratio: 1000 / 523; width: calc(var(--k) * 29.6); bottom: 3vh; left: calc(var(--k) * -6); transform: rotate(4deg); }
+.obj-pyramide { background-image: url(img/table-pyramide.webp); aspect-ratio: 600 / 575; width: calc(var(--k) * 36.2); bottom: 1vh; right: calc(var(--k) * -6); transform: rotate(-5deg); }
+.obj-pizza { background-image: url(img/table-pizza.webp); aspect-ratio: 820 / 679; width: calc(var(--k) * 38.9); top: -5vh; right: calc(var(--k) * -15); transform: rotate(-12deg); }
 @media (min-width: 760px) {
-  .obj-verre { width: 300px; top: 3vh; right: 3vw; }
-  .obj-cartes { width: 620px; bottom: -40px; left: -70px; }
-  .obj-jetons { width: 400px; top: auto; bottom: 6vh; right: -30px; }
+  .ambiance { --k: 12px; }
+  .obj-verre { top: 4vh; right: 3vw; }
+  .obj-cartes { bottom: 3vh; left: 3vw; }
+  .obj-pyramide { bottom: 0; right: 2vw; }
+  .obj-pizza { top: -80px; right: auto; left: -100px; transform: rotate(9deg); }
 }
 .ambiance.is-game .obj { opacity: .45; }
 @media (prefers-reduced-motion: reduce) { .obj { transition: none; } }
@@ -2212,15 +2217,11 @@ h3 { font-size: 1.1rem; }
 :root[data-theme="light"][lang] .jn-card, :root[data-theme="light"][lang] .ose-card, :root[data-theme="light"][lang] .choice, :root[data-theme="light"][lang] .gcard, :root[data-theme="light"][lang] .tp-opt, :root[data-theme="light"][lang] .bz-q { box-shadow: 0 10px 20px rgba(70, 45, 20, .3); }
 :root .ambiance { z-index: -1; }
 :root[data-theme="light"][lang] .home-foot, :root[data-theme="light"][lang] .screen > .lead, :root[data-theme="light"][lang] .screen .hint, :root[data-theme="light"][lang] .screen > p.muted { background: none; box-shadow: none; border: 0; }
-/* objets : au téléphone, le verre ne dépasse que dans le coin et les jetons restent pour les grands écrans */
-@media (max-width: 759px) {
-  .obj-verre { width: 34vw; top: -9vw; right: -13vw; }
-  .obj-jetons { display: none; }
-  .obj-cartes { width: 104vw; bottom: -7vh; left: -26vw; }
-}
 :root .panel, :root .act, :root .local-act, :root .sec, :root .register, :root .spicy-btn, :root .tbl-wrap, :root .games-h, :root .rules, :root .screen > .form, :root .screen .stack > .form, :root .invite { background: rgba(6, 18, 12, .72); }
 :root .btn, :root .icon-btn, :root .menu-item, :root .pref-btn { background: rgba(6, 18, 12, .6); }
 :root .btn:hover, :root .icon-btn:hover, :root .menu-item:hover, :root .pref-btn:hover { background: rgba(6, 18, 12, .78); }
 :root .ambiance.is-game .obj { opacity: .35; }
-@media (max-width: 759px) { .obj-verre { width: 44vw; top: auto; bottom: 24vh; right: -14vw; transform: rotate(-8deg); } }
-@media (max-width: 759px) { .obj-verre { width: 40vw; bottom: 3vh; right: -12vw; } }
+
+/* textes posés à même la table : une plaque derrière */
+:root .screen > .lead, :root .home-foot { width: fit-content; max-width: 100%; padding: 8px 12px; background: rgba(6, 18, 12, .78); }
+:root[data-theme="light"][lang] .screen > .lead, :root[data-theme="light"][lang] .home-foot { background: rgba(253, 249, 240, .92); }

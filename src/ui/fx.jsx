@@ -278,7 +278,8 @@ export function Ambiance({ game = null }) {
       <i class="feutre-lampe" />
       <i class="obj obj-verre" />
       <i class="obj obj-cartes" />
-      <i class="obj obj-jetons" />
+      <i class="obj obj-pyramide" />
+      <i class="obj obj-pizza" />
     </div>
   );
 }
