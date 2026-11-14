@@ -80,6 +80,9 @@ if (target === 'preview') {
   const js = await bundle('src/main-pages.jsx');
   const icons = readdirSync('src/icons').filter((f) => f.endsWith('.png')).sort();
   for (const f of icons) copyFileSync(`src/icons/${f}`, `${OUT}/assets/icons/${f}`);
+  // photos des jeux (rendus 3D), chargées à la demande
+  mkdirSync(`${OUT}/jeux`, { recursive: true });
+  for (const f of readdirSync('src/jeux').filter((x) => x.endsWith('.webp'))) copyFileSync(`src/jeux/${f}`, `${OUT}/jeux/${f}`);
   const html = `<!doctype html>
 <html lang="fr">
 <head>
@@ -129,8 +132,10 @@ if (target === 'preview') {
   // la version du cache change à chaque nouvelle publication : les téléphones récupèrent la mise à jour
   const h = createHash('sha256').update(html).update(JSON.stringify(manifest));
   for (const f of icons) h.update(readFileSync(`src/icons/${f}`));
+  const jeux = readdirSync('src/jeux').filter((x) => x.endsWith('.webp'));
+  for (const f of jeux) h.update(readFileSync(`src/jeux/${f}`));
   const version = h.digest('hex').slice(0, 10);
-  const files = ['./', './index.html', './manifest.webmanifest', ...icons.map((f) => `./assets/icons/${f}`)];
+  const files = ['./', './index.html', './manifest.webmanifest', ...icons.map((f) => `./assets/icons/${f}`), ...jeux.map((f) => `./jeux/${f}`)];
   writeFileSync(`${OUT}/sw.js`, readFileSync('src/pages/sw.js', 'utf8').replace('__VERSION__', version).replace('__FILES__', JSON.stringify(files)));
   writeFileSync(`${OUT}/.nojekyll`, '');
   copyFileSync('src/pages/README.md', `${OUT}/README.md`);

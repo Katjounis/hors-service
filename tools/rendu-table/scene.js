@@ -85,6 +85,9 @@ function suit(g, s, x, y, size, color, flip = false) {
 }
 const PIPS = { 7: [[0, -0.75], [0, 0.75], [-0.5, -0.75], [0.5, -0.75], [-0.5, 0], [0.5, 0], [0, -0.38]].slice(0), 10: [[-0.5, -0.8], [-0.5, -0.27], [-0.5, 0.27], [-0.5, 0.8], [0.5, -0.8], [0.5, -0.27], [0.5, 0.27], [0.5, 0.8], [0, -0.53], [0, 0.53]], 3: [[0, -0.7], [0, 0], [0, 0.7]] };
 PIPS[7] = [[-0.5, -0.8], [0.5, -0.8], [-0.5, 0], [0.5, 0], [-0.5, 0.8], [0.5, 0.8], [0, -0.4]];
+PIPS[6] = [[-0.5, -0.8], [0.5, -0.8], [-0.5, 0], [0.5, 0], [-0.5, 0.8], [0.5, 0.8]];
+PIPS[9] = [[-0.5, -0.8], [-0.5, -0.27], [-0.5, 0.27], [-0.5, 0.8], [0.5, -0.8], [0.5, -0.27], [0.5, 0.27], [0.5, 0.8], [0, 0]];
+PIPS[2] = [[0, -0.7], [0, 0.7]];
 function cardFace(rank, s) {
   const red = s === '♥' || s === '♦';
   const col = red ? '#B3121E' : '#141414';
@@ -562,6 +565,162 @@ function lipstick(x0, z0, ry) {
   return grp;
 }
 
+
+// ---------------------------------------------------------------- objets des illustrations de jeux
+function figureCard(rank, s) {
+  // figure (V, D, R) : grande lettre encadrée, sans portrait
+  const red = s === '♥' || s === '♦'; const col = red ? '#B3121E' : '#141414';
+  return canvasTex(630, 880, (g, w, h) => {
+    rrect(g, 0, 0, w, h, 44); g.fillStyle = '#FBFAF4'; g.fill(); g.save(); g.clip(); grain(g, w, h, 0.025); g.restore();
+    g.fillStyle = col; g.textAlign = 'center'; g.font = '700 92px Georgia, serif';
+    for (const flip of [false, true]) { g.save(); if (flip) { g.translate(w, h); g.rotate(Math.PI); } g.fillText(rank, 62, 112); suit(g, s, 62, 168, 58, col); g.restore(); }
+    g.strokeStyle = col; g.lineWidth = 6; rrect(g, 120, 150, w - 240, h - 300, 18); g.stroke();
+    g.fillStyle = red ? 'rgba(179,18,30,.08)' : 'rgba(20,20,20,.06)'; g.fill();
+    g.fillStyle = col; g.font = '700 260px Georgia, serif'; g.fillText(rank, w / 2, h / 2 + 90);
+    suit(g, s, w / 2, h / 2 + 200, 70, col);
+  });
+}
+function shotGlass(x, z, liquid = 0xC0401E) {
+  const prof = []; const H = 6;
+  for (let i = 0; i <= 12; i++) { const t = i / 12; prof.push(new THREE.Vector2(1.7 + 0.5 * t, t * H)); }
+  for (let i = 12; i >= 0; i--) { const t = i / 12; prof.push(new THREE.Vector2(1.45 + 0.5 * t, 1.1 + t * (H - 1.1))); }
+  const glass = new THREE.Mesh(new THREE.LatheGeometry(prof, 64), new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.03, transparent: true, opacity: 0.16, clearcoat: 1, envMapIntensity: 2.5, side: THREE.DoubleSide, depthWrite: false }));
+  glass.position.set(x, 0, z); glass.renderOrder = 2; scene.add(glass);
+  const liq = new THREE.Mesh(new THREE.CylinderGeometry(1.75, 1.45, 3.6, 48), new THREE.MeshPhysicalMaterial({ color: liquid, emissive: liquid, emissiveIntensity: 0.35, roughness: 0.1, clearcoat: 1 }));
+  liq.position.set(x, 1.1 + 1.8, z); liq.castShadow = true; scene.add(liq);
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 1.1, 48), new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, transparent: true, opacity: 0.3, clearcoat: 1 }));
+  base.position.set(x, 0.55, z); base.castShadow = true; scene.add(base);
+}
+function phone(x, z, ry, screenDraw) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
+  const body = new THREE.Mesh(new RoundedBoxGeometry(7.4, 0.8, 15.4, 6, 0.8), new THREE.MeshPhysicalMaterial({ color: 0x1b1c1f, roughness: 0.35, metalness: 0.3, clearcoat: 0.6 }));
+  body.position.y = 0.4; body.castShadow = true; body.receiveShadow = true; g.add(body);
+  const tex = canvasTex(700, 1440, (c, w, h) => { c.fillStyle = '#111'; c.fillRect(0, 0, w, h); screenDraw(c, w, h); });
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 14.6), new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: 0.55, roughness: 0.15 }));
+  scr.rotation.x = -Math.PI / 2; scr.position.y = 0.81; g.add(scr);
+  return g;
+}
+function pencil(x, z, ry, col = 0xF2C230) {
+  const g = new THREE.Group(); g.position.set(x, 0.45, z); g.rotation.y = ry; scene.add(g);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 13, 6), new THREE.MeshPhysicalMaterial({ color: col, roughness: 0.45, clearcoat: 0.6 })); body.rotation.z = Math.PI / 2; body.castShadow = true; g.add(body);
+  const wood = new THREE.Mesh(new THREE.ConeGeometry(0.45, 2, 6), new THREE.MeshStandardMaterial({ color: 0xE8C9A0, roughness: 0.8 })); wood.rotation.z = -Math.PI / 2; wood.position.x = 7.5; wood.castShadow = true; g.add(wood);
+  const lead = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.7, 6), new THREE.MeshStandardMaterial({ color: 0x2a2a2a })); lead.rotation.z = -Math.PI / 2; lead.position.x = 8.3; g.add(lead);
+  const fer = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 1, 16), new THREE.MeshStandardMaterial({ color: 0xC9C9C9, metalness: 0.9, roughness: 0.3 })); fer.rotation.z = Math.PI / 2; fer.position.x = -7; g.add(fer);
+  const gum = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 1.2, 16), new THREE.MeshStandardMaterial({ color: 0xE88AA0, roughness: 0.9 })); gum.rotation.z = Math.PI / 2; gum.position.x = -8.1; g.add(gum);
+}
+function paper(x, z, ry, w, h, draw, lined = true) {
+  const tex = canvasTex(Math.round(w * 60), Math.round(h * 60), (g, W, H) => {
+    g.fillStyle = '#FBF8EE'; g.fillRect(0, 0, W, H);
+    if (lined) { g.strokeStyle = 'rgba(80,120,190,.35)'; g.lineWidth = 2; for (let y = 90; y < H; y += 42) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); } g.strokeStyle = 'rgba(200,60,60,.4)'; g.beginPath(); g.moveTo(70, 0); g.lineTo(70, H); g.stroke(); }
+    if (draw) draw(g, W, H); grain(g, W, H, 0.03);
+  });
+  const geo = new THREE.PlaneGeometry(w, h, 20, 20); const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setZ(i, 0.06 + 0.05 * Math.sin(p.getX(i) * 0.4 + p.getY(i) * 0.3));
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.rotation.z = ry; m.position.set(x, 0.02, z); m.castShadow = true; m.receiveShadow = true; scene.add(m);
+}
+function bomb(x, z) {
+  const b = new THREE.Mesh(new THREE.SphereGeometry(3.6, 48, 36), new THREE.MeshPhysicalMaterial({ color: 0x1d1e22, roughness: 0.3, clearcoat: 0.8, metalness: 0.2 }));
+  b.position.set(x, 3.6, z); b.castShadow = true; scene.add(b);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 1.2, 24), new THREE.MeshStandardMaterial({ color: 0x3a3b40, metalness: 0.6, roughness: 0.4 })); neck.position.set(x + 1.6, 6.7, z - 1); neck.rotation.set(-0.3, 0, -0.45); neck.castShadow = true; scene.add(neck);
+  const fuse = new THREE.CatmullRomCurve3([new THREE.Vector3(x + 2, 7.3, z - 1.3), new THREE.Vector3(x + 3.4, 8.6, z - 1.8), new THREE.Vector3(x + 5.2, 8.4, z - 1.2), new THREE.Vector3(x + 6, 7.4, z)]);
+  const f = new THREE.Mesh(new THREE.TubeGeometry(fuse, 30, 0.22, 8), new THREE.MeshStandardMaterial({ color: 0xC9A87A, roughness: 0.9 })); f.castShadow = true; scene.add(f);
+  const spark = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 12), new THREE.MeshStandardMaterial({ color: 0xFFD25A, emissive: 0xFF9A20, emissiveIntensity: 3 })); spark.position.set(x + 6, 7.4, z); scene.add(spark);
+  const glow = new THREE.PointLight(0xffa040, 30, 12); glow.position.set(x + 6, 8, z); scene.add(glow);
+}
+function buzzer(x, z) {
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(5, 5.6, 2.6, 64), new THREE.MeshPhysicalMaterial({ color: 0x1d1e22, roughness: 0.35, clearcoat: 0.6 })); base.position.set(x, 1.3, z); base.castShadow = true; scene.add(base);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.35, 16, 64), new THREE.MeshStandardMaterial({ color: 0xC9C9C9, metalness: 0.9, roughness: 0.25 })); ring.rotation.x = Math.PI / 2; ring.position.set(x, 2.65, z); scene.add(ring);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(3.9, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshPhysicalMaterial({ color: 0xD3201C, roughness: 0.15, clearcoat: 1 })); dome.scale.y = 0.55; dome.position.set(x, 2.6, z); dome.castShadow = true; scene.add(dome);
+}
+function candle(x, z, h = 8) {
+  const c = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.5, h, 40), new THREE.MeshPhysicalMaterial({ color: 0xF4ECD8, roughness: 0.6, sheen: 0.5, transmission: 0.1 })); c.position.set(x, h / 2, z); c.castShadow = true; scene.add(c);
+  const drip = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.25, 10, 40), c.material); drip.rotation.x = Math.PI / 2; drip.position.set(x, h - 0.1, z); scene.add(drip);
+  const wick = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8), new THREE.MeshStandardMaterial({ color: 0x222222 })); wick.position.set(x, h + 0.3, z); scene.add(wick);
+  const fl = new THREE.Mesh(new THREE.SphereGeometry(0.45, 20, 16), new THREE.MeshStandardMaterial({ color: 0xFFE7A0, emissive: 0xFFB040, emissiveIntensity: 3 })); fl.scale.set(1, 2.2, 1); fl.position.set(x, h + 1.3, z); scene.add(fl);
+  const L = new THREE.PointLight(0xffb060, 80, 30); L.position.set(x, h + 2, z); scene.add(L);
+}
+function crown(x, z, s = 1) {
+  const gold = new THREE.MeshPhysicalMaterial({ color: 0xE8B83A, metalness: 0.7, roughness: 0.25, clearcoat: 0.8 });
+  const sh = new THREE.Shape(); sh.moveTo(0, 0); for (let i = 0; i <= 10; i++) sh.lineTo(i * 0.4, i % 2 ? 0.75 : 0.42); sh.lineTo(4, 0); sh.lineTo(0, 0);
+  const geo = new THREE.ExtrudeGeometry(sh, { depth: 0.08, bevelEnabled: false }); const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) { const a = (p.getX(i) / 4) * Math.PI * 2; const r = 0.82 + p.getZ(i); p.setXYZ(i, Math.sin(a) * r, p.getY(i), Math.cos(a) * r); }
+  geo.computeVertexNormals(); geo.scale(3.4 * s, 3.4 * s, 3.4 * s);
+  const m = new THREE.Mesh(geo, gold); m.position.set(x, 1.2, z); m.rotation.set(1.15, 0.5, 0.2); m.castShadow = true; scene.add(m);
+  for (const [a, c] of [[0, 0xd9342b], [1.4, 0x2f55a4], [-1.4, 0x5cbf9c]]) { const j = new THREE.Mesh(new THREE.SphereGeometry(0.35 * s, 16, 12), new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.1, clearcoat: 1 })); j.position.set(Math.sin(a) * 3.0 * s, 1.6 * s, Math.cos(a) * 3.0 * s); m.add(j); j.position.applyMatrix4(new THREE.Matrix4()); }
+}
+function diceCup(x, z, ry) {
+  const g = new THREE.Group(); g.position.set(x, 3.4, z); g.rotation.set(0, ry, Math.PI / 2 - 0.08); scene.add(g);
+  const prof = [new THREE.Vector2(0, -4.5), new THREE.Vector2(3.0, -4.5), new THREE.Vector2(3.4, 4.5), new THREE.Vector2(3.1, 4.5), new THREE.Vector2(2.7, -4.1), new THREE.Vector2(0, -4.1)];
+  const cup = new THREE.Mesh(new THREE.LatheGeometry(prof, 64), new THREE.MeshPhysicalMaterial({ color: 0x6A3418, roughness: 0.55, sheen: 0.6, sheenColor: new THREE.Color(0xC08050), side: THREE.DoubleSide }));
+  cup.castShadow = true; g.add(cup);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(3.25, 0.2, 10, 48), new THREE.MeshStandardMaterial({ color: 0xC9A15A, metalness: 0.8, roughness: 0.3 })); rim.rotation.x = Math.PI / 2; rim.position.y = 4.4; g.add(rim);
+}
+function coin(x, z, s = 1) {
+  const tex = canvasTex(256, 256, (g, w) => { g.fillStyle = '#C9A15A'; g.fillRect(0, 0, w, w); g.strokeStyle = 'rgba(80,50,10,.5)'; g.lineWidth = 6; g.beginPath(); g.arc(w / 2, w / 2, w * 0.4, 0, 6.28); g.stroke(); g.fillStyle = 'rgba(80,50,10,.6)'; g.textAlign = 'center'; g.font = '400 92px "Alfa Slab One"'; g.fillText('2', w / 2, w / 2 + 32); });
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(1.4 * s, 1.4 * s, 0.24, 48), [new THREE.MeshStandardMaterial({ color: 0xC9A15A, metalness: 0.9, roughness: 0.35 }), new THREE.MeshStandardMaterial({ map: tex, metalness: 0.85, roughness: 0.3 }), new THREE.MeshStandardMaterial({ color: 0xC9A15A, metalness: 0.9, roughness: 0.35 })]);
+  m.position.set(x, 0.12, z); m.castShadow = true; scene.add(m);
+}
+function bottle(x, z, ry) {
+  const prof = []; const P = [[0, 0], [3.2, 0], [3.4, 0.4], [3.4, 13], [3.1, 15], [1.3, 18], [1.1, 22], [1.25, 22.4], [1.25, 23], [0, 23]];
+  for (const [r, y] of P) prof.push(new THREE.Vector2(r, y));
+  const m = new THREE.Mesh(new THREE.LatheGeometry(prof, 64), new THREE.MeshPhysicalMaterial({ color: 0x2E6B2E, roughness: 0.08, clearcoat: 1, transparent: true, opacity: 0.85 }));
+  const g = new THREE.Group(); g.scale.setScalar(0.62); g.position.set(x, 3.4 * 0.62, z); g.rotation.set(0, ry, Math.PI / 2); scene.add(g); m.position.y = -11.5; m.castShadow = true; g.add(m);
+  const label = new THREE.Mesh(new THREE.CylinderGeometry(3.45, 3.45, 6, 64, 1, true), new THREE.MeshStandardMaterial({ map: canvasTex(512, 256, (c, w, h) => { c.fillStyle = '#F2E8D0'; c.fillRect(0, 0, w, h); c.fillStyle = '#9E1B26'; c.textAlign = 'center'; c.font = '400 70px "Alfa Slab One"'; c.fillText('HS', w / 4, h / 2 + 24); c.fillText('HS', w * 3 / 4, h / 2 + 24); }), roughness: 0.7 }));
+  label.position.y = -4; g.add(label);
+}
+function feltShadowLight() { /* la lumière principale reste celle de la scène */ }
+
+
+// ---------------------------------------------------------------- surfaces de table (illustrations des jeux)
+const BG = Q.get('bg');
+function surfaceTex(kind) {
+  const W = 2048, H = 1400;
+  return canvasTex(W, H, (g) => {
+    const noise = (n, a, col) => { for (let i = 0; i < n; i++) { g.fillStyle = `rgba(${col},${Math.random() * a})`; g.fillRect(Math.random() * W, Math.random() * H, 2 + Math.random() * 3, 2 + Math.random() * 3); } };
+    if (kind === 'bois' || kind === 'bois-clair') {
+      const base = kind === 'bois' ? [92, 56, 32] : [176, 132, 86];
+      const pw = 300;
+      for (let x = 0; x < W; x += pw) {
+        const k = 0.88 + Math.random() * 0.2;
+        g.fillStyle = `rgb(${base.map((v) => Math.round(v * k)).join(',')})`; g.fillRect(x, 0, pw, H);
+        for (let i = 0; i < 70; i++) { const y0 = Math.random() * H; g.strokeStyle = `rgba(${kind === 'bois' ? '30,15,6' : '90,55,25'},${0.08 + Math.random() * 0.18})`; g.lineWidth = 1 + Math.random() * 4; g.beginPath(); g.moveTo(x, y0); for (let xx = x; xx <= x + pw; xx += 20) g.lineTo(xx, y0 + Math.sin(xx * 0.02 + i) * 6); g.stroke(); }
+        if (Math.random() < 0.5) { const cx = x + 60 + Math.random() * (pw - 120), cy = Math.random() * H; for (let r = 4; r < 40; r += 5) { g.strokeStyle = 'rgba(40,20,8,.18)'; g.lineWidth = 2; g.beginPath(); g.ellipse(cx, cy, r * 0.7, r * 1.6, 0, 0, 6.28); g.stroke(); } }
+        g.fillStyle = 'rgba(20,10,4,.55)'; g.fillRect(x, 0, 4, H);
+      }
+      noise(9000, 0.08, '255,230,200');
+    } else if (kind === 'zinc') {
+      g.fillStyle = '#9EA4A8'; g.fillRect(0, 0, W, H);
+      for (let i = 0; i < 3000; i++) { const y = Math.random() * H; g.strokeStyle = `rgba(${Math.random() < 0.5 ? '255,255,255' : '40,45,50'},${Math.random() * 0.08})`; g.lineWidth = 1; g.beginPath(); g.moveTo(0, y); g.lineTo(W, y + (Math.random() - 0.5) * 6); g.stroke(); }
+      for (let i = 0; i < 14; i++) { g.strokeStyle = 'rgba(60,65,70,.12)'; g.lineWidth = 3; g.beginPath(); g.arc(Math.random() * W, Math.random() * H, 60 + Math.random() * 90, 0, 6.28); g.stroke(); }
+    } else if (kind === 'nappe') {
+      g.fillStyle = '#F2EBDD'; g.fillRect(0, 0, W, H);
+      const c = 110;
+      for (let x = 0; x < W; x += c) { g.fillStyle = 'rgba(178,32,40,.55)'; g.fillRect(x, 0, c / 2, H); }
+      for (let y = 0; y < H; y += c) { g.fillStyle = 'rgba(178,32,40,.55)'; g.fillRect(0, y, W, c / 2); }
+      for (let i = 0; i < 6000; i++) { g.strokeStyle = `rgba(90,20,20,${Math.random() * 0.08})`; g.lineWidth = 1; const x = Math.random() * W, y = Math.random() * H; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 6, y); g.stroke(); }
+    } else if (kind === 'kraft') {
+      g.fillStyle = '#B98F5E'; g.fillRect(0, 0, W, H);
+      for (let i = 0; i < 2500; i++) { g.strokeStyle = `rgba(80,50,20,${Math.random() * 0.12})`; g.lineWidth = 1; const x = Math.random() * W, y = Math.random() * H, a = Math.random() * 6.28; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 14, y + Math.sin(a) * 14); g.stroke(); }
+      noise(8000, 0.1, '255,240,210');
+    } else if (kind === 'ardoise') {
+      g.fillStyle = '#2C3330'; g.fillRect(0, 0, W, H);
+      for (let i = 0; i < 40; i++) { g.strokeStyle = `rgba(255,255,255,${0.02 + Math.random() * 0.04})`; g.lineWidth = 20 + Math.random() * 60; g.beginPath(); const x = Math.random() * W, y = Math.random() * H; g.moveTo(x, y); g.quadraticCurveTo(x + 200, y + (Math.random() - 0.5) * 200, x + 400, y + (Math.random() - 0.5) * 100); g.stroke(); }
+      noise(9000, 0.06, '255,255,255');
+    } else {
+      const F = { feutre: ['#2A7350', '#16422D'], nuit: ['#2A3A66', '#121A33'], bordeaux: ['#7A1E30', '#3A0A16'], violet: ['#4E3277', '#24143C'], gazon: ['#3E7F3A', '#1E4A1E'] }[kind] || ['#2A7350', '#16422D'];
+      const gr = g.createRadialGradient(W * 0.45, H * 0.4, 50, W * 0.5, H * 0.5, W * 0.7); gr.addColorStop(0, F[0]); gr.addColorStop(1, F[1]); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      if (kind === 'gazon') { g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 14; for (let y = 240; y < H; y += 260) { g.setLineDash([60, 40]); g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); } g.setLineDash([]); }
+      noise(16000, 0.07, '0,0,0'); noise(8000, 0.05, '255,255,255');
+    }
+  });
+}
+if (BG) {
+  ground.material = new THREE.MeshStandardMaterial({ map: surfaceTex(BG), roughness: BG === 'zinc' ? 0.45 : BG.startsWith('bois') ? 0.6 : 0.95, metalness: BG === 'zinc' ? 0.5 : 0 });
+  ground.geometry = new THREE.PlaneGeometry(140, 96);
+  renderer.setClearColor(0x000000, 1);
+}
+
 // ---------------------------------------------------------------- compositions
 if (SCENE === 'verre') {
   coaster(0, 3); pint(0, 3);
@@ -611,6 +770,39 @@ if (SCENE === 'menottes') {
   condom(9.5, 6.5, 0.4);
   card(appCard('Je n’ai jamais…', 'oublié de fermer les rideaux au mauvais moment.', 'Mode cul', '#B8261A'), -6.5, 8.5, -0.25, 0.03);
 }
+
+// ---------------------------------------------------------------- illustrations des jeux (cadrage 3:2)
+const J = SCENE.startsWith('jeu-') ? SCENE.slice(4) : null;
+if (J) {
+  const back = cardBack();
+  const fan = (list, x0, z0, rot0, step, dx = 2.4, dz = 0.3) => list.forEach((t, i) => card(t, x0 + i * dx, z0 + Math.abs(i - (list.length - 1) / 2) * dz, rot0 + i * step, 0.03 + i * 0.05));
+  const deck = (x, z, rot, n = 8) => { for (let i = 0; i < n; i++) card(back, x + i * 0.02, z - i * 0.02, rot, 0.03 + i * 0.05); };
+  switch (J) {
+    case 'oserait': card(appCard('Qui oserait… ?', 'envoyer un vocal de trois minutes à son ex ?', 'Qui oserait', '#1F4FA0'), -4, 0.5, -0.12); shotGlass(5.5, -2.5); shotGlass(9.5, 1.5, 0x3F7A2A); break;
+    case '96': fan([cardFace('9', '♠'), cardFace('6', '♥'), cardFace('10', '♦'), cardFace('A', '♣')], -6, 1, -0.45, 0.28, 3.6, 0.5); deck(10, -1, 0.3); break;
+    case 'pipoteur': deck(-8.5, -1, -0.2, 3); card(back, -1.5, 2.5, 0.25); card(appCard('Ton mot', 'PISCINE', 'Garde-le pour toi', '#1E6B44'), 5.5, -0.5, -0.12); pencil(4, 6.6, 0.15); break;
+    case 'purple': deck(-9, -1, 0.2); card(cardFace('A', '♥'), -1.8, 0.6, -0.1); card(cardFace('A', '♠'), 2.6, 0.2, 0.2, 0.08); card(cardFace('7', '♥'), 7.2, 0.8, 0.45, 0.13); break;
+    case 'hippodrome': { const lane = [['A', '♥', -3], ['A', '♠', 2.5], ['A', '♦', -6.5], ['A', '♣', 5]]; lane.forEach(([r, su, z], i) => card(cardFace(r, su), z + 3, -6.6 + i * 4.4, Math.PI / 2, 0.03 + i * 0.03)); for (let i = 0; i < 4; i++) card(back, -10, -6.6 + i * 4.4, Math.PI / 2); break; }
+    case 'toutankhamon': { const up = { '0-0': cardFace('7', '♥'), '0-1': cardFace('A', '♠'), '0-2': cardFace('3', '♣') }; for (let r = 0; r < 4; r++) { const n = 4 - r; for (let i = 0; i < n; i++) card(up[`${r}-${i}`] || back, (i - (n - 1) / 2) * 7, (1.5 - r) * 9.6 - 3.4, (rnd() - 0.5) * 0.06); } break; }
+    case 'autres': paper(-2, 0.5, 0.06, 15, 11, (g) => { g.fillStyle = '#1F3F8A'; g.font = '600 52px Literata'; g.fillText('Le mot de passe', 110, 160); g.fillText('de Julie, c’est', 110, 220); g.fillText('sûrement…', 110, 280); g.font = 'italic 600 58px Literata'; g.fillStyle = '#B8261A'; g.fillText('« jaimeLaBiere »', 110, 380); }); pencil(5, 6.2, -0.3); shotGlass(10.5, -3.5); break;
+    case 'trouve': deck(-7, 0, -0.15); card(back, 0.5, 0.5, 0.1, 0.03); card(cardFace('7', '♥'), 7.4, 1, 0.2); break;
+    case 'degaine': phone(0, 0, Math.PI / 2, (c, w, h) => { c.fillStyle = '#E5502F'; c.fillRect(0, 0, w, h / 2); c.fillStyle = '#2F55A4'; c.fillRect(0, h / 2, w, h / 2); c.fillStyle = '#FFF6E8'; c.textAlign = 'center'; c.font = '400 150px "Alfa Slab One"'; c.save(); c.translate(w / 2, h / 4); c.rotate(Math.PI); c.fillText('TAPE !', 0, 50); c.restore(); c.fillText('TAPE !', w / 2, h * 3 / 4 + 50); }); break;
+    case 'bombe': phone(-5, 0.5, 0.35, (c, w, h) => { c.fillStyle = '#1C1915'; c.fillRect(0, 0, w, h); c.fillStyle = '#FF8A3D'; c.textAlign = 'center'; c.font = '400 110px "Alfa Slab One"'; c.fillText('Cite une', w / 2, h / 2 - 60); c.fillText('marque', w / 2, h / 2 + 60); c.fillText('de bière', w / 2, h / 2 + 180); }); bomb(6, 0); break;
+    case 'ware': phone(0, 0, -0.25, (c, w, h) => { c.fillStyle = '#2B9C8C'; c.fillRect(0, 0, w, h); c.fillStyle = '#FFF6E8'; c.textAlign = 'center'; c.font = '400 128px "Alfa Slab One"'; c.fillText('SECOUE !', w / 2, h / 2 + 20); c.font = '600 80px Literata'; c.fillText('3', w / 2, h / 2 + 200); c.fillRect(w * 0.15, h - 140, w * 0.7 * 0.6, 26); }); die(8.5, -3, 0.5, 4); break;
+    case 'jamais': card(appCard('Je n’ai jamais…', 'chanté sous la douche en pensant que personne n’écoutait.', 'Je n’ai jamais'), -5, 0.6, -0.1); coaster(7, 0.5, 4.4); shotGlass(7, 0.5, 0xB86A08); break;
+    case 'garou': card(appCard('Loup-Garou', 'Chaque nuit, avec les autres loups, tu choisis une victime.', 'Rôle secret', '#2A3B6E'), -6, 1, -0.16); card(appCard('Voyante', 'Chaque nuit, tu découvres le rôle d’un joueur.', 'Rôle secret', '#6A3B8E'), 1, 0.2, 0.1, 0.08); candle(9, -2.5); break;
+    case 'coinche': fan([figureCard('V', '♣'), cardFace('9', '♣'), cardFace('A', '♣'), cardFace('10', '♣')], -8, 1.5, -0.4, 0.26, 3.2, 0.45); paper(8, 0.3, -0.08, 8, 11, (g) => { g.fillStyle = '#1F3F8A'; g.font = '600 46px Literata'; g.fillText('Nous   Eux', 100, 150); g.fillText('80      0', 100, 240); g.fillText('160    90', 100, 330); g.fillText('250   250', 100, 420); }); break;
+    case 'buzzer': buzzer(-2, 0); card(appCard('Question 7', 'Quelle est la capitale de l’Australie ?', 'Quiz buzzer', '#1F4FA0'), 9, 1, 0.18); break;
+    case 'dessin': paper(-1.5, 0.3, -0.05, 16, 11.5, (g) => { g.strokeStyle = '#1C1915'; g.lineWidth = 7; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); g.ellipse(430, 380, 150, 115, 0, 0, 6.28); g.moveTo(330, 300); g.lineTo(300, 210); g.lineTo(380, 275); g.moveTo(520, 275); g.lineTo(570, 205); g.lineTo(535, 300); g.stroke(); g.beginPath(); g.arc(380, 360, 10, 0, 6.28); g.arc(480, 360, 10, 0, 6.28); g.fill(); g.beginPath(); g.moveTo(400, 420); g.quadraticCurveTo(430, 450, 460, 420); g.moveTo(330, 410); g.lineTo(230, 395); g.moveTo(330, 425); g.lineTo(230, 440); g.moveTo(530, 410); g.lineTo(630, 395); g.moveTo(530, 425); g.lineTo(630, 440); g.stroke(); g.fillStyle = '#B8261A'; g.font = '600 60px Literata'; g.fillText('?', 760, 200); }, false); pencil(8, 5, -0.5, 0x2F55A4); break;
+    case 'president': deck(-9, -0.5, -0.2, 6); fan([cardFace('3', '♣'), cardFace('7', '♦'), cardFace('A', '♥'), cardFace('2', '♠')], -2, 1, -0.3, 0.22, 3.4, 0.4); card(cardFace('2', '♥'), 10, -1.5, 0.4, 0.4); break;
+    case 'cercle': { pint(0, 0); for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2; card(back, Math.sin(a) * 12.5, Math.cos(a) * 9.5, -a + Math.PI / 2, 0.03); } break; }
+    case 'perudo': diceCup(-5, 0, 0.5); [[2.5, -2, 0.3, 5], [5.2, 1.2, 1.1, 0], [8, -1, 0.7, 4], [4.2, 4.6, 0.2, 1], [8.8, 3.2, 1.4, 2]].forEach(([x, z, r, t]) => die(x, z, r, t)); break;
+    case 'paranoia': card(back, -4.5, 0.6, -0.25); card(appCard('Paranoïa', 'Qui est le plus susceptible de…', 'Question secrète', '#5A3A82'), 3.5, 0, 0.12, 0.08); coin(10.5, -3); break;
+    case 'actionverite': card(appCard('Action', 'Imite un pingouin jusqu’à ton prochain tour.', 'Action ou vérité', '#B8261A'), -6.5, 0.5, -0.15); card(appCard('Vérité', 'Ton pire râteau ?', 'Action ou vérité', '#1F4FA0'), 0.5, 0, 0.1, 0.08); bottle(10.5, -1, 0.9); break;
+    case 'tupref': card(appCard('Tu préfères…', 'ne plus jamais boire de café', 'Option A', '#B8261A'), -4, 0.4, -0.12); card(appCard('…ou bien', 'ne plus jamais dormir plus de six heures', 'Option B', '#1F4FA0'), 4, 0, 0.12, 0.08); break;
+  }
+}
+
 renderer.render(scene, cam);
 // rendu progressif : un deuxième passage pour la transmission
 renderer.render(scene, cam);
