@@ -100,4 +100,6 @@ export default [
   ['Encore', 'Still'], ['carte réussie', 'right card'], ['cartes réussies', 'right cards'], ['d’affilée pour pouvoir passer la main.', 'in a row to be able to pass.'], ['En cas d’erreur :', 'If you miss:'],
   ['sur un Purple raté).', 'on a missed Purple).'], ['Par rapport', 'Compared'], ['aux dernières cartes', 'to the last cards'], ['T’es sûr ? Touche encore', 'Sure? Tap again'],
   ['Une gorgée par carte tirée avant le purple', 'One sip per card drawn before the purple'], ['Paires tirées jusqu’au purple', 'Pairs drawn until the purple'],
+  ['Les deux (au choix)', 'Both (your pick)'], ['L’As (réglage) : par défaut il vaut les deux, la plus forte et la plus faible carte, et compte dans le sens qui t’arrange. On peut aussi le fixer en plus forte ou en plus faible.', 'The Ace (setting): by default it is both the highest and the lowest card, and counts whichever way helps you. You can also fix it as highest or lowest.'],
+  ['Masque de ski', 'Ski goggles'],
 ];

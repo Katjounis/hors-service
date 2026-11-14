@@ -61,15 +61,23 @@ export function judgePurple(call, pile, drawn, ace) {
   if (call === 'rouge') return isRed(d);
   if (call === 'noir') return !isRed(d);
   if (call === 'purple') return isRed(drawn[0]) !== isRed(drawn[1]);
-  const last = rankValue(pile[pile.length - 1], ace);
-  const v = rankValue(d, ace);
-  if (call === 'plus') return v > last;
-  if (call === 'moins') return v < last;
-  const prev = rankValue(pile[pile.length - 2], ace);
-  const lo = Math.min(prev, last);
-  const hi = Math.max(prev, last);
-  if (call === 'int') return v > lo && v < hi;
-  if (call === 'ext') return v < lo || v > hi;
+  // « both » : l'As vaut à la fois la plus forte et la plus faible carte, on garde la lecture qui arrange le joueur
+  const vals = (c) => (ace === 'both' && rankOf(c) === 'A' ? [1, order(c)] : [rankValue(c, ace)]);
+  const last = pile[pile.length - 1];
+  const prev = pile.length >= 2 ? pile[pile.length - 2] : null;
+  for (const v of vals(d)) {
+    for (const l of vals(last)) {
+      if (call === 'plus' && v > l) return true;
+      if (call === 'moins' && v < l) return true;
+      if (call !== 'int' && call !== 'ext') continue;
+      for (const p of vals(prev)) {
+        const lo = Math.min(p, l);
+        const hi = Math.max(p, l);
+        if (call === 'int' && v > lo && v < hi) return true;
+        if (call === 'ext' && (v < lo || v > hi)) return true;
+      }
+    }
+  }
   return false;
 }
 
@@ -117,11 +125,12 @@ const PURPLE = {
     'Tu n’es pas obligé de passer : tu peux continuer à jouer pour charger la pile, et passer plus tard.',
     'Mauvaise réponse : tu bois autant de gorgées que de cartes dans la pile, la pile repart de zéro et tu rejoues.',
     'Égalité de valeur ou carte égale à une borne : c’est raté.',
+    'L’As (réglage) : par défaut il vaut les deux, la plus forte et la plus faible carte, et compte dans le sens qui t’arrange. On peut aussi le fixer en plus forte ou en plus faible.',
     'Purple jusqu’à la mort : à tout moment, l’appli tire des paires jusqu’à tomber sur un purple. Toutes les cartes vont dans la pile, et tu bois une gorgée par carte tirée avant le purple. Purple du premier coup : tu distribues 5 gorgées.',
     'L’hôte décide quand la partie s’arrête.',
   ],
   options: [
-    { id: 'ace', label: 'L’As est', choices: [['high', 'La plus forte carte'], ['low', 'La plus faible carte']], def: 'high' },
+    { id: 'ace', label: 'L’As est', choices: [['both', 'Les deux (au choix)'], ['high', 'La plus forte carte'], ['low', 'La plus faible carte']], def: 'both' },
   ],
 
   start(c) {

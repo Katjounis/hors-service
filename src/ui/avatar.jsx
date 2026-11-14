@@ -20,7 +20,7 @@ export const AV_NAMES = {
   color: ['Jaune', 'Orange', 'Rouge', 'Rose', 'Violet', 'Bleu', 'Menthe', 'Vert', 'Kraft', 'Gris'],
   expr: ['Content', 'Blasé', 'Surpris', 'Bourré', 'Diabolique', 'Amoureux', 'Endormi', 'Clin d’œil'],
   head: ['Rien', 'Casquette', 'Couronne', 'Chapeau de fête', 'Bandeau', 'Casque de chantier', 'Auréole', 'Cornes', 'Bonnet', 'Fleur', 'Casque audio'],
-  face: ['Rien', 'Lunettes de soleil', 'Lunettes rondes', 'Moustache', 'Nez de clown', 'Monocle'],
+  face: ['Rien', 'Lunettes de soleil', 'Lunettes rondes', 'Moustache', 'Nez de clown', 'Monocle', 'Masque de ski'],
   extra: ['Rien', 'Verre à la main', 'Nœud papillon', 'Cravate', 'Micro'],
   hair: ['Rasé', 'Court', 'Mèche', 'Bouclé', 'Long', 'Chignon', 'Crête', 'Carré'],
   skin: ['Très claire', 'Claire', 'Mate', 'Foncée', 'Très foncée'],
@@ -54,7 +54,7 @@ export function makeAv(parts) {
 }
 export function randomAv() {
   const r = (n) => Math.floor(Math.random() * n);
-  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(11) : 0, Math.random() < 0.35 ? r(6) : 0, Math.random() < 0.3 ? r(5) : 0, r(8), r(5), r(6), r(8)]);
+  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(11) : 0, Math.random() < 0.35 ? r(7) : 0, Math.random() < 0.3 ? r(5) : 0, r(8), r(5), r(6), r(8)]);
 }
 export function describeAv(av) {
   const p = parseAv(av);
@@ -342,6 +342,16 @@ function FaceAcc({ k }) {
       <g>
         <L d="M33.6 30.6 C33.6 27.8 35.6 25.8 38.2 25.8 C40.8 25.8 42.8 27.8 42.8 30.6 C42.8 33.2 40.8 35.2 38.2 35.2 C35.6 35.2 33.6 33.2 33.6 30.6 Z" w={1.8} />
         <L d="M42.6 32 C44.6 36.4 44.4 42 41.6 48.4" w={0.9} />
+      </g>
+    );
+    case 6: return (
+      <g>
+        <F d="M14.2 27.4 C20 25.6 44 25.6 49.8 27.4 L49.6 31.6 C44 30.2 20 30.2 14.4 31.6 Z" fill="#22201C" w={1.4} sketch={false} />
+        <F d="M21.4 24.6 C26.4 23.2 37.6 23.2 42.6 24.6 C44.4 25.2 44.8 27.6 44.4 31 C44 34.6 42.4 36 39.8 35.8 C37 35.6 35 34 32 34 C29 34 27 35.6 24.2 35.8 C21.6 36 20 34.6 19.6 31 C19.2 27.6 19.6 25.2 21.4 24.6 Z" fill="#E8783A" w={2} />
+        <path d="M22.6 26.6 C27 25.6 37 25.6 41.4 26.6 C42.6 27.2 42.8 29 42.4 31.4 C42 33.6 40.8 34.2 39.4 34 C36.8 33.6 35 32.2 32 32.2 C29 32.2 27.2 33.6 24.6 34 C23.2 34.2 22 33.6 21.6 31.4 C21.2 29 21.4 27.2 22.6 26.6 Z" fill="#4F82E0" opacity=".85" />
+        <path d="M24 27.6 C27 27 30.4 26.9 33.6 27 L26.4 33 C24.6 33.4 23.4 32.4 23.2 30.6 C23 29 23.2 28 24 27.6 Z" fill="#FFFFFF" opacity=".45" />
+        <L d="M30.6 26 L30.2 24.2 M33.4 26 L33.8 24.2" w={0.9} />
+        <text x="32" y="31.2" text-anchor="middle" font-size="4.2" fill="#FFFDF6" font-family="Alfa Slab One, serif" letter-spacing=".4">YANN</text>
       </g>
     );
     default: return null;
