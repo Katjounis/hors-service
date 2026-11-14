@@ -2166,16 +2166,16 @@ h3 { font-size: 1.1rem; }
 .obj { position: absolute; display: block; background: no-repeat center / contain; pointer-events: none; transition: opacity .25s ease; }
 /* même échelle pour tous les objets : --k = longueur d'écran pour 1 cm de table, chaque largeur = taille réelle de l'image en cm */
 .ambiance { --k: 1.35vw; }
-.obj-verre { background-image: url(img/table-verre.webp); aspect-ratio: 560 / 607; width: calc(var(--k) * 18.2); top: 47vh; right: calc(var(--k) * -8); transform: rotate(-6deg); }
-.obj-cartes { background-image: url(img/table-cartes.webp); aspect-ratio: 1000 / 523; width: calc(var(--k) * 29.6); bottom: 3vh; left: calc(var(--k) * -6); transform: rotate(4deg); }
-.obj-pyramide { background-image: url(img/table-pyramide.webp); aspect-ratio: 600 / 575; width: calc(var(--k) * 36.2); bottom: 1vh; right: calc(var(--k) * -6); transform: rotate(-5deg); }
-.obj-pizza { background-image: url(img/table-pizza.webp); aspect-ratio: 820 / 679; width: calc(var(--k) * 38.9); top: -5vh; right: calc(var(--k) * -15); transform: rotate(-12deg); }
+.obj-verre { background-image: url(img/table-verre.webp); aspect-ratio: 560 / 607; width: calc(var(--k) * 18.2); top: 47vh; right: calc(var(--k) * -8); rotate: -6deg; }
+.obj-cartes { background-image: url(img/table-cartes.webp); aspect-ratio: 1000 / 523; width: calc(var(--k) * 29.6); bottom: 3vh; left: calc(var(--k) * -6); rotate: 4deg; }
+.obj-pyramide { background-image: url(img/table-pyramide.webp); aspect-ratio: 600 / 575; width: calc(var(--k) * 36.2); bottom: 1vh; right: calc(var(--k) * -6); rotate: -5deg; }
+.obj-pizza { background-image: url(img/table-pizza.webp); aspect-ratio: 820 / 679; width: calc(var(--k) * 38.9); top: -5vh; right: calc(var(--k) * -15); rotate: -12deg; }
 @media (min-width: 760px) {
   .ambiance { --k: 12px; }
   .obj-verre { top: 4vh; right: 3vw; }
   .obj-cartes { bottom: 3vh; left: 3vw; }
   .obj-pyramide { bottom: 0; right: 2vw; }
-  .obj-pizza { top: -80px; right: auto; left: -100px; transform: rotate(9deg); }
+  .obj-pizza { top: -80px; right: auto; left: -100px; rotate: 9deg; }
 }
 .ambiance.is-game .obj { opacity: .45; }
 @media (prefers-reduced-motion: reduce) { .obj { transition: none; } }
@@ -2249,10 +2249,34 @@ h3 { font-size: 1.1rem; }
 :root:has(.feutre-cul) body, :root:has(.feutre-cul) body::before { background: #22050E; }
 :root[data-theme="light"][lang] .ambiance.feutre-cul { background: #E9C9C9 radial-gradient(120% 85% at 50% 32%, #F4DCDA 0%, #E6C1C0 60%, #D3A5A6 100%) !important; }
 :root[data-theme="light"][lang]:has(.feutre-cul) body, :root[data-theme="light"][lang]:has(.feutre-cul) body::before { background: #D3A5A6; }
-.ambiance.is-hot .obj-cartes, .ambiance.is-hot .obj-pyramide, .ambiance.is-hot .obj-pizza { display: none; }
-.obj-rouge { background-image: url(img/table-rouge.webp); aspect-ratio: 360 / 371; width: calc(var(--k) * 6.8); bottom: 6vh; left: 8vw; transform: rotate(-14deg); }
-.obj-menottes { background-image: url(img/table-menottes.webp); aspect-ratio: 760 / 579; width: calc(var(--k) * 25); bottom: 1vh; right: calc(var(--k) * -5); transform: rotate(10deg); }
+.obj-rouge { background-image: url(img/table-rouge.webp); aspect-ratio: 360 / 371; width: calc(var(--k) * 6.8); bottom: 6vh; left: 8vw; rotate: -14deg; }
+.obj-menottes { background-image: url(img/table-menottes.webp); aspect-ratio: 760 / 579; width: calc(var(--k) * 25); bottom: 1vh; right: calc(var(--k) * -5); rotate: 10deg; }
 @media (min-width: 760px) {
   .obj-rouge { bottom: 10vh; left: 12vw; }
   .obj-menottes { top: 12vh; bottom: auto; right: auto; left: 4vw; }
 }
+
+/* ---- animations de la table : objets posés, ramassés, tapis qui change, tampon du mode Cul et HARD.
+   Uniquement transform et opacité, 250 ms au plus par mouvement, rien sans prefers-reduced-motion. */
+@keyframes obj-pose { from { opacity: 0; translate: 0 -14px; scale: 1.05; } }
+@keyframes obj-leve { to { opacity: 0; translate: 0 -18px; scale: 1.06; } }
+@keyframes feutre-part { to { opacity: 0; } }
+.ambiance.is-anim .obj:not(.is-out) { animation: obj-pose .24s ease-out backwards; animation-delay: calc(var(--i, 0) * 70ms + 140ms); }
+.obj.is-out { animation: obj-leve .2s ease-in forwards; }
+.ambiance.is-anim:not(.is-first) .obj-verre { animation: none; }
+.feutre-prev { position: absolute; inset: 0; animation: feutre-part .25s ease-out .05s forwards; }
+.feutre-prev.feutre-vert { background: radial-gradient(120% 85% at 50% 32%, #2B7550 0%, #1E5A3D 48%, #123524 100%); }
+:root[data-theme="light"][lang] .feutre-prev { background: #CDB48C url(img/table-bois.webp) center / cover !important; }
+:root[data-theme="light"][lang] .feutre-prev.feutre-cul { background: radial-gradient(120% 85% at 50% 32%, #F4DCDA 0%, #E6C1C0 60%, #D3A5A6 100%) !important; }
+.hot-stamp { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; pointer-events: none; animation: feutre-part .2s ease-in 1s forwards; }
+.hot-stamp span {
+  padding: 10px 22px; border: 5px solid currentColor; color: #E8344E; rotate: -8deg;
+  font: 400 clamp(2.2rem, 11vw, 4.6rem)/1 var(--f-titre); text-transform: uppercase; letter-spacing: .02em;
+  background: rgba(20, 4, 10, .55); animation: tampon-hot .22s ease-out backwards;
+}
+.hot-stamp.is-calme span { color: #F2D27A; background: rgba(6, 18, 12, .6); }
+@keyframes tampon-hot { from { opacity: 0; scale: 1.6; } }
+:root .spicy-btn, :root .spicy { transition: background-color .25s ease; }
+.register .player { animation: obj-pose .2s ease-out backwards; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .22s; }
+@media (prefers-reduced-motion: reduce) { .hot-stamp { display: none; } .feutre-prev { display: none; } }

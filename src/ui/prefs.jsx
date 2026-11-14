@@ -20,7 +20,9 @@ export function PrefToggles({ compact = false }) {
   const flipTheme = () => {
     const t = theme === 'light' ? 'dark' : 'light';
     setTheme(t);
-    applyTheme(t);
+    // fondu enchaîné entre les deux thèmes quand le navigateur sait le faire
+    const still = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (document.startViewTransition && !still) document.startViewTransition(() => applyTheme(t)); else applyTheme(t);
     try { localStorage.setItem(TKEY, t); } catch (e) { /* stockage bloqué */ }
   };
   return (

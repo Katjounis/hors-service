@@ -1,6 +1,6 @@
 // Effets d'ambiance : vibration, confettis, feu de série. Uniquement transform et opacity,
 // coupés par prefers-reduced-motion (sauf la vibration, qui n'est pas un mouvement à l'écran).
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { sceneOf, DecorBas, DecorHaut } from './decor.jsx';
 
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
@@ -268,20 +268,41 @@ let ambN = 0;
 // Thème « table de jeu » (choisi par Samuel le 14/11) : un tapis de feutre vu de dessus, éclairé au centre,
 // sans décor dessiné. La couleur du feutre change un peu selon le jeu (nuit pour le Garou, bordeaux pour le Cul).
 const FEUTRES = { 'jamais-hard': 'violet', 'jamais-cul': 'bordeaux', garou: 'nuit', 'garou-nuit': 'nuit', paranoia: 'violet', actionverite: 'bordeaux', degaine: 'bordeaux', bombe: 'bordeaux', ware: 'nuit', buzzer: 'nuit', dessin: 'bleu' };
+const OBJ_NORMAL = ['verre', 'cartes', 'pyramide', 'pizza'];
+const OBJ_HOT = ['verre', 'rouge', 'menottes'];
+let swapN = 0;
 export function Ambiance({ game = null, hot = false }) {
   const [d1, d2, d3] = paletteOf(game);
-  useMemo(() => (ambN += 1), []);
+  const first = useMemo(() => (ambN += 1) === 1, []);
   const f = hot ? 'cul' : FEUTRES[game] || 'vert';
+  // changement de feutre ou de mode : l'ancien tapis s'efface, les objets sont ramassés puis reposés
+  const prev = useRef({ f, hot });
+  const [swap, setSwap] = useState(null);
+  const [stamp, setStamp] = useState(null);
+  useEffect(() => {
+    const p = prev.current;
+    prev.current = { f, hot };
+    if (p.f === f && p.hot === hot) return undefined;
+    const n = ++swapN;
+    setSwap({ n, f: p.f, out: p.hot !== hot ? (p.hot ? OBJ_HOT : OBJ_NORMAL).filter((o) => o !== 'verre') : [] });
+    if (p.hot !== hot) { setStamp({ n, on: hot }); buzz(hot ? [30, 40, 60] : 30); }
+    const t1 = setTimeout(() => setSwap((s) => (s && s.n === n ? null : s)), 700);
+    const t2 = setTimeout(() => setStamp((s) => (s && s.n === n ? null : s)), 1250);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [f, hot]);
+  const list = hot ? OBJ_HOT : OBJ_NORMAL;
+  const anim = first || (swap && swap.out.length);
   return (
-    <div class={`ambiance feutre feutre-${f}${game ? ' is-game' : ''}${hot ? ' is-hot' : ''}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
-      <i class="feutre-grain" />
-      <i class="feutre-lampe" />
-      <i class="obj obj-verre" />
-      <i class="obj obj-cartes" />
-      <i class="obj obj-pyramide" />
-      <i class="obj obj-pizza" />
-      {hot ? <><i class="obj obj-rouge" /><i class="obj obj-menottes" /></> : null}
-    </div>
+    <>
+      <div class={`ambiance feutre feutre-${f}${game ? ' is-game' : ''}${hot ? ' is-hot' : ''}${anim ? ' is-anim' : ''}${first ? ' is-first' : ''}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
+        {swap ? <i class={`feutre-prev feutre-${swap.f}`} key={`p${swap.n}`} /> : null}
+        <i class="feutre-grain" />
+        <i class="feutre-lampe" />
+        {list.map((o, i) => <i key={o} class={`obj obj-${o}`} style={{ '--i': o === 'verre' ? 0 : i }} />)}
+        {swap ? swap.out.map((o) => <i key={`out-${o}-${swap.n}`} class={`obj obj-${o} is-out`} />) : null}
+      </div>
+      {stamp ? <div class={`hot-stamp${stamp.on ? '' : ' is-calme'}`} key={`s${stamp.n}`} aria-hidden="true"><span>{stamp.on ? 'Cul et hard' : 'Retour au calme'}</span></div> : null}
+    </>
   );
 }
 
