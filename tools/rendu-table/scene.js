@@ -449,6 +449,119 @@ function pizzaBox(x, z, S, open = 1.9) {
   return grp;
 }
 
+
+// ---------------------------------------------------------------- mode cul : string, menottes, capote, rouge à lèvres
+function noise2(x, y) { return Math.sin(x * 1.7 + Math.sin(y * 0.9)) * 0.5 + Math.sin(y * 2.3 + x * 0.4) * 0.3 + Math.sin((x + y) * 3.1) * 0.2; }
+function laceTex() {
+  // dentelle rouge : tulle en maille fine, motifs floraux pleins, bord festonné à cils
+  const N = 1400;
+  const shapePath = (g) => { g.beginPath(); g.moveTo(90, 170); g.bezierCurveTo(420, 260, 980, 260, N - 90, 170); g.bezierCurveTo(N - 200, 620, N / 2 + 240, 980, N / 2 + 80, 1300); g.lineTo(N / 2 - 80, 1300); g.bezierCurveTo(N / 2 - 240, 980, 200, 620, 90, 170); g.closePath(); };
+  const col = canvasTex(N, N, (g) => {
+    g.fillStyle = '#9E0F1C'; g.fillRect(0, 0, N, N);
+    for (let i = 0; i < 3000; i++) { g.fillStyle = `rgba(${rnd() > 0.5 ? '255,90,100' : '60,0,8'},${rnd() * 0.12})`; g.fillRect(rnd() * N, rnd() * N, 3, 3); }
+  });
+  const flowers = [];
+  for (let i = 0; i < 400 && flowers.length < 15; i++) { const f = [180 + rnd() * (N - 360), 300 + rnd() * 800, 50 + rnd() * 40]; if (flowers.every((q) => Math.hypot(q[0] - f[0], q[1] - f[1]) > q[2] + f[2] + 30)) flowers.push(f); }
+  const alpha = canvasTex(N, N, (g) => {
+    g.fillStyle = '#000'; g.fillRect(0, 0, N, N);
+    g.save(); shapePath(g); g.clip();
+    // tulle : maille hexagonale fine
+    g.fillStyle = 'rgb(70,70,70)'; g.fillRect(0, 0, N, N);
+    g.strokeStyle = '#fff'; g.lineWidth = 2.2; const c = 14;
+    for (let y = 0; y < N; y += c * 1.5) for (let x = 0; x < N; x += c * 1.732) { const ox = (Math.round(y / (c * 1.5)) % 2) * c * 0.866; g.beginPath(); for (let k = 0; k < 6; k++) { const an = Math.PI / 6 + k * Math.PI / 3; const px = x + ox + Math.cos(an) * c, py = y + Math.sin(an) * c; k ? g.lineTo(px, py) : g.moveTo(px, py); } g.closePath(); g.stroke(); }
+    // fleurs : pétales pleins avec nervures ajourées, tiges et feuilles
+    for (const [cx, cy, r] of flowers) {
+      g.fillStyle = '#fff';
+      for (let k = 0; k < 7; k++) { const an = k * 2 * Math.PI / 7; g.beginPath(); g.ellipse(cx + Math.cos(an) * r * 0.55, cy + Math.sin(an) * r * 0.55, r * 0.5, r * 0.3, an, 0, 6.283); g.fill(); }
+      g.fillStyle = '#000'; g.beginPath(); g.arc(cx, cy, r * 0.22, 0, 6.283); g.fill();
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, cy, r * 0.12, 0, 6.283); g.fill();
+      g.strokeStyle = '#000'; g.lineWidth = 3; for (let k = 0; k < 7; k++) { const an = k * 2 * Math.PI / 7; g.beginPath(); g.moveTo(cx + Math.cos(an) * r * 0.3, cy + Math.sin(an) * r * 0.3); g.lineTo(cx + Math.cos(an) * r * 0.9, cy + Math.sin(an) * r * 0.9); g.stroke(); }
+      g.strokeStyle = '#fff'; g.lineWidth = 5; const a2 = rnd() * 6.28; g.beginPath(); g.moveTo(cx + Math.cos(a2) * r, cy + Math.sin(a2) * r); g.quadraticCurveTo(cx + Math.cos(a2 + 0.5) * r * 1.8, cy + Math.sin(a2 + 0.5) * r * 1.8, cx + Math.cos(a2 + 0.2) * r * 2.3, cy + Math.sin(a2 + 0.2) * r * 2.3); g.stroke();
+      g.fillStyle = '#fff'; g.beginPath(); g.ellipse(cx + Math.cos(a2 + 0.35) * r * 1.8, cy + Math.sin(a2 + 0.35) * r * 1.8, r * 0.32, r * 0.14, a2 + 1.2, 0, 6.283); g.fill();
+    }
+    g.restore();
+    // bord festonné : bande pleine puis petits arcs vers l'extérieur
+    g.save(); shapePath(g); g.clip(); g.strokeStyle = '#fff'; g.lineWidth = 44; shapePath(g); g.stroke(); g.restore();
+    g.fillStyle = '#fff';
+    // festons le long du bord haut (courbe de Bézier échantillonnée)
+    const bz = (t, a, b, c2, d) => (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t * t * c2 + t ** 3 * d;
+    for (let k = 0; k <= 46; k++) { const t = k / 46; const x = bz(t, 90, 420, 980, N - 90), y = bz(t, 170, 260, 260, 170); g.beginPath(); g.arc(x, y - 6, 15, Math.PI, 0); g.fill(); g.fillStyle = '#000'; g.beginPath(); g.arc(x, y - 12, 4, 0, 6.283); g.fill(); g.fillStyle = '#fff'; }
+  }, false);
+  return { col, alpha, N };
+}
+function tube(points, r, mat, closed = false) {
+  const curve = new THREE.CatmullRomCurve3(points.map(([x, y, z]) => new THREE.Vector3(x, y, z)), closed, 'catmullrom', 0.4);
+  const m = new THREE.Mesh(new THREE.TubeGeometry(curve, 160, r, 10, closed), mat); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+}
+function thong(x0, z0, ry) {
+  const grp = new THREE.Group(); grp.position.set(x0, 0, z0); grp.rotation.y = ry; scene.add(grp);
+  const { col, alpha } = laceTex();
+  const geo = new THREE.PlaneGeometry(15, 15, 90, 90);
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i); p.setZ(i, 0.2 + 0.22 * noise2(x * 0.45, y * 0.45) + 0.35 * Math.max(0, Math.sin(x * 0.8 + y * 0.3)) ** 3 + 0.3 * Math.exp(-((x + 1.5) ** 2) / 2) * Math.max(0, (y + 2) / 9)); }
+  geo.computeVertexNormals();
+  const lace = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ map: col, alphaMap: alpha, alphaTest: 0.2, transparent: true, side: THREE.DoubleSide, roughness: 0.55, sheen: 0.8, sheenColor: new THREE.Color(0xff6070) }));
+  lace.rotation.x = -Math.PI / 2; lace.castShadow = true; lace.receiveShadow = true; lace.material.depthWrite = true; grp.add(lace);
+  const satin = new THREE.MeshPhysicalMaterial({ color: 0x8E0C18, roughness: 0.3, clearcoat: 0.6, sheen: 0.5, sheenColor: new THREE.Color(0xff8090) });
+  const add = (m) => { scene.remove(m); grp.add(m); };
+  // ceinture : ellipse souple qui part des deux coins du haut du triangle
+  const E = []; const cx = 0, cz = -11.5, rx = 10.5, rz = 6.6;
+  const a0 = Math.atan2((-5.9 - cz) / rz, (6.55) / rx);
+  for (let k = 0; k <= 40; k++) { const an = a0 + (k / 40) * (Math.PI * 2 - 2 * (a0 + Math.PI / 2) + Math.PI) ; }
+  const ring = [];
+  for (let k = 0; k <= 48; k++) { const an = Math.PI * 0.62 + (k / 48) * Math.PI * 1.76; ring.push([cx + Math.cos(an) * rx * (1 + 0.1 * Math.sin(an * 2 + 0.7)), 0.28, cz + Math.sin(an) * rz * (1 + 0.14 * Math.cos(an * 3 + 0.3)) - 1.2 * Math.max(0, Math.cos(an + 0.4))]); }
+  ring[0] = [-6.55, 0.3, -5.9]; ring[ring.length - 1] = [6.55, 0.3, -5.9];
+  add(tube(ring, 0.3, satin));
+  // ficelle arrière, de la pointe jusqu'au milieu de la ceinture
+  add(tube([[0, 0.3, 7.6], [1.6, 0.18, 9.4], [4.8, 0.16, 8.8], [8.6, 0.16, 4.5], [10.6, 0.18, -2], [9.2, 0.2, -10], [3, 0.24, -17.4], [0.4, 0.28, -18.1]], 0.11, satin));
+  // nœud en satin rose
+  const pink = new THREE.MeshPhysicalMaterial({ color: 0xF0A2B6, roughness: 0.35, sheen: 1, sheenColor: new THREE.Color(0xffd0dc), clearcoat: 0.4 });
+  for (const sg of [-1, 1]) { const b = new THREE.Mesh(new THREE.SphereGeometry(0.7, 24, 16), pink); b.scale.set(1.15, 0.35, 0.6); b.rotation.y = sg * 0.35; b.position.set(sg * 0.85, 0.55, -5.3); b.castShadow = true; grp.add(b); }
+  const knot = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 12), pink); knot.scale.set(1, 0.6, 1); knot.position.set(0, 0.6, -5.3); grp.add(knot);
+  for (const sg of [-1, 1]) { const t = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.06, 1.3), pink); t.rotation.y = sg * 0.4; t.position.set(sg * 0.35, 0.5, -4.6); t.castShadow = true; grp.add(t); }
+  return grp;
+}
+function fluffyRing(x, z, R, mat) {
+  const geo = new THREE.TorusGeometry(R, 0.72, 48, 160);
+  const p = geo.attributes.position, n = geo.attributes.normal, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) { const px0 = p.getX(i), py0 = p.getY(i), pz0 = p.getZ(i); const h = Math.sin(px0 * 91.7 + py0 * 47.3 + pz0 * 13.1) * 43758.5453; const f = 0.08 + (h - Math.floor(h)) * 0.24; v.fromBufferAttribute(n, i); p.setXYZ(i, p.getX(i) + v.x * f, p.getY(i) + v.y * f, p.getZ(i) + v.z * f); }
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.position.set(x, 0.8, z); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+}
+function handcuffs(x0, z0) {
+  const fur = new THREE.MeshPhysicalMaterial({ color: 0xE0559A, roughness: 1, sheen: 1, sheenRoughness: 0.6, sheenColor: new THREE.Color(0xFFB0D8) });
+  const metal = new THREE.MeshStandardMaterial({ color: 0xD8D8DC, metalness: 1, roughness: 0.25 });
+  fluffyRing(x0 - 5.2, z0, 3.0, fur); fluffyRing(x0 + 5.4, z0 + 1.2, 3.0, fur);
+  // charnières et chaîne
+  for (const [x, z] of [[x0 - 1.7, z0 + 0.2], [x0 + 1.9, z0 + 0.9]]) { const b = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.9, 1.2, 3, 0.2), metal); b.position.set(x, 0.45, z); b.castShadow = true; scene.add(b); }
+  for (let k = 0; k < 3; k++) { const l = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.11, 12, 32), metal); const t = (k + 0.5) / 3; l.position.set(x0 - 0.7 + t * 1.6, 0.18, z0 + 0.35 + t * 0.4); l.rotation.set(k % 2 ? 0 : -Math.PI / 2, 0.3, 0); l.castShadow = true; scene.add(l); }
+}
+function condom(x, z, ry) {
+  const S = 5.6;
+  const geo = new THREE.PlaneGeometry(S, S, 90, 90); const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) { const px = p.getX(i), py = p.getY(i); const r = Math.hypot(px, py); const ring = 0.22 * Math.exp(-((r - 1.75) ** 2) / 0.08) + 0.12 * Math.exp(-(r * r) / 1.2); const edge = Math.max(Math.abs(px), Math.abs(py)) > S / 2 - 0.45 ? 0.04 * Math.sin((px + py) * 18) : 0; p.setZ(i, 0.08 + ring + edge); }
+  geo.computeVertexNormals();
+  const tex = canvasTex(512, 512, (g, w) => {
+    g.fillStyle = '#8E1420'; g.fillRect(0, 0, w, w);
+    g.strokeStyle = 'rgba(255,220,200,.25)'; g.lineWidth = 2; for (let k = 0; k < w; k += 8) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k, 36); g.moveTo(k, w); g.lineTo(k, w - 36); g.moveTo(0, k); g.lineTo(36, k); g.moveTo(w, k); g.lineTo(w - 36, k); g.stroke(); }
+    g.fillStyle = '#F3E2C8'; g.textAlign = 'center'; g.font = '400 54px "Alfa Slab One"'; g.fillText('HS', w / 2, 120); g.font = '600 30px Literata'; g.fillText('Sortez couverts', w / 2, 410);
+  });
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, metalness: 0.75, roughness: 0.32 }));
+  m.rotation.x = -Math.PI / 2; m.rotation.z = ry; m.position.set(x, 0, z); m.castShadow = true; m.receiveShadow = true; scene.add(m);
+}
+function lipstick(x0, z0, ry) {
+  const grp = new THREE.Group(); grp.position.set(x0, 0.75, z0); grp.rotation.y = ry; scene.add(grp);
+  const gold = new THREE.MeshStandardMaterial({ color: 0xC9A15A, metalness: 1, roughness: 0.28 });
+  const red = new THREE.MeshPhysicalMaterial({ color: 0xA0101E, roughness: 0.35, clearcoat: 0.7 });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 5, 48), gold); body.rotation.z = Math.PI / 2; body.castShadow = true; grp.add(body);
+  const bulletG = new THREE.CylinderGeometry(0.55, 0.55, 2.2, 48, 8); const bp = bulletG.attributes.position;
+  for (let i = 0; i < bp.count; i++) { const y = bp.getY(i), xx = bp.getX(i); if (y > 0.2) bp.setY(i, Math.min(y, 0.2 + (xx + 0.55) * 0.9)); }
+  bulletG.computeVertexNormals();
+  const bullet = new THREE.Mesh(bulletG, red); bullet.rotation.z = -Math.PI / 2; bullet.position.x = 3.4; bullet.castShadow = true; grp.add(bullet);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 3.4, 48, 1, false), gold); cap.rotation.z = Math.PI / 2; cap.position.set(1.5, 0.05, 3.2); cap.castShadow = true; grp.add(cap);
+  return grp;
+}
+
 // ---------------------------------------------------------------- compositions
 if (SCENE === 'verre') {
   coaster(0, 3); pint(0, 3);
@@ -485,6 +598,18 @@ if (SCENE === 'pizza') {
   pizza(0, 0, 11.6, [1, 2]);
   // une part posée à côté
   const p = pizza(0, 0, 11.6, [0, 1, 2, 3, 4, 5, 6]); p.rotation.y = 2.6; p.position.set(24, 0, 2);
+}
+if (SCENE === 'rouge') {
+  lipstick(0, 0, -0.5);
+}
+if (SCENE === 'string') {
+  thong(0, 0, 0.35);
+  lipstick(11.5, 9, -0.5);
+}
+if (SCENE === 'menottes') {
+  handcuffs(-2, -2);
+  condom(9.5, 6.5, 0.4);
+  card(appCard('Je n’ai jamais…', 'oublié de fermer les rideaux au mauvais moment.', 'Mode cul', '#B8261A'), -6.5, 8.5, -0.25, 0.03);
 }
 renderer.render(scene, cam);
 // rendu progressif : un deuxième passage pour la transmission

@@ -20,7 +20,7 @@ export function ScreenView({ dev }) {
   const ranked = S ? ids.slice().sort((a, b) => sipsOf(S, b) - sipsOf(S, a)).slice(0, 8) : [];
   return (
     <div class={`screen-view${G ? ' is-game' : ''}`}>
-      <Ambiance game={G ? tintKey(S) : null} />
+      <Ambiance game={G ? tintKey(S) : null} hot={!!(S && S.cfg && S.cfg.adult)} />
       <header class="sv-head">
         <Brand small />
         <span class={`net${dev.conn ? '' : ' is-off'}`}>{dev.conn ? `Écran · salon ${code}` : 'Reconnexion…'}</span>

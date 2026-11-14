@@ -95,7 +95,7 @@ export function Party({ dev, local, embedded = false }) {
   return (
     <MoodCtx.Provider value={moods}>
     <div class="party">
-      <Ambiance game={inGame ? tintKey(S) : null} />
+      <Ambiance game={inGame ? tintKey(S) : null} hot={!!S.cfg.adult} />
       <header class="topbar">
         <button type="button" class="topbar-code" onClick={() => setMenu('invite')} aria-label={local ? 'Joueurs' : `Inviter des joueurs, code ${S.code}`}>
           {local ? 'Un seul téléphone' : <>Soirée <b>{S.code}</b></>}

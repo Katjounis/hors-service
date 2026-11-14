@@ -2225,3 +2225,34 @@ h3 { font-size: 1.1rem; }
 /* textes posés à même la table : une plaque derrière */
 :root .screen > .lead, :root .home-foot { width: fit-content; max-width: 100%; padding: 8px 12px; background: rgba(6, 18, 12, .78); }
 :root[data-theme="light"][lang] .screen > .lead, :root[data-theme="light"][lang] .home-foot { background: rgba(253, 249, 240, .92); }
+
+/* iPhone : la barre du haut est collée sous l'encoche ; sans cette marge, son décalage la faisait
+   chevaucher le haut de la page (titre du jeu, boutons Règles et Quitter impossibles à dégager) */
+.party { padding-top: env(safe-area-inset-top, 0px); }
+.phone .party { padding-top: 0; }
+:root .topbar { background: rgba(8, 16, 12, .9); }
+/* bandes de l'encoche et du bas de Safari : même teinte que le bord du feutre */
+:root body, :root body::before { background: #123524; }
+:root:has(.feutre-nuit) body, :root:has(.feutre-nuit) body::before { background: #0E1628; }
+:root:has(.feutre-bordeaux) body, :root:has(.feutre-bordeaux) body::before { background: #2A0A12; }
+:root:has(.feutre-violet) body, :root:has(.feutre-violet) body::before { background: #1C1030; }
+:root:has(.feutre-bleu) body, :root:has(.feutre-bleu) body::before { background: #0C2232; }
+:root[data-theme="light"][lang] body, :root[data-theme="light"][lang] body::before { background: #BFA37A; }
+
+/* encadrés du salon : un peu d'air autour du registre et de la ligne « Déjà joué » */
+:root .register { padding: 14px 16px 12px; }
+:root .hist-line { width: fit-content; max-width: 100%; padding: 8px 14px; background: rgba(6, 18, 12, .72); }
+:root[data-theme="light"][lang] .hist-line { background: rgba(253, 249, 240, .9); }
+
+/* mode Cul et HARD : velours bordeaux et autres objets sur la table */
+:root .feutre-cul { background: radial-gradient(120% 85% at 50% 32%, #6E1830 0%, #4A0E20 50%, #22050E 100%) !important; }
+:root:has(.feutre-cul) body, :root:has(.feutre-cul) body::before { background: #22050E; }
+:root[data-theme="light"][lang] .ambiance.feutre-cul { background: #E9C9C9 radial-gradient(120% 85% at 50% 32%, #F4DCDA 0%, #E6C1C0 60%, #D3A5A6 100%) !important; }
+:root[data-theme="light"][lang]:has(.feutre-cul) body, :root[data-theme="light"][lang]:has(.feutre-cul) body::before { background: #D3A5A6; }
+.ambiance.is-hot .obj-cartes, .ambiance.is-hot .obj-pyramide, .ambiance.is-hot .obj-pizza { display: none; }
+.obj-rouge { background-image: url(img/table-rouge.webp); aspect-ratio: 360 / 371; width: calc(var(--k) * 6.8); bottom: 6vh; left: 8vw; transform: rotate(-14deg); }
+.obj-menottes { background-image: url(img/table-menottes.webp); aspect-ratio: 760 / 579; width: calc(var(--k) * 25); bottom: 1vh; right: calc(var(--k) * -5); transform: rotate(10deg); }
+@media (min-width: 760px) {
+  .obj-rouge { bottom: 10vh; left: 12vw; }
+  .obj-menottes { top: 12vh; bottom: auto; right: auto; left: 4vw; }
+}
