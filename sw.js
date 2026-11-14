@@ -1,7 +1,7 @@
 // Service worker de Hors Service : une fois ouverte, l'appli se relance même sans réseau.
 // Stratégie : réseau d'abord (les mises à jour arrivent tout de suite), copie locale si hors connexion.
 // Les échanges avec le serveur de salons (autre domaine) ne passent jamais par ici.
-const CACHE = 'hors-service-8b2fe995d3';
+const CACHE = 'hors-service-447466a98e';
 const FILES = ["./","./index.html","./manifest.webmanifest","./assets/icons/apple-touch-icon.png","./assets/icons/favicon-32.png","./assets/icons/icon-192.png","./assets/icons/icon-512.png","./assets/icons/icon-maskable-512.png","./jeux/96.webp","./jeux/actionverite.webp","./jeux/autres.webp","./jeux/bombe.webp","./jeux/buzzer.webp","./jeux/cercle.webp","./jeux/coinche.webp","./jeux/degaine.webp","./jeux/dessin.webp","./jeux/garou.webp","./jeux/hippodrome.webp","./jeux/jamais.webp","./jeux/oserait.webp","./jeux/paranoia.webp","./jeux/perudo.webp","./jeux/pipoteur.webp","./jeux/president.webp","./jeux/purple.webp","./jeux/toutankhamon.webp","./jeux/trouve.webp","./jeux/tupref.webp","./jeux/ware.webp"];
 
 self.addEventListener('install', (event) => {
