@@ -5,6 +5,7 @@ import { GAMES } from '../src/games/index.js';
 import { Bot } from '../src/ui/demo.jsx';
 import { validPlay, moves, titlesFor, pv } from '../src/games/president.jsx';
 import { countFace, higher } from '../src/games/perudo.jsx';
+import { roleCounts } from '../src/games/pipoteur.jsx';
 
 let passed = 0;
 let failed = 0;
@@ -94,6 +95,12 @@ async function logic() {
 }
 
 async function runAll() {
+  // Pipoteur : rôles réglables, toujours au moins deux civils et un infiltré
+  const rc = (...a) => JSON.stringify(roleCounts(...a));
+  ok(rc(4, 'auto', 'auto') === '{"nPipo":1,"nBb":0}', 'pipoteur auto à 4 : 1 pipoteur, pas de Blanc-Bec');
+  ok(rc(4, 'auto', 1) === '{"nPipo":1,"nBb":1}', 'pipoteur à 4 : on peut demander un Blanc-Bec');
+  ok(rc(3, 2, 1) === '{"nPipo":1,"nBb":0}', 'pipoteur à 3 : réglage trop gourmand ramené à 1 infiltré');
+  ok(rc(8, 'auto', 'auto') === '{"nPipo":2,"nBb":1}', 'pipoteur auto à 8 : 2 pipoteurs et 1 Blanc-Bec');
   const end = (g) => g.phase === 'end';
   const cases = [
     ['president', { rounds: 3 }, 5, end, 40000],

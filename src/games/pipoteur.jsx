@@ -1,6 +1,6 @@
 // Pipoteur — règles validées par Thierry :
 // • Les civils ont tous le même mot. Le pipoteur a un mot proche et ne sait pas qu'il est le pipoteur.
-// • 1 pipoteur jusqu'à 6 joueurs, 2 au-delà. Le Blanc-Bec (aucun mot, il le sait) à partir de 5 joueurs.
+// • Rôles réglables (voir roleCounts) ; par défaut 1 pipoteur jusqu'à 6 joueurs, 2 au-delà, Blanc-Bec dès 5.
 // • Chaque tour : chacun donne un indice à voix haute dans l'ordre affiché (le Blanc-Bec ne commence jamais),
 //   puis vote secret pour éliminer quelqu'un. L'éliminé révèle son rôle.
 // • Égalité : nouveau vote entre les ex æquo ; nouvelle égalité : personne n'est éliminé, nouveau tour.
@@ -135,6 +135,19 @@ function finish(c, winner) {
   g.summary = { winner };
 }
 
+// rôles choisis dans les réglages (« Auto » = 1 pipoteur jusqu'à 6 joueurs, 2 au-delà ; Blanc-Bec dès 5).
+// Il faut toujours au moins un infiltré et au moins deux civils, sinon la partie serait finie d'avance :
+// si le choix dépasse, on retire d'abord des Blanc-Bec, puis des pipoteurs.
+export function roleCounts(n, pipos = 'auto', bbs = 'auto') {
+  let nPipo = pipos === 'auto' || pipos == null ? (n >= 7 ? 2 : 1) : Math.max(0, Number(pipos) | 0);
+  let nBb = bbs === 'auto' || bbs == null ? (n >= 5 ? 1 : 0) : Math.max(0, Number(bbs) | 0);
+  const max = Math.max(1, n - 2);
+  while (nPipo + nBb > max && nBb > 0) nBb -= 1;
+  while (nPipo + nBb > max && nPipo > 1) nPipo -= 1;
+  if (nPipo + nBb === 0) nPipo = 1;
+  return { nPipo, nBb };
+}
+
 const PIPOTEUR = {
   id: 'pipoteur',
   name: 'Pipoteur',
@@ -143,7 +156,7 @@ const PIPOTEUR = {
   local: true,
   rules: [
     'Chacun reçoit un mot secret. Les civils ont tous le même. Le pipoteur a un mot proche et ne sait pas qu’il est le pipoteur.',
-    'Un pipoteur jusqu’à 6 joueurs, deux au-delà. À partir de 5 joueurs, un Blanc-Bec n’a aucun mot (et le sait) : il doit bluffer.',
+    'Les rôles se choisissent dans les réglages : nombre de pipoteurs et de Blanc-Bec (aucun mot, il le sait, il doit bluffer). En « Auto » : un pipoteur jusqu’à 6 joueurs, deux au-delà, et un Blanc-Bec à partir de 5 joueurs. Il reste toujours au moins deux civils : si le choix est trop gourmand pour le nombre de joueurs, on retire d’abord un Blanc-Bec.',
     'À chaque tour, donnez un indice à voix haute sur votre mot, dans l’ordre affiché. Le Blanc-Bec ne commence jamais.',
     'Puis chacun vote en secret pour éliminer un joueur. Le plus désigné est éliminé et son rôle est révélé.',
     'Égalité : nouveau vote entre les ex æquo. Nouvelle égalité : personne n’est éliminé, on refait un tour d’indices.',
@@ -156,6 +169,8 @@ const PIPOTEUR = {
   options: [
     { id: 'levels', label: 'Niveaux (un ou plusieurs)', multi: true, choices: [['soft', 'Soft'], ['hard', 'HARD', 3, 'adult'], ['cul', 'Cul', 3, 'adult']], def: ['soft'] },
     { id: 'diff', label: 'Mots', choices: [[1, 'Proches'], [2, 'Piégeux']], def: 2 },
+    { id: 'pipos', label: 'Pipoteurs', choices: [['auto', 'Auto'], [1, '1'], [2, '2'], [3, '3']], def: 'auto' },
+    { id: 'bbs', label: 'Blanc-Bec (sans mot)', choices: [['auto', 'Auto'], [0, 'Aucun'], [1, '1'], [2, '2']], def: 'auto' },
     { id: 'sips', label: 'L’équipe perdante boit', choices: [[0, 'Rien'], [2, '2 gorgées'], [3, '3 gorgées'], [5, '5 gorgées']], def: 3 },
   ],
 
@@ -165,8 +180,7 @@ const PIPOTEUR = {
   start(c) {
     const pl = c.activeUids();
     const n = pl.length;
-    const nPipo = n >= 7 ? 2 : 1;
-    const nBb = n >= 5 ? 1 : 0;
+    const { nPipo, nBb } = roleCounts(n, c.opts.pipos, c.opts.bbs);
     const want = Array.isArray(c.opts.levels) ? c.opts.levels.filter((l) => LEVELS.includes(l)) : ['soft'];
     const adult = !!(c.S.cfg && c.S.cfg.adult);
     let lv = want.filter((l) => levelAllowed(l, c.level(), adult));
@@ -318,7 +332,7 @@ function Table({ S, g, uid, secret }) {
       <div class="pipo-top">
         <span class="chip">{g.r ? `Tour ${g.r}` : 'Distribution'}</span>
         <span class="chip">{g.alive.length} en jeu</span>
-        <span class="chip">{plural(g.counts.pipo, 'pipoteur', 'pipoteurs')}{g.counts.bb ? ' · 1 Blanc-Bec' : ''}</span>
+        <span class="chip">{plural(g.counts.pipo, 'pipoteur', 'pipoteurs')}{g.counts.bb ? ` · ${g.counts.bb} Blanc-Bec` : ''}</span>
         {g.lv && (g.lv.length > 1 || g.lv[0] !== 'soft') ? <span class="chip">{g.lv.map((l) => NIVEAUX_MOTS[l].label).join(' + ')}</span> : null}
       </div>
       {g.dropped && g.dropped.length && g.r <= 1 ? (
