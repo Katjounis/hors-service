@@ -65,7 +65,14 @@ export function Vs({ a, b }) {
 }
 
 // Carte à jouer dessinée en CSS (les symboles restent du texte, jamais des emojis)
-const SYM = (s) => `${SUIT_SYMBOL[s]}︎`;
+// couleurs dessinées en SVG : même rendu sur tous les téléphones (les caractères ♣ ♠ dépendent des polices)
+const SUIT_D = {
+  H: 'M12 21.6 C5 16 1.4 12.3 1.4 7.9 C1.4 4.6 3.9 2.4 6.8 2.4 C9 2.4 11 3.7 12 5.8 C13 3.7 15 2.4 17.2 2.4 C20.1 2.4 22.6 4.6 22.6 7.9 C22.6 12.3 19 16 12 21.6 Z',
+  D: 'M12 1.2 C14.4 4.8 17.4 8.6 20.6 12 C17.4 15.4 14.4 19.2 12 22.8 C9.6 19.2 6.6 15.4 3.4 12 C6.6 8.6 9.6 4.8 12 1.2 Z',
+  S: 'M12 1.4 C9.2 5.8 2.4 9.4 2.4 14 C2.4 16.9 4.6 18.7 7 18.7 C8.8 18.7 10.2 17.9 11 16.7 C10.8 19.1 10 20.8 8.2 22.6 L15.8 22.6 C14 20.8 13.2 19.1 13 16.7 C13.8 17.9 15.2 18.7 17 18.7 C19.4 18.7 21.6 16.9 21.6 14 C21.6 9.4 14.8 5.8 12 1.4 Z',
+  C: 'M12 1.8 C14.6 1.8 16.6 3.8 16.6 6.4 C16.6 7.3 16.4 8.1 16 8.8 C16.6 8.6 17.2 8.5 17.8 8.5 C20.4 8.5 22.4 10.5 22.4 13.1 C22.4 15.7 20.4 17.7 17.8 17.7 C16.2 17.7 14.8 16.9 13.9 15.7 C14 18.5 14.9 20.6 16.6 22.6 L7.4 22.6 C9.1 20.6 10 18.5 10.1 15.7 C9.2 16.9 7.8 17.7 6.2 17.7 C3.6 17.7 1.6 15.7 1.6 13.1 C1.6 10.5 3.6 8.5 6.2 8.5 C6.8 8.5 7.4 8.6 8 8.8 C7.6 8.1 7.4 7.3 7.4 6.4 C7.4 3.8 9.4 1.8 12 1.8 Z',
+};
+const SYM = (s) => <svg class="pc-suit" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={SUIT_D[s]} fill="currentColor" /></svg>;
 export function PlayingCard({ c, size = 'm', back = false, onClick, disabled, sel, children, tag, posee = false, flip = false }) {
   // retournement en 3D : la carte arrive face cachée puis se retourne
   if (flip && !back && !onClick) {

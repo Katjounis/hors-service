@@ -2318,3 +2318,48 @@ h3 { font-size: 1.1rem; }
 .side-art .game-art { aspect-ratio: 2 / 1; }
 /* numéro du jeu : petite étiquette crème, lisible sur toutes les surfaces des photos */
 :root .gcard-no { background: #F6EFDF; color: #B8261A; padding: 3px 7px 2px; border-radius: 3px; top: 14px; left: 14px; }
+
+/* coinche : la main en éventail, des cartes à taille de vraie carte qui se chevauchent */
+:root .co-hand { display: flex; flex-wrap: nowrap; justify-content: center; gap: 0; padding: 10px 0 6px; opacity: 1; }
+:root .co-hand .co-slot { flex: none; margin-left: -27px; rotate: calc(var(--i) * 3.5deg); translate: 0 calc(var(--i) * var(--i) * 1.1px); transform-origin: 50% 120%; }
+:root .co-hand .co-slot:first-child { margin-left: 0; }
+:root .co-hand .pc, :root .act .co-hand .pc-m, :root .co-hand .pc-s { width: 64px; height: 90px; }
+:root .co-hand .pc .pc-mid { font-size: 1.8rem; }
+:root .co-hand .pc .pc-corner { font-size: 1.05rem; }
+:root .co-hand .pc:not([disabled]):active { translate: 0 -8px; }
+@media (max-width: 370px) { :root .co-hand .co-slot { margin-left: -24px; } :root .co-hand .pc, :root .act .co-hand .pc-m { width: 56px; height: 79px; } }
+@media (min-width: 560px) { :root .co-hand .co-slot { margin-left: -14px; } :root .co-hand .pc, :root .act .co-hand .pc-m { width: 76px; height: 106px; } }
+
+/* coinche : choix du partenaire et aide-mémoire des points */
+.co-team { display: grid; gap: 8px; }
+.co-pick { display: flex; align-items: center; gap: 12px; justify-content: flex-start; min-height: 56px; }
+.co-bareme { margin: 8px 0 12px; }
+.co-bareme summary { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; cursor: pointer; font: 600 .95rem/1 var(--f-texte); border: 1px solid rgba(242, 234, 219, .3); border-radius: 6px; list-style: none; }
+.co-bareme summary::-webkit-details-marker { display: none; }
+.co-bareme[open] summary { background: #F6EFDF; color: #1C1915; border-color: #F6EFDF; }
+.co-bareme .tbl td:nth-child(2), .co-bareme .tbl td:nth-child(3), .co-bareme .tbl th:nth-child(2), .co-bareme .tbl th:nth-child(3) { text-align: center; font-variant-numeric: tabular-nums; }
+.co-bareme .small { margin: 8px 0 0; }
+:root[data-theme="light"][lang] .co-bareme summary { border-color: rgba(34, 32, 28, .25); }
+:root[data-theme="light"][lang] .co-bareme[open] summary { background: #2A241D; color: #F6EFDF; }
+
+/* couleurs des cartes en SVG */
+.pc-suit { display: block; width: 1em; height: 1em; }
+.pc-corner i { display: block; line-height: 0; margin-top: 2px; }
+.pc-corner i .pc-suit { width: .78em; height: .78em; }
+.pc-mid .pc-suit { width: 1em; height: 1em; }
+
+/* coinche : le tapis en vrai tapis de cartes (feutre, bord en bois), emplacements marqués à la craie */
+:root .co-tapis {
+  margin: 8px 0; padding: 18px 12px; min-height: 300px; border: 0; border-radius: 28px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .05 0 0 0 0 .12 0 0 0 0 .08 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(110% 80% at 50% 42%, #2E7D55 0%, #1F5E3F 55%, #153F2B 100%);
+  box-shadow: inset 0 0 0 7px #6A3D20, inset 0 0 0 9px #8A5530, inset 0 0 0 10px rgba(0, 0, 0, .35), inset 0 10px 24px rgba(0, 0, 0, .35);
+}
+:root .co-tapis::before { content: ''; position: absolute; inset: 30px; border: 1.5px solid rgba(242, 234, 219, .14); border-radius: 18px; pointer-events: none; }
+:root .co-name { background: #F6EFDF; color: #1C1915; border-radius: 3px; padding: 3px 8px 3px 4px; font-size: .82rem; }
+:root .co-seat.is-turn .co-name { background: #F2C230; color: #1C1915; }
+:root .co-card.is-empty { border: 1.5px dashed rgba(242, 234, 219, .3); border-radius: 6px; background: rgba(0, 0, 0, .08); }
+:root .co-card .pc { box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+:root .co-announce { align-self: center; padding: 6px 10px; background: rgba(12, 22, 16, .7); border-radius: 4px; color: #F2C230; }
+:root[data-theme="light"][lang] .co-tapis { color: #F6EFDF; }

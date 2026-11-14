@@ -94,4 +94,11 @@ export default [
   ['Activer les capteurs (Secoue, Retourne, Penche)', 'Turn on sensors (Shake, Flip, Tilt)'], ['Capteurs indisponibles : Secoue, Retourne et Penche sont retirés de la rafale.', 'Sensors unavailable: Shake, Flip and Tilt are removed from the burst.'],
   ['C’est parti', 'Go'], ['réussis', 'won'], ['enchaîne', 'chains'], ['avant d’être hors service.', 'before going out of order.'], ['vie perdue', 'life lost'], ['vies perdues', 'lives lost'],
   ['pénalité', 'penalty'], ['pénalités', 'penalties'], ['Aucune vie perdue.', 'No lives lost.'], ['Bilan de la rafale', 'Burst summary'], ['Tours', 'Turns'], ['Réussis', 'Won'], ['Vies perdues', 'Lives lost'],
+  ['Équipes', 'Teams'], ['On choisit', 'We pick'], ['Ordre des places', 'Seat order'], ['Au hasard', 'Random'],
+  ['Valeur des cartes', 'Card values'], ['Avec qui tu joues ?', 'Who are you playing with?'], ['Choisis ton partenaire : il s’assoit en face de toi.', 'Pick your partner: they sit across from you.'],
+  ['Carte', 'Card'], ['Hors atout', 'Non-trump'], ['Valet', 'Jack'], ['As', 'Ace'], ['Roi', 'King'], ['Dame', 'Queen'],
+  ['{0} choisit son partenaire.', '{0} is picking a partner.'],
+  ['Ordre de force à l’atout : Valet, 9, As, 10, Roi, Dame, 8, 7. Hors atout : As, 10, Roi, Dame, Valet, 9, 8, 7.', 'Trump ranking: Jack, 9, Ace, 10, King, Queen, 8, 7. Non-trump: Ace, 10, King, Queen, Jack, 9, 8, 7.'],
+  ['Une donne vaut 162 points (152 dans les cartes, plus 10 pour le dernier pli). Roi et Dame d’atout dans la même main : belote-rebelote, +20.', 'A deal is worth 162 points (152 in the cards, plus 10 for the last trick). King and Queen of trumps in the same hand: belote-rebelote, +20.'],
+  ['Pour annoncer : compte tes points à l’atout et tes As. Valet et 9 d’atout avec un As à côté, c’est souvent un 80 ou un 90.', 'To bid: count your trump points and your Aces. Jack and 9 of trumps with an Ace on the side is often an 80 or 90.'],
 ];

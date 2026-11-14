@@ -7,7 +7,7 @@
 // fait boire l'équipe adverse, un capot vaut un cul sec, la belote fait distribuer 2 gorgées.
 // Mains secrètes : un téléphone par joueur. En mode Écran, la télé affiche le tapis.
 
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { PlayingCard, Who, nickOf, Waiting, Av, Stamp } from '../ui/common.jsx';
 import { shuffle as shuf, plural } from '../lib/util.js';
 
@@ -246,7 +246,8 @@ const COINCHE = {
   min: 4,
   local: false,
   rules: [
-    'Quatre joueurs en deux équipes : le 1er et le 3e contre le 2e et le 4e (ordre des places). Jeu de 32 cartes, 8 cartes chacun.',
+    'Quatre joueurs en deux équipes. Par défaut, le premier joueur choisit son partenaire (il s’assoit en face) ; on peut aussi garder l’ordre des places ou tirer au hasard. Jeu de 32 cartes, 8 cartes chacun.',
+    'Bouton « Valeur des cartes » pendant la partie : les points et l’ordre de force à l’atout et hors atout, pour ceux qui débutent.',
     'Enchères : de 80 à 160 (par 10) ou capot, en choisissant l’atout. On parle à son tour : annoncer plus haut ou passer. Trois passes après une annonce : le contrat est fixé. Quatre passes d’entrée : on redistribue.',
     'La défense peut coincher (contrat x2) ; l’attaque peut alors surcoincher (x4).',
     'Jeu : on fournit la couleur demandée. Sinon on coupe si l’adversaire est maître (en montant si possible) ; si le partenaire est maître, on se défausse librement. À l’atout, on monte si on peut.',
@@ -255,20 +256,24 @@ const COINCHE = {
     'Alcool : l’équipe qui chute boit 2 gorgées chacun (x coinche), une coinche réussie fait boire l’équipe adverse, un capot vaut un cul sec aux perdants, la belote fait distribuer 2 gorgées. À la fin, l’équipe perdante boit.',
   ],
   options: [
+    { id: 'teams', label: 'Équipes', choices: [['choix', 'On choisit'], ['places', 'Ordre des places'], ['hasard', 'Au hasard']], def: 'choix' },
     { id: 'target', label: 'Partie en', choices: [[0, 'Une donne'], [500, '500 points'], [1000, '1 000 points'], [2000, '2 000 points']], def: 1000 },
     { id: 'sips', label: 'L’équipe perdante boit', choices: [[0, 'Rien'], [3, '3 gorgées'], [5, '5 gorgées']], def: 3 },
   ],
 
   start(c) {
-    const pl = c.activeUids().slice(0, 4);
+    let pl = c.activeUids().slice(0, 4);
+    if (c.opts.teams === 'hasard') pl = c.shuffle(pl);
     const g = { gid: c.rid(5), pl, dealer: Math.floor(Math.random() * 4) - 1, dealN: 0, score: [0, 0], history: [], phase: 'bid' };
     c.g = g;
     c.S.game.g = g;
-    newDeal(c);
+    // « On choisit » : le premier joueur désigne son partenaire avant la première donne
+    if (c.opts.teams === 'choix' || c.opts.teams == null) { g.phase = 'team'; g.turn = 0; } else newDeal(c);
     return g;
   },
 
   request({ g, uid, secret }) {
+    if (g.phase === 'team') return uid === g.pl[0] ? { k: `t${g.gid}`, kind: 'team' } : null;
     const seat = g.pl.indexOf(uid);
     if (seat < 0 || !secret || secret.game !== 'coinche' || secret.gid !== g.gid) return null;
     if (g.turn !== seat) return null;
@@ -279,6 +284,15 @@ const COINCHE = {
 
   input(c, uid, k, v) {
     const g = c.g;
+    if (g.phase === 'team') {
+      if (k !== `t${g.gid}` || uid !== g.pl[0] || v === uid || !g.pl.includes(v)) return false;
+      // le partenaire s'assoit en face (place 3), les deux autres en 2 et 4
+      const others = g.pl.filter((u) => u !== uid && u !== v);
+      g.pl = [uid, others[0], v, others[1]];
+      c.ev(`Coinche : ${c.name(uid)} fait équipe avec ${c.name(v)}`, '*', 'game');
+      newDeal(c);
+      return true;
+    }
     const seat = g.pl.indexOf(uid);
     if (seat < 0 || g.turn !== seat) return false;
     if (g.phase === 'bid' && k === `b${g.dealN}.${g.bids.length}`) return bidInput(c, seat, v);
@@ -299,11 +313,12 @@ const COINCHE = {
     return false;
   },
 
-  turnOf(g) { return g.phase === 'bid' || g.phase === 'play' ? g.pl[g.turn] : null; },
+  turnOf(g) { return g.phase === 'team' ? g.pl[0] : g.phase === 'bid' || g.phase === 'play' ? g.pl[g.turn] : null; },
   cleanup(c) { for (const u of (c.g && c.g.pl) || []) c.setSecret(u, null); },
 
   // joueur automatique : annonce s'il a du jeu à l'atout, joue une carte permise au hasard (la plus forte s'il peut prendre)
   bot({ g, req, secret }) {
+    if (req && req.kind === 'team') { const o = g.pl.slice(1); return o[Math.floor(Math.random() * o.length)]; }
     if (!secret || !req) return undefined;
     const hand = secret.hand || [];
     if (req.kind === 'bid') {
@@ -340,6 +355,25 @@ const teamName = (S, g, t) => [0, 1, 2, 3].filter((s) => s % 2 === t).map((s) =>
 const SuitTxt = ({ s }) => <span class={red(s) ? 'suit-r' : 'suit-n'}>{SUIT_SYM[s]}</span>;
 const bidTxt = (b) => (b.type === 'pass' ? 'passe' : b.type === 'coinche' ? 'coinche !' : b.type === 'surcoinche' ? 'surcoinche !' : b.type === 'redeal' ? 'redistribution' : `${b.val === 250 ? 'capot' : b.val}`);
 
+// aide-mémoire pour les débutants : points et ordre de force, atout et hors atout
+const BAREME = [['J', 'Valet', 20, 2], ['9', '9', 14, 0], ['A', 'As', 11, 11], ['T', '10', 10, 10], ['K', 'Roi', 4, 4], ['Q', 'Dame', 3, 3], ['8', '8', 0, 0], ['7', '7', 0, 0]];
+function Bareme({ trump }) {
+  return (
+    <details class="co-bareme">
+      <summary>Valeur des cartes</summary>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Carte</th><th>À l’atout{trump ? <> (<SuitTxt s={trump} />)</> : null}</th><th>Hors atout</th></tr></thead>
+          <tbody>{BAREME.map(([r, n, a, h]) => <tr key={r}><td>{n}</td><td><b>{a}</b></td><td>{h}</td></tr>)}</tbody>
+        </table>
+      </div>
+      <p class="small">Ordre de force à l’atout : Valet, 9, As, 10, Roi, Dame, 8, 7. Hors atout : As, 10, Roi, Dame, Valet, 9, 8, 7.</p>
+      <p class="small">Une donne vaut 162 points (152 dans les cartes, plus 10 pour le dernier pli). Roi et Dame d’atout dans la même main : belote-rebelote, +20.</p>
+      <p class="small">Pour annoncer : compte tes points à l’atout et tes As. Valet et 9 d’atout avec un As à côté, c’est souvent un 80 ou un 90.</p>
+    </details>
+  );
+}
+
 function Contract({ S, g }) {
   const K = g.contract;
   if (!K) return null;
@@ -355,7 +389,16 @@ function Tapis({ S, g, me }) {
   // le joueur en bas, puis dans le sens des aiguilles d'une montre
   const base = me >= 0 ? me : 0;
   const pos = ['bas', 'gauche', 'haut', 'droite'];
-  const cardOf = (s) => (g.trick.find((t) => t.seat === s) || (g.trick.length === 0 && g.last && Date.now() - g.last.at < 2200 ? g.last.cards.find((t) => t.seat === s) : null));
+  // pli terminé : les quatre cartes restent visibles une seconde, puis le tapis se vide tout seul
+  const SHOW = 1100;
+  const [, redraw] = useState(0);
+  const left = g.last ? SHOW - (Date.now() - g.last.at) : 0;
+  useEffect(() => {
+    if (!(g.trick.length === 0 && left > 0)) return undefined;
+    const t = setTimeout(() => redraw((x) => x + 1), left + 20);
+    return () => clearTimeout(t);
+  }, [g.last && g.last.at, g.trick.length]);
+  const cardOf = (s) => (g.trick.find((t) => t.seat === s) || (g.trick.length === 0 && g.last && left > 0 ? g.last.cards.find((t) => t.seat === s) : null));
   return (
     <div class="co-tapis">
       {[0, 1, 2, 3].map((i) => {
@@ -375,6 +418,14 @@ function Tapis({ S, g, me }) {
 
 function Table({ S, g, uid, secret, screen }) {
   if (g.phase === 'end') return <End S={S} g={g} uid={uid} />;
+  if (g.phase === 'team') {
+    return (
+      <div class={`co${screen ? ' is-screen' : ''}`}>
+        <p class="lead">{uid === g.pl[0] ? 'Choisis ton partenaire : il s’assoit en face de toi.' : `${nickOf(S, g.pl[0])} choisit son partenaire.`}</p>
+        <Bareme />
+      </div>
+    );
+  }
   const me = g.pl.indexOf(uid);
   const myHand = secret && secret.game === 'coinche' && secret.gid === g.gid ? secret.hand : null;
   return (
@@ -389,6 +440,7 @@ function Table({ S, g, uid, secret, screen }) {
         {g.phase === 'play' ? <span class="chip">Plis {g.tricks[0]} – {g.tricks[1]}</span> : null}
       </div>
       <Contract S={S} g={g} />
+      <Bareme trump={g.contract && g.contract.suit} />
       {g.phase === 'bid' ? (
         <div class="co-bids">
           {g.bids.length ? g.bids.slice(-8).map((b, i) => (
@@ -399,7 +451,7 @@ function Table({ S, g, uid, secret, screen }) {
       {g.phase === 'play' || g.phase === 'score' ? <Tapis S={S} g={g} me={me} /> : null}
       {g.phase === 'score' && g.result ? <DealResult S={S} g={g} /> : null}
       {myHand && myHand.length && g.turn !== me ? (
-        <div class="co-hand is-wait">{myHand.map((c) => <PlayingCard key={c} c={c} size="m" />)}</div>
+        <div class="co-hand is-wait">{myHand.map((c, i) => <span class="co-slot" key={c} style={{ '--i': i - (myHand.length - 1) / 2 }}><PlayingCard c={c} size="m" /></span>)}</div>
       ) : null}
     </div>
   );
@@ -440,13 +492,27 @@ function Act({ S, g, uid, req, send, sent, secret }) {
   const [val, setVal] = useState(null);
   const seat = g.pl.indexOf(uid);
   const hand = secret && secret.hand ? secret.hand : [];
+  if (req.kind === 'team') {
+    return (
+      <div class="act">
+        <h3>Avec qui tu joues ?</h3>
+        <div class="co-team">
+          {g.pl.slice(1).map((u) => (
+            <button type="button" key={u} class="btn co-pick" disabled={sent} onClick={() => send(req.k, u)}>
+              <Av p={S.roster[u]} size="m" /> {nickOf(S, u)}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (req.kind === 'play') {
     const ok = legal(hand, g.trick, g.contract.suit, seat);
     return (
       <div class="act act-hand">
         <h3>À toi de jouer</h3>
         <div class="co-hand">
-          {hand.map((c) => <PlayingCard key={c} c={c} size="m" disabled={sent || !ok.includes(c)} onClick={() => send(req.k, c)} />)}
+          {hand.map((c, i) => <span class="co-slot" key={c} style={{ '--i': i - (hand.length - 1) / 2 }}><PlayingCard c={c} size="m" disabled={sent || !ok.includes(c)} onClick={() => send(req.k, c)} /></span>)}
         </div>
         <p class="hint">Les cartes grisées ne sont pas jouables (il faut fournir, couper ou monter).</p>
       </div>
@@ -461,7 +527,7 @@ function Act({ S, g, uid, req, send, sent, secret }) {
     return (
       <div class="act">
         <h3>À toi d’annoncer</h3>
-        <div class="co-hand is-wait">{hand.map((c) => <PlayingCard key={c} c={c} size="s" />)}</div>
+        <div class="co-hand is-wait">{hand.map((c, i) => <span class="co-slot" key={c} style={{ '--i': i - (hand.length - 1) / 2 }}><PlayingCard c={c} size="m" /></span>)}</div>
         {g.coinche === 1 && options.length ? (
           <>
             <div class="co-vals" role="group" aria-label="Valeur du contrat">
