@@ -242,4 +242,6 @@ export default [
   ['Sans Chromecast', 'Without Chromecast'], ['Copier le lien écran', 'Copy the screen link'],
   ['Ouvre ce lien dans le navigateur de la télé, sur un ordinateur branché à la télé ou sur une tablette.', 'Open this link in the TV’s browser, on a computer plugged into the TV or on a tablet.'],
   ['Recopie d’écran (AirPlay, Smart View, câble) : la télé montre exactement ce qu’affiche ton téléphone, cartes comprises. Pour les jeux à cartes cachées, passe plutôt par le lien ci-dessus.', 'Screen mirroring (AirPlay, Smart View, cable): the TV shows exactly what your phone shows, cards included. For games with hidden cards, use the link above instead.'],
+  ['Perso', 'Character'], ['Visage', 'Face'], ['Tête', 'Head'], ['Tenue', 'Outfit'], ['Chapka', 'Ushanka'], ['Cache-œil', 'Eye patch'], ['Tatouages', 'Tattoos'],
+  ['Kippa', 'Kippah'],
 ];

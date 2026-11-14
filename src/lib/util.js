@@ -72,7 +72,7 @@ export function emitter() {
 // Avatar : le portrait au feutre (voir ui/avatar.jsx),
 // codé « couleur.expression.tête.visage.plus.coiffure.peau.cheveux.espèce ».
 // Nombre de choix pour chaque partie :
-export const AV_COUNTS = [10, 8, 11, 7, 5, 8, 5, 6, 9];
+export const AV_COUNTS = [10, 8, 13, 8, 6, 8, 5, 6, 9];
 const AV_RE = /^\d{1,2}(\.\d{1,2}){4,8}$/;
 
 function avHash(s) {

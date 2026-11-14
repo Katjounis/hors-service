@@ -2446,3 +2446,14 @@ h3 { font-size: 1.1rem; }
 
 .tele { display: grid; gap: 14px; }
 .tele > p { margin: 0; }
+
+/* atelier du personnage : onglets, puis une grille de vignettes par famille */
+.maker-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 4px 0 2px; }
+.maker-tabs::-webkit-scrollbar { display: none; }
+.maker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 6px; }
+.maker-grid .maker-opt { width: auto; height: auto; aspect-ratio: 1; }
+.maker-grid.is-colors { grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); }
+.maker-grid.is-colors .maker-opt { aspect-ratio: auto; height: 44px; }
+.maker { min-width: 0; max-width: 100%; }
+.maker > * { min-width: 0; max-width: 100%; }
+.maker-tabs .cat-tab { padding: 0 10px; font-size: .86rem; }

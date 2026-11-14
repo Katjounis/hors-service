@@ -19,9 +19,9 @@ export const AV_HAIRS = ['#2A231F', '#5A3824', '#94643A', '#E2BC6E', '#C1532A', 
 export const AV_NAMES = {
   color: ['Jaune', 'Orange', 'Rouge', 'Rose', 'Violet', 'Bleu', 'Menthe', 'Vert', 'Kraft', 'Gris'],
   expr: ['Content', 'Blasé', 'Surpris', 'Bourré', 'Diabolique', 'Amoureux', 'Endormi', 'Clin d’œil'],
-  head: ['Rien', 'Casquette', 'Couronne', 'Chapeau de fête', 'Bandeau', 'Casque de chantier', 'Auréole', 'Cornes', 'Bonnet', 'Fleur', 'Casque audio'],
-  face: ['Rien', 'Lunettes de soleil', 'Lunettes rondes', 'Moustache', 'Nez de clown', 'Monocle', 'Masque de ski'],
-  extra: ['Rien', 'Verre à la main', 'Nœud papillon', 'Cravate', 'Micro'],
+  head: ['Rien', 'Casquette', 'Couronne', 'Chapeau de fête', 'Bandeau', 'Casque de chantier', 'Auréole', 'Cornes', 'Bonnet', 'Fleur', 'Casque audio', 'Chapka', 'Kippa'],
+  face: ['Rien', 'Lunettes de soleil', 'Lunettes rondes', 'Moustache', 'Nez de clown', 'Monocle', 'Masque de ski', 'Cache-œil'],
+  extra: ['Rien', 'Verre à la main', 'Nœud papillon', 'Cravate', 'Micro', 'Tatouages'],
   hair: ['Rasé', 'Court', 'Mèche', 'Bouclé', 'Long', 'Chignon', 'Crête', 'Carré'],
   skin: ['Très claire', 'Claire', 'Mate', 'Foncée', 'Très foncée'],
   hairCol: ['Noirs', 'Bruns', 'Châtains', 'Blonds', 'Roux', 'Roses'],
@@ -55,7 +55,7 @@ export function makeAv(parts) {
 }
 export function randomAv() {
   const r = (n) => Math.floor(Math.random() * n);
-  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(11) : 0, Math.random() < 0.35 ? r(7) : 0, Math.random() < 0.3 ? r(5) : 0, r(8), r(5), r(6), r(9)]);
+  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(13) : 0, Math.random() < 0.35 ? r(8) : 0, Math.random() < 0.3 ? r(6) : 0, r(8), r(5), r(6), r(9)]);
 }
 export function describeAv(av) {
   const p = parseAv(av);
@@ -248,6 +248,22 @@ function Eyes({ expr, mood }) {
 
 function Hat({ k, c }) {
   switch (k) {
+    case 12: return (
+      <g>
+        <F d="M21.8 14.4 C23.4 7.6 40.6 7.6 42.2 14.4 C36.8 12.6 27.2 12.6 21.8 14.4 Z" fill="#2F55A4" w={1.6} />
+        <L d="M23.4 12.8 C28.6 11.4 35.4 11.4 40.6 12.8" w={1.1} color="#F2C230" />
+      </g>
+    );
+    case 11: return (
+      <g>
+        <F d="M14.6 24 C12.2 28.4 12.2 35 13.8 38.8 C15.4 41.2 18.4 40.6 19.1 37.8 L19.5 26.4 Z" fill="#CDBBA0" />
+        <F d="M49.4 24 C51.8 28.4 51.8 35 50.2 38.8 C48.6 41.2 45.6 40.6 44.9 37.8 L44.5 26.4 Z" fill="#CDBBA0" />
+        <F d="M17.4 22.4 C17 12.4 24.2 7.2 32 7.2 C39.8 7.2 47 12.4 46.6 22.4 Z" fill="#3A3F4A" />
+        <F d="M15.4 23.4 C15.8 18.2 24 16.2 32 16.2 C40 16.2 48.2 18.2 48.6 23.4 C48.8 26 46.8 26.8 44.6 26.2 C40 25 24 25 19.4 26.2 C17.2 26.8 15.2 26 15.4 23.4 Z" fill="#CDBBA0" />
+        <L d="M20 20.2 L21 22.4 M24.6 19 L25.2 21.6 M29.4 18.6 L29.6 21.2 M34.6 18.6 L34.4 21.2 M39.4 19 L38.8 21.6 M44 20.2 L43 22.4 M14.8 30 L16.4 30.6 M14.6 34.4 L16.4 34.6 M49.2 30 L47.6 30.6 M49.4 34.4 L47.6 34.6" w={0.9} color="#8C7A62" />
+        <F d="M30.2 11.6 C31 10.6 33 10.6 33.8 11.6 C34.4 12.8 33.6 14.2 32 14.2 C30.4 14.2 29.6 12.8 30.2 11.6 Z" fill="#D9412B" w={1.2} sketch={false} />
+      </g>
+    );
     case 1: return (
       <g>
         <F d="M44.4 21.6 C50.2 21 56.2 22.2 58 24.4 C53.4 25.8 48.4 25.6 45.6 24.4 Z" fill={shade(BLUE, 0.8)} w={1.9} />
@@ -355,12 +371,27 @@ function FaceAcc({ k }) {
         <text x="32" y="31.2" text-anchor="middle" font-size="4.2" fill="#FFFDF6" font-family="Alfa Slab One, serif" letter-spacing=".4">YANN</text>
       </g>
     );
+    case 7: return (
+      <g>
+        <L d="M16.8 25.4 C23.6 24.4 29.6 25.8 34.2 28 M42.8 28.6 C44.8 27.6 46.2 26.6 47.6 25.4" w={1.4} />
+        <F d="M34 27.4 C36.6 26.2 40.8 26.4 42.6 28 C43.6 30.6 42.4 33.6 39.4 34.2 C36.4 34.6 34.2 32.8 33.8 30.4 C33.6 29.2 33.6 28.2 34 27.4 Z" fill="#1C1A17" w={1.4} />
+        <path d="M36 28.6 C37.4 28 39 28 40.2 28.4" fill="none" stroke="#FFFFFF" stroke-width=".8" opacity=".35" stroke-linecap="round" />
+      </g>
+    );
     default: return null;
   }
 }
 
 function Extra({ k, shirt, sk }) {
   switch (k) {
+    case 5: return (
+      <g fill="#2B3A55" opacity=".82">
+        <path d="M24.4 33.8 C25.4 35.4 25.8 36.4 25 37 C24.2 37.4 23.6 36.6 24 35.6 Z" />
+        <path d="M31.4 50.4 L32 49 L32.6 50.4 L34.1 50.5 L33 51.4 L33.4 52.9 L32 52 L30.6 52.9 L31 51.4 L29.9 50.5 Z" />
+        <path d="M40.6 34.6 C41.4 33.8 42.6 34.2 42.6 35.2 C42.6 36.2 41.6 36.8 40.6 37.6 C39.6 36.8 38.6 36.2 38.6 35.2 C38.6 34.2 39.8 33.8 40.6 34.6 Z" />
+        <path d="M20.6 21.4 L22.4 20.2 M21 23.4 L23.2 22.4" stroke="#2B3A55" stroke-width=".9" stroke-linecap="round" fill="none" />
+      </g>
+    );
     case 1: return (
       <g>
         <F d="M45.6 66 C46 60 47.6 55.2 50.6 51.6 L56 53.4 C54.4 57.6 53.4 61.4 53.2 66 Z" fill={shirt} />

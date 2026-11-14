@@ -56,9 +56,18 @@ export const LEVEL_OPTS = [1, 2, 3].map((l) => [l, LEVELS[l], LEVEL_HELP[l]]);
 
 // Atelier du personnage : aperçu en grand, puis couleur, expression et accessoires.
 const PART_LABEL = { kind: 'Personnage', skin: 'Peau', hair: 'Coiffure', hairCol: 'Cheveux', expr: 'Expression', color: 'Tee-shirt', head: 'Sur la tête', face: 'Sur le visage', extra: 'En plus' };
+// cinq onglets courts : on ne voit qu'une ou deux familles de choix à la fois
+const MAKER_TABS = [
+  ['perso', 'Perso', ['kind', 'skin']],
+  ['visage', 'Visage', ['expr', 'face']],
+  ['cheveux', 'Cheveux', ['hair', 'hairCol']],
+  ['tete', 'Tête', ['head']],
+  ['tenue', 'Tenue', ['color', 'extra']],
+];
 export function AvatarMaker({ value, onChange, idp }) {
   const parts = parseAv(value);
   const [mood, setMood] = useState(null);
+  const [tab, setTab] = useState('perso');
   const box = useRef(null);
   // au premier affichage, chaque bande montre le choix en cours
   useEffect(() => {
@@ -84,13 +93,18 @@ export function AvatarMaker({ value, onChange, idp }) {
           </div>
         </div>
       </div>
-      {AV_EDIT.filter((k) => (k !== 'hair' && k !== 'hairCol') || KIND_HAIR[parts[8]]).map((k) => {
+      <div class="maker-tabs" role="tablist" aria-label="Partie du personnage">
+        {MAKER_TABS.filter(([id]) => id !== 'cheveux' || KIND_HAIR[parts[8]]).map(([id, lab]) => (
+          <button type="button" key={id} role="tab" aria-selected={tab === id ? 'true' : 'false'} class={`cat-tab${tab === id ? ' is-on' : ''}`} onClick={() => setTab(id)}>{lab}</button>
+        ))}
+      </div>
+      {(MAKER_TABS.find(([id]) => id === tab) || MAKER_TABS[0])[2].filter((k) => (k !== 'hair' && k !== 'hairCol') || KIND_HAIR[parts[8]]).map((k) => {
         const i = AV_PARTS.indexOf(k);
         const sw = k === 'skin' ? KIND_SKINS[parts[8]] : AV_SWATCH[k];
         return (
           <div class="maker-row" key={k}>
-            <span class="maker-l">{k === 'skin' && parts[8] !== 0 && parts[8] !== 2 && parts[8] !== 3 ? 'Teinte' : PART_LABEL[k]}</span>
-            <div class="maker-strip" role="radiogroup" aria-label={PART_LABEL[k]}>
+            <span class="maker-l">{k === 'skin' && parts[8] !== 0 && parts[8] !== 2 && parts[8] !== 3 && parts[8] !== 8 ? 'Teinte' : PART_LABEL[k]}</span>
+            <div class={`maker-grid${sw ? ' is-colors' : ''}`} role="radiogroup" aria-label={PART_LABEL[k]}>
               {AV_NAMES[k].map((name, x) => {
                 const p = parts.slice();
                 p[i] = x;
