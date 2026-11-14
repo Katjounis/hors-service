@@ -434,11 +434,13 @@ function CubeHead({ expr, mood, sk, hc, hair, shirt }) {
   if (e === 4 || e === 'win') cells.push(<Px key="dents" c={2.2} r={5.9} w={3.6} h={0.4} fill="#FFFDF6" />);
   return (
     <g>
-      <rect x={PX0 + 2.5 * PX} y={PY0 + 8 * PX - 1} width={PX * 3} height="15" fill={sk} stroke={INK} stroke-width="1.8" />
-      <rect x={PX0 + 2.5 * PX + 0.9} y={PY0 + 8 * PX} width={PX * 3 - 1.8} height="3.2" fill={dark} />
-      <path d="M4 66 L4 58 L8 58 L8 54.4 L22 54.4 L22 51.8 L42 51.8 L42 54.4 L56 54.4 L56 58 L60 58 L60 66 Z" fill={shirt} />
-      <path d="M4 66 L4 58 L8 58 L8 54.4 L22 54.4 L22 51.8 L42 51.8 L42 54.4 L56 54.4 L56 58 L60 58 L60 66" fill="none" stroke={INK} stroke-width="2" />
-      <rect x={PX0 + 2.5 * PX} y="51.8" width={PX * 3} height="2.6" fill={shade(shirt, 0.8)} />
+      {/* pas de cou : la tête-bloc est posée directement sur le buste, les bras de chaque côté */}
+      <rect x="5.6" y="41.2" width="12" height="26" fill={shade(shirt, 0.82)} stroke={INK} stroke-width="2" />
+      <rect x="46.4" y="41.2" width="12" height="26" fill={shade(shirt, 0.82)} stroke={INK} stroke-width="2" />
+      <rect x="5.6" y="52" width="12" height="15" fill={sk} stroke={INK} stroke-width="2" />
+      <rect x="46.4" y="52" width="12" height="15" fill={sk} stroke={INK} stroke-width="2" />
+      <rect x={PX0} y="41.2" width={PX * 8} height="26" fill={shirt} stroke={INK} stroke-width="2" />
+      <rect x={PX0 + 0.9} y="42.2" width={PX * 8 - 1.8} height="2.4" fill={shade(shirt, 0.86)} />
       {cells}
       <rect x={PX0} y={PY0} width={PX * 8} height={PX * 8} fill="none" stroke={INK} stroke-width="2.2" />
     </g>
