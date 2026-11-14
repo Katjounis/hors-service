@@ -2443,3 +2443,6 @@ h3 { font-size: 1.1rem; }
 :root[data-theme="light"][lang] .pk-seat, :root[data-theme="light"][lang] .bj-seat { color: inherit; }
 :root .pk-seat { background: rgba(6, 18, 12, .72); color: #F6EFDF; }
 :root[data-theme="light"][lang] .pk-seat { background: rgba(253, 249, 240, .92); color: #1C1915; }
+
+.tele { display: grid; gap: 14px; }
+.tele > p { margin: 0; }

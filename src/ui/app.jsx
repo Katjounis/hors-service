@@ -70,6 +70,16 @@ function readHashCode() {
   } catch (e) { return ''; }
 }
 
+// lien « écran » (#ecran-CODE) : ouvert sur la télé (Chromecast, navigateur de la télé, ordinateur branché)
+function readEcranCode() {
+  try {
+    const h = decodeURIComponent((location.hash || '').slice(1));
+    if (!/^ecran-/i.test(h)) return '';
+    const c = normalizeCode(h.slice(6));
+    return isPartyCode(c) ? c : '';
+  } catch (e) { return ''; }
+}
+
 // makeOnline : fonction qui crée l'appareil connecté au serveur (null dans l'aperçu)
 export function Root({ makeOnline, store, notice = null }) {
   const [age, setAge] = useState(() => ageOk());
@@ -83,6 +93,7 @@ export function Root({ makeOnline, store, notice = null }) {
   };
   const [mode, setMode] = useState('home');
   const [joinCode] = useState(() => readHashCode());
+  const [ecran] = useState(() => readEcranCode());
   // appareil « chacun son téléphone » créé dès le premier rendu (pas d'écran intermédiaire)
   const [online] = useState(() => {
     if (!makeOnline) return null;
@@ -93,11 +104,19 @@ export function Root({ makeOnline, store, notice = null }) {
   const [local, setLocal] = useState(null);
   const [hasSaved, setHasSaved] = useState(() => LocalSession.hasSaved());
 
-  useEffect(() => { if (online) online.boot(); }, []);
+  useEffect(() => {
+    if (!online) return;
+    online.boot().then(() => {
+      if (!ecran) return;
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignoré */ }
+      online.openScreen(ecran).catch(() => {});
+    });
+  }, []);
   useTop(`${age}:${mode}`);
 
   const startLocal = () => setMode('local-setup');
-  if (!age) return <div class="app"><Ambiance /><AgeGate onOk={() => setAge(true)} /></div>;
+  // la télé d'une soirée déjà lancée n'a pas à repasser l'écran 18+ (il a été validé sur le téléphone)
+  if (!age && !ecran) return <div class="app"><Ambiance /><AgeGate onOk={() => setAge(true)} /></div>;
   const resumeLocal = async () => {
     const s = new LocalSession();
     if (await s.restore()) {

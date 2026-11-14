@@ -55,6 +55,57 @@ export function QRBlock({ code }) {
   );
 }
 
+// La télé devient l'écran de jeu, le téléphone reste une manette (on joue toujours dessus).
+// Chrome sur Android avec un Chromecast ou une Android TV : on « caste » le lien écran, la télé ouvre le plateau.
+// Sinon : le même lien s'ouvre dans le navigateur de la télé, sur un ordinateur branché en HDMI ou une tablette.
+let castConn = null;
+export function TeleCast({ code }) {
+  const url = useMemo(() => {
+    try { return `${location.origin}${location.pathname}#ecran-${code}`; } catch (e) { return ''; }
+  }, [code]);
+  const canCast = typeof window !== 'undefined' && 'PresentationRequest' in window;
+  const [st, setSt] = useState(castConn && castConn.state === 'connected' ? 'on' : 'off');
+  const svg = useMemo(() => {
+    try {
+      const q = qrcode(0, 'M');
+      q.addData(url);
+      q.make();
+      return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true, title: 'Ouvrir l’écran de jeu' }).replace(/fill="#000000"/g, 'fill="#22201C"').replace(/fill="#ffffff"/gi, 'fill="#F2EADB"');
+    } catch (e) { return ''; }
+  }, [url]);
+  const [copied, setCopied] = useState(false);
+  const cast = () => {
+    try {
+      setSt('wait');
+      new window.PresentationRequest([url]).start().then((c) => {
+        castConn = c;
+        setSt('on');
+        c.onclose = c.onterminate = () => { castConn = null; setSt('off'); };
+      }, () => setSt('off'));
+    } catch (e) { setSt('off'); }
+  };
+  const stop = () => { try { castConn && castConn.terminate(); } catch (e) { /* ignoré */ } castConn = null; setSt('off'); };
+  return (
+    <div class="tele">
+      <p>La télé affiche le plateau, les scores et les cartes communes. <b>Ton téléphone reste ta manette</b> : tu joues dessus comme d’habitude, tes cartes cachées n’apparaissent jamais à l’écran.</p>
+      {canCast ? (
+        st === 'on'
+          ? <button type="button" class="btn btn-wide" onClick={stop}>Arrêter la diffusion</button>
+          : <button type="button" class="btn btn-main btn-big btn-wide" disabled={st === 'wait'} onClick={cast}>{st === 'wait' ? 'Choisis la télé…' : 'Diffuser sur la télé (Chromecast)'}</button>
+      ) : null}
+      <div class="invite paper tape tilt-a">
+        <div class="qr" dangerouslySetInnerHTML={{ __html: svg }} />
+        <div class="invite-txt">
+          <span class="muted">Sans Chromecast</span>
+          <span class="small">Ouvre ce lien dans le navigateur de la télé, sur un ordinateur branché à la télé ou sur une tablette.</span>
+          <button type="button" class="btn btn-small" onClick={() => { try { navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1800); }, () => {}); } catch (e) { /* ignoré */ } }}>{copied ? 'Lien copié' : 'Copier le lien écran'}</button>
+        </div>
+      </div>
+      <p class="muted small">Recopie d’écran (AirPlay, Smart View, câble) : la télé montre exactement ce qu’affiche ton téléphone, cartes comprises. Pour les jeux à cartes cachées, passe plutôt par le lien ci-dessus.</p>
+    </div>
+  );
+}
+
 export function Toasts({ dev }) {
   if (!dev.toasts.length) return null;
   return (
@@ -721,6 +772,7 @@ function MenuSheet({ dev, S, local, onClose }) {
       </Sheet>
     );
   }
+  if (tab === 'tele') return <Sheet title="Afficher sur la télé" onClose={onClose}><TeleCast code={S.code} /></Sheet>;
   if (tab === 'gages') {
     return (
       <Sheet title="Gages maison" onClose={onClose}>
@@ -791,6 +843,7 @@ function MenuSheet({ dev, S, local, onClose }) {
       <div class="menu">
         <PrefToggles compact />
         {!local ? item('Mon profil', () => setTab('profile')) : null}
+        {!local ? item('Afficher sur la télé', () => setTab('tele')) : null}
         {item('Compteur de la soirée', () => setTab('tally'))}
         {item('Récap de la soirée (story)', () => setTab('recap'))}
         {item('Gages maison', () => setTab('gages'))}

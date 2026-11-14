@@ -238,4 +238,8 @@ export default [
   ['Chacun choisit sa mise.', 'Everyone picks a bet.'], ['Tapis de départ', 'Starting stack'], ['Blindes', 'Blinds'], ['Le dernier boit en plus', 'Last place drinks extra'],
   ['Nombre de mains', 'Number of hands'], ['Mise maximale', 'Max bet'], ['Gagné', 'Won'], ['Perdu', 'Lost'], ['Sauté', 'Bust'], ['Égalité', 'Push'],
   ['Le gagnant distribue · le tapis ne revient jamais', 'The winner hands out · the stack never comes back'], ['La banque tire à 16 et reste à 17 · Blackjack paie 3 pour 2', 'The bank hits on 16, stands on 17 · Blackjack pays 3 to 2'],
+  ['Afficher sur la télé', 'Show on the TV'], ['Arrêter la diffusion', 'Stop casting'], ['Choisis la télé…', 'Pick the TV…'], ['Diffuser sur la télé (Chromecast)', 'Cast to the TV (Chromecast)'],
+  ['Sans Chromecast', 'Without Chromecast'], ['Copier le lien écran', 'Copy the screen link'],
+  ['Ouvre ce lien dans le navigateur de la télé, sur un ordinateur branché à la télé ou sur une tablette.', 'Open this link in the TV’s browser, on a computer plugged into the TV or on a tablet.'],
+  ['Recopie d’écran (AirPlay, Smart View, câble) : la télé montre exactement ce qu’affiche ton téléphone, cartes comprises. Pour les jeux à cartes cachées, passe plutôt par le lien ci-dessus.', 'Screen mirroring (AirPlay, Smart View, cable): the TV shows exactly what your phone shows, cards included. For games with hidden cards, use the link above instead.'],
 ];
