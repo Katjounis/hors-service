@@ -4,13 +4,13 @@
 import { h, render } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { Character } from './avatar.jsx';
-import { titles, mvp } from '../lib/stats.js';
+import { titles, mvp, personalTitle } from '../lib/stats.js';
 import { plural } from '../lib/util.js';
 
 const W = 1080;
 const H = 1920;
 const C = { bitume: '#1C1A17', bitume2: '#2B2721', papier: '#F2EADB', encre: '#22201C', jaune: '#FFD23F', rouge: '#E5502F', poussiere: '#A79F92', kraft: '#D9C3A0' };
-const TITRE = '"Dela Gothic One", "Arial Black", Impact, sans-serif';
+const TITRE = '"Alfa Slab One", Georgia, serif';
 const TEXTE = '"Familjen Grotesk", system-ui, sans-serif';
 
 function avatarImage(av, mood) {
@@ -40,8 +40,64 @@ function stripe(ctx, x, y, w, hgt) {
   ctx.restore();
 }
 
+function base(ctx) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, C.bitume2); bg.addColorStop(1, C.bitume);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const halo = ctx.createRadialGradient(820, 260, 20, 820, 260, 620);
+  halo.addColorStop(0, 'rgba(255, 210, 63, .22)'); halo.addColorStop(1, 'rgba(255, 210, 63, 0)');
+  ctx.fillStyle = halo; ctx.fillRect(0, 0, W, H);
+}
+
+// story individuelle : un joueur, son titre, ses chiffres
+export async function drawPerson(sum, p, { fullNames = false } = {}) {
+  try { await Promise.all([document.fonts.load(`400 100px ${TITRE}`), document.fonts.load(`700 40px ${TEXTE}`)]); } catch (e) { /* polices système */ }
+  const nm = (fullNames ? p.nick : String(p.nick || '').split(/\s+/)[0]).toUpperCase();
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  base(ctx);
+  const t = personalTitle(sum, p);
+  const top = mvp(sum);
+  const isMvp = top && top.p.uid === p.uid;
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = C.poussiere; ctx.font = `700 40px ${TEXTE}`;
+  const d = new Date(sum.date);
+  ctx.fillText(`Hors Service · ${d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}`, 90, 150);
+  // grand portrait sur un sous-bock
+  const img = await avatarImage(p.av, isMvp ? 'win' : p.sips > p.given ? 'drink' : null);
+  ctx.save(); ctx.translate(W / 2, 600); ctx.rotate(-0.04);
+  if (img) ctx.drawImage(img, -330, -330, 660, 660);
+  ctx.restore();
+  // nom
+  ctx.fillStyle = C.papier;
+  const ns = fit(ctx, nm, 900, 150, 400, TITRE);
+  ctx.font = `400 ${ns}px ${TITRE}`; ctx.textAlign = 'center'; ctx.fillText(nm, W / 2, 1100);
+  // titre sur une étiquette
+  ctx.save(); ctx.translate(W / 2, 1200); ctx.rotate(-0.025);
+  const ts = fit(ctx, t.title.toUpperCase(), 820, 66, 400, TITRE);
+  ctx.font = `400 ${ts}px ${TITRE}`;
+  const tw = ctx.measureText(t.title.toUpperCase()).width + 70;
+  ctx.fillStyle = C.jaune; ctx.fillRect(-tw / 2, -ts * 0.95, tw, ts * 1.45);
+  ctx.fillStyle = C.encre; ctx.fillText(t.title.toUpperCase(), 0, ts * 0.22);
+  ctx.restore();
+  ctx.fillStyle = C.papier; ctx.font = `700 42px ${TEXTE}`; ctx.fillText(t.detail, W / 2, 1330);
+  if (isMvp) { ctx.fillStyle = C.rouge; ctx.font = `400 ${fit(ctx, 'ET MVP DE LA SOIRÉE', 800, 54, 400, TITRE)}px ${TITRE}`; ctx.fillText('ET MVP DE LA SOIRÉE', W / 2, 1420); }
+  ctx.textAlign = 'left';
+  const tiles = [[p.sips || 0, 'gorgées bues'], [p.given || 0, 'distribuées'], [(p.gages || 0) + (p.points || 0), 'gages et points'], [p.passes || 0, 'tours passés']];
+  tiles.forEach(([v, lab], i) => {
+    const x = 90 + i * 232;
+    ctx.fillStyle = 'rgba(242, 234, 219, .08)'; ctx.fillRect(x, 1580, 212, 150);
+    ctx.fillStyle = C.jaune; ctx.font = `400 ${fit(ctx, String(v), 176, 70, 400, TITRE)}px ${TITRE}`; ctx.fillText(String(v), x + 18, 1665);
+    ctx.fillStyle = C.papier; ctx.font = `700 ${fit(ctx, lab, 186, 28, 700, TEXTE)}px ${TEXTE}`; ctx.fillText(lab, x + 18, 1710);
+  });
+  ctx.fillStyle = C.poussiere; ctx.font = `700 28px ${TEXTE}`;
+  ctx.fillText('Hors Service · L’abus d’alcool est dangereux pour la santé.', 90, 1868);
+  return cv;
+}
+
 export async function drawWrapped(sum, { fullNames = false } = {}) {
-  try { await Promise.all([document.fonts.load(`900 100px ${TITRE}`), document.fonts.load(`700 40px ${TEXTE}`)]); } catch (e) { /* polices système */ }
+  try { await Promise.all([document.fonts.load(`400 100px ${TITRE}`), document.fonts.load(`700 40px ${TEXTE}`)]); } catch (e) { /* polices système */ }
   const name = (n) => (fullNames ? n : String(n || '').split(/\s+/)[0]);
   const cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
@@ -56,13 +112,15 @@ export async function drawWrapped(sum, { fullNames = false } = {}) {
   // l'affichette « Hors Service »
   ctx.save(); ctx.translate(90, 90); ctx.rotate(-0.05);
   ctx.fillStyle = C.papier; ctx.fillRect(0, 0, 520, 250);
-  ctx.fillStyle = C.encre; ctx.font = `900 118px ${TITRE}`; ctx.textBaseline = 'top';
-  ctx.fillText('HORS', 34, 22); ctx.fillText('SERVICE', 34, 116);
+  ctx.fillStyle = C.encre; ctx.textBaseline = 'top';
+  const hs = fit(ctx, 'SERVICE', 452, 104, 400, TITRE);
+  ctx.font = `400 ${hs}px ${TITRE}`; ctx.fillText('HORS', 34, 18); ctx.fillText('SERVICE', 34, 18 + hs * 0.92);
   stripe(ctx, 0, 222, 520, 28);
   ctx.restore();
 
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = C.papier; ctx.font = `900 76px ${TITRE}`;
+  ctx.fillStyle = C.papier;
+  ctx.font = `400 ${fit(ctx, 'LE RÉCAP DE LA SOIRÉE', 900, 76, 400, TITRE)}px ${TITRE}`;
   ctx.fillText('LE RÉCAP DE LA SOIRÉE', 90, 470);
   const d = new Date(sum.date);
   const date = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -77,14 +135,14 @@ export async function drawWrapped(sum, { fullNames = false } = {}) {
     const img = await avatarImage(best.p.av, 'win');
     if (img) ctx.drawImage(img, 36, 60, 260, 260);
     ctx.save(); ctx.translate(330, 80); ctx.rotate(-0.06);
-    ctx.font = `900 56px ${TITRE}`;
+    ctx.font = `400 ${fit(ctx, 'MVP DE LA SOIRÉE', 520, 50, 400, TITRE)}px ${TITRE}`;
     const sw = ctx.measureText('MVP DE LA SOIRÉE').width + 32;
     ctx.strokeStyle = C.rouge; ctx.lineWidth = 6; ctx.strokeRect(0, 0, sw, 78);
     ctx.fillStyle = C.rouge; ctx.fillText('MVP DE LA SOIRÉE', 16, 60);
     ctx.restore();
     ctx.fillStyle = C.encre;
-    const s = fit(ctx, name(best.p.nick).toUpperCase(), 540, 120, 900, TITRE);
-    ctx.font = `900 ${s}px ${TITRE}`; ctx.fillText(name(best.p.nick).toUpperCase(), 330, 270);
+    const s = fit(ctx, name(best.p.nick).toUpperCase(), 540, 120, 400, TITRE);
+    ctx.font = `400 ${s}px ${TITRE}`; ctx.fillText(name(best.p.nick).toUpperCase(), 330, 270);
     ctx.font = `700 36px ${TEXTE}`; ctx.fillStyle = '#57514A';
     const why = [best.p.given ? `${best.p.given} gorgées distribuées` : null, best.records ? plural(best.records, 'record', 'records') : null].filter(Boolean).join(' · ') || 'le plus en forme de la table';
     ctx.fillText(why, 330, 330);
@@ -96,8 +154,8 @@ export async function drawWrapped(sum, { fullNames = false } = {}) {
   for (const t of titles(sum).slice(0, 4)) {
     const img = await avatarImage(t.p.av, t.title === 'Ministre de la soif' ? 'drink' : null);
     if (img) ctx.drawImage(img, 90, y - 92, 124, 124);
-    ctx.fillStyle = C.jaune; const s = fit(ctx, t.title.toUpperCase(), 740, 64, 900, TITRE);
-    ctx.font = `900 ${s}px ${TITRE}`; ctx.fillText(t.title.toUpperCase(), 244, y - 30);
+    ctx.fillStyle = C.jaune; const s = fit(ctx, t.title.toUpperCase(), 740, 58, 400, TITRE);
+    ctx.font = `400 ${s}px ${TITRE}`; ctx.fillText(t.title.toUpperCase(), 244, y - 30);
     ctx.fillStyle = C.papier; ctx.font = `700 38px ${TEXTE}`;
     ctx.fillText(`${name(t.p.nick)} : ${t.detail}`, 244, y + 20);
     y += 150;
@@ -109,7 +167,7 @@ export async function drawWrapped(sum, { fullNames = false } = {}) {
   tiles.forEach(([v, lab], i) => {
     const x = 90 + i * 232;
     ctx.fillStyle = 'rgba(242, 234, 219, .08)'; ctx.fillRect(x, 1650, 212, 150);
-    ctx.fillStyle = C.jaune; ctx.font = `900 76px ${TITRE}`; ctx.fillText(String(v), x + 18, 1735);
+    ctx.fillStyle = C.jaune; ctx.font = `400 ${fit(ctx, String(v), 176, 70, 400, TITRE)}px ${TITRE}`; ctx.fillText(String(v), x + 18, 1735);
     ctx.fillStyle = C.papier; ctx.font = `700 28px ${TEXTE}`; ctx.fillText(lab, x + 18, 1780);
   });
   ctx.fillStyle = C.poussiere; ctx.font = `700 28px ${TEXTE}`;
@@ -159,6 +217,7 @@ async function shareCanvas(cv) {
 
 export function WrappedView({ sum }) {
   const [full, setFull] = useState(false);
+  const [who, setWho] = useState('*');
   const [src, setSrc] = useState(null);
   const [ask, setAsk] = useState(false);
   const [msg, setMsg] = useState('');
@@ -167,12 +226,18 @@ export function WrappedView({ sum }) {
   useEffect(() => {
     let live = true;
     setSrc(null);
-    drawWrapped(sum, { fullNames: full }).then((c) => { if (!live) return; cv.current = c; setSrc(c.toDataURL('image/png')); });
+    const p = who !== '*' && sum ? sum.players.find((x) => x.uid === who) : null;
+    (p ? drawPerson(sum, p, { fullNames: full }) : drawWrapped(sum, { fullNames: full })).then((c) => { if (!live) return; cv.current = c; setSrc(c.toDataURL('image/png')); });
     return () => { live = false; };
-  }, [sum && sum.id, full]);
+  }, [sum && sum.id, full, who]);
   if (!sum) return <p class="muted">Pas encore de soirée à résumer : lancez au moins un jeu.</p>;
   return (
     <div class="wrapped">
+      <div class="cat-tabs" role="group" aria-label="Story">
+        {[['*', 'La soirée'], ...sum.players.map((p) => [p.uid, String(p.nick || '').split(/\s+/)[0]])].map(([id, lab]) => (
+          <button type="button" key={id} class={`cat-tab${who === id ? ' is-on' : ''}`} aria-pressed={who === id ? 'true' : 'false'} onClick={() => setWho(id)}>{lab}</button>
+        ))}
+      </div>
       {src ? <img class="wrapped-img" src={src} alt="Récap de la soirée au format story" width="1080" height="1920" /> : <p class="muted">Préparation de l’image…</p>}
       <label class="check"><input type="checkbox" checked={full} onChange={(e) => setFull(e.currentTarget.checked)} /> Afficher les pseudos en entier</label>
       <p class="muted small">Par défaut, seul le premier mot de chaque pseudo apparaît. Aucune photo sur le récap.</p>

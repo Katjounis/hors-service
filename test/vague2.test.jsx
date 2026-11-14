@@ -4,7 +4,7 @@ import { Device } from '../src/core/device.js';
 import { GAMES } from '../src/games/index.js';
 import { Bot } from '../src/ui/demo.jsx';
 import { validPlay, moves, titlesFor, pv } from '../src/games/president.jsx';
-import { countFace, higher } from '../src/games/perudo.jsx';
+import { countFace, higher, minFor } from '../src/games/perudo.jsx';
 import { roleCounts } from '../src/games/pipoteur.jsx';
 
 let passed = 0;
@@ -91,6 +91,9 @@ async function logic() {
   const t = titlesFor(['a', 'b', 'c', 'd', 'e']);
   ok(t.a === 'president' && t.b === 'vice' && t.c === 'neutre' && t.d === 'vicetrou' && t.e === 'trouduc', 'Président : titres à 5');
   ok(countFace([1, 4, 4, 2, 6], 4) === 3, 'Menteur : les 1 sont jokers');
+  ok(countFace([1, 1, 4, 2, 6], 1) === 2, 'Menteur : sur les Pintes, seules les Pintes comptent');
+  ok(minFor(1, { q: 5, f: 4 }) === 3 && minFor(4, { q: 3, f: 1 }) === 7 && minFor(1, { q: 3, f: 1 }) === 4, 'Menteur : passage aux Pintes (moitié) et retour (double + 1)');
+  ok(!higher({ q: 2, f: 1 }, null) && higher({ q: 3, f: 1 }, { q: 5, f: 4 }) && !higher({ q: 2, f: 1 }, { q: 5, f: 4 }) && higher({ q: 7, f: 2 }, { q: 3, f: 1 }) && !higher({ q: 6, f: 6 }, { q: 3, f: 1 }), 'Menteur : annonces de Pintes');
   ok(higher({ q: 3, f: 5 }, { q: 3, f: 4 }) && higher({ q: 4, f: 2 }, { q: 3, f: 6 }) && !higher({ q: 3, f: 3 }, { q: 3, f: 4 }), 'Menteur : surenchère');
 }
 

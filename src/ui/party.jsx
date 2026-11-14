@@ -7,7 +7,7 @@ import { seats, sipsOf, csValue } from '../core/host.js';
 import { plural } from '../lib/util.js';
 import { Av, Who, nickOf, Sheet, ErrorBoundary, Waiting, useTicker, Stamp, Ribbon, Turn, Rules, MoodCtx } from './common.jsx';
 import { Icon } from './icons.jsx';
-import { buzz, confetti, useOnce, Ambiance } from './fx.jsx';
+import { buzz, confetti, useOnce, Ambiance, Cochon } from './fx.jsx';
 import { saveEvening, summarize } from '../lib/stats.js';
 import { WrappedView } from './wrapped.jsx';
 import { GagesEditor } from './stats.jsx';
@@ -96,6 +96,7 @@ export function Party({ dev, local, embedded = false }) {
     <MoodCtx.Provider value={moods}>
     <div class="party">
       <Ambiance game={inGame ? tintKey(S) : null} hot={!!S.cfg.adult} />
+      {inGame && S.game.g ? <Cochon card={S.game.g.card} /> : null}
       <header class="topbar">
         <button type="button" class="topbar-code" onClick={() => setMenu('invite')} aria-label={local ? 'Joueurs' : `Inviter des joueurs, code ${S.code}`}>
           {local ? 'Un seul téléphone' : <>Soirée <b>{S.code}</b></>}

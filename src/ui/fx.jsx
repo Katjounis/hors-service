@@ -380,3 +380,22 @@ export function boom() {
   hit(a, a.currentTime + 0.01, { f: 120, q: 1, len: 0.5, vol: 0.55, type: 'lowpass' });
 }
 export const isReduced = reduced;
+
+// carte coquine (niveau « Cul ») qui sort : un tampon moqueur sur tous les écrans, le même partout
+const COCHON = ['Oh le cochon !', 'Petit coquin…', 'Ça devient chaud', 'Qui a écrit ça ?!', 'Les voisins écoutent', 'Ouh là là…', 'Verre d’eau pour tout le monde', 'Personne ne regarde sa mère'];
+export function Cochon({ card }) {
+  const key = card && card.lv === 'cul' ? `${card.k || ''}${card.t || ''}${card.a || ''}` : null;
+  const [show, setShow] = useState(null);
+  const seen = useRef(null);
+  useEffect(() => {
+    if (!key || key === seen.current) return undefined;
+    seen.current = key;
+    let h = 0;
+    for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    setShow({ txt: COCHON[h % COCHON.length], n: h });
+    const t = setTimeout(() => setShow(null), 1900);
+    return () => clearTimeout(t);
+  }, [key]);
+  if (!show) return null;
+  return <div class="cochon" key={show.n} aria-hidden="true"><span>{show.txt}</span></div>;
+}

@@ -2363,3 +2363,20 @@ h3 { font-size: 1.1rem; }
 :root .co-card .pc { box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
 :root .co-announce { align-self: center; padding: 6px 10px; background: rgba(12, 22, 16, .7); border-radius: 4px; color: #F2C230; }
 :root[data-theme="light"][lang] .co-tapis { color: #F6EFDF; }
+
+/* tampon moqueur sur les cartes du niveau Cul */
+.cochon { position: fixed; inset: 0; z-index: 94; display: grid; place-items: center; pointer-events: none; animation: feutre-part .25s ease-in 1.6s forwards; }
+.cochon span {
+  max-width: 86vw; padding: 10px 20px; border: 4px solid currentColor; color: #F07FA0; rotate: 7deg; text-align: center;
+  font: 400 clamp(1.8rem, 9vw, 3.6rem)/1.05 var(--f-titre); background: rgba(34, 6, 16, .62); animation: tampon-hot .22s ease-out backwards;
+}
+@media (prefers-reduced-motion: reduce) { .cochon span { animation: none; } }
+
+/* menteur aux dés : face choisie bien visible, face joker dessinée */
+.die-pinte { grid-column: 1 / -1; grid-row: 1 / -1; width: 100%; height: 100%; }
+:root .pe-face { transition: background-color .15s ease, translate .15s ease; }
+:root .pe-face.is-picked { background: #F2C230; border-color: #F2C230; translate: 0 -4px; }
+:root .pe-face.is-picked .die { border-color: #22201C; }
+:root[data-theme="light"][lang] .pe-face.is-picked { background: #F2C230; border-color: #22201C; }
+
+.pe-pick.is-six { grid-template-columns: repeat(6, 1fr); }

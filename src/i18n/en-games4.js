@@ -143,4 +143,10 @@ export default [
   ['Toujours à contre-courant', 'Always against the flow'], ['Fois dans la minorité', 'Times in the minority'], ['Ton choix', 'Your choice'], ['Secret jusqu’à la révélation.', 'Secret until the reveal.'],
   ['Carte {0} / {1}', 'Card {0} / {1}'], ['Carte {0}', 'Card {0}'], ['{0} votes', '{0} votes'], ['{0} / {1}', '{0} / {1}'],
   ['{0} gorgées chacun', '{0} sips each'], ['{0} gorgée', '{0} sip'], ['{0} gorgées', '{0} sips'],
+  ['La face 1 est la Pinte (dessinée sur le dé) : c’est un joker, elle compte pour toutes les faces.', 'Face 1 is the Pint (drawn on the die): it is wild and counts as every face.'],
+  ['On peut annoncer des Pintes (sauf pour ouvrir une manche) : au moins la moitié de l’annonce précédente, arrondie au-dessus (5 × 4 → 3 Pintes). Pour revenir à une face après des Pintes : au moins le double plus un (3 Pintes → 7 × une face). Sur une annonce de Pintes, on ne compte que les Pintes.', 'You can bid Pints (except to open a round): at least half the previous bid, rounded up (5 × 4 → 3 Pints). To go back to a face after Pints: at least double plus one (3 Pints → 7 × a face). On a Pint bid, only Pints count.'],
+  ['Annoncer des Pintes : au moins la moitié de l’annonce (arrondie au-dessus). Revenir des Pintes à une face : au moins le double plus un.', 'Bidding Pints: at least half the bid (rounded up). Back from Pints to a face: at least double plus one.'],
+  ['Annoncer {0} Pintes', 'Bid {0} Pints'], ['Annoncer {0} Pinte', 'Bid {0} Pint'],
+  ['Les Pintes (la face 1) comptent pour toutes les faces.', 'Pints (face 1) count as every face.'], ['La soirée', 'The party'],
+  ['Oh le cochon !', 'Oh you pig!'], ['Petit coquin…', 'Cheeky one…'], ['Ça devient chaud', 'It’s getting hot'], ['Qui a écrit ça ?!', 'Who wrote this?!'], ['Les voisins écoutent', 'The neighbours are listening'], ['Ouh là là…', 'Ooh la la…'], ['Verre d’eau pour tout le monde', 'Water for everyone'], ['Personne ne regarde sa mère', 'Nobody look at your mum'],
 ];

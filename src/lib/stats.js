@@ -109,6 +109,32 @@ export function titles(sum) {
   return out;
 }
 
+// un titre pour chaque joueur (récap individuel) : la catégorie où il se démarque le plus de la table
+export function personalTitle(sum, p) {
+  const P = sum.players;
+  const c = (x, k) => (x.cnt && x.cnt[k]) || 0;
+  const defs = [
+    ['Ministre de la soif', (x) => x.sips, (v) => `${v} gorgée${v > 1 ? 's' : ''} au compteur`],
+    ['Distributeur automatique', (x) => x.given, (v) => `${v} gorgée${v > 1 ? 's' : ''} distribuée${v > 1 ? 's' : ''}`],
+    ['Livre ouvert', (x) => c(x, 'aveux'), (v) => `${v} aveu${v > 1 ? 'x' : ''} à Je n’ai jamais`],
+    ['Main de beurre', (x) => c(x, 'early') + c(x, 'wareLost') + c(x, 'boom') + c(x, 'purpleFail'), (v) => `${v} raté${v > 1 ? 's' : ''} mémorable${v > 1 ? 's' : ''}`],
+    ['Radar à couleurs', (x) => (x.best && x.best.purple) || 0, (v) => `série de ${v} cartes à Purple`],
+    ['Saint patron des gages', (x) => x.gages, (v) => `${v} gage${v > 1 ? 's' : ''} relevé${v > 1 ? 's' : ''}`],
+    ['Roi de l’esquive', (x) => x.passes, (v) => `${v} tour${v > 1 ? 's' : ''} passé${v > 1 ? 's' : ''}`],
+    ['Comptable de la soirée', (x) => x.points, (v) => `${v} point${v > 1 ? 's' : ''} de pénalité`],
+    ['Cerveau en surchauffe', (x) => (x.best && x.best.ware) || 0, (v) => `${v} micro-jeux d’affilée`],
+  ];
+  let best = null;
+  for (const [title, f, detail] of defs) {
+    const v = f(p) || 0;
+    if (!v) continue;
+    const max = Math.max(...P.map((x) => f(x) || 0));
+    const score = v / (max || 1) + (v === max ? 0.5 : 0);
+    if (!best || score > best.score) best = { title, detail: detail(v), score };
+  }
+  return best || { title: 'Spectateur de luxe', detail: 'est venu, a vu, n’a rien bu' };
+}
+
 // MVP : gorgées distribuées, records tenus, duels gagnés, micro-jeux réussis (à égalité : le plus sobre)
 export function mvp(sum) {
   let best = null;

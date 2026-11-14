@@ -1,5 +1,6 @@
 // Le Menteur aux dés (Perudo) : chacun ses dés cachés, on annonce une quantité de faces sur toute la table.
-// • Les 1 (pacos) sont des jokers : ils comptent pour toutes les faces. On annonce sur les faces 2 à 6.
+// • Les 1 (la Pinte, dessinée sur le dé) sont des jokers. On peut annoncer des Pintes (moitié arrondie au-dessus ;
+//   retour aux faces : double + 1) ; sur une annonce de Pintes, seules les Pintes comptent.
 // • Surenchère : plus de dés, ou même nombre sur une face plus haute. Ou « Menteur ! » : on soulève tout.
 // • Le perdant du défi boit et perd un dé ; il relance la manche suivante. Plus de dés : il est éliminé (cul sec).
 import { useState } from 'preact/hooks';
@@ -9,8 +10,18 @@ import { plural } from '../lib/util.js';
 const seatsOf = (c, g) => g.pl.filter((u) => c.roster[u]);
 const alive = (c, g) => g.pl.filter((u) => c.roster[u] && g.dice[u] > 0);
 export const total = (g) => Object.values(g.dice).reduce((a, b) => a + b, 0);
-export const higher = (b, prev) => !prev || b.q > prev.q || (b.q === prev.q && b.f > prev.f);
-export const countFace = (all, f) => all.reduce((n, d) => n + (d === f || d === 1 ? 1 : 0), 0);
+// quantité minimale pour annoncer la face f après l'annonce prev (règles du Perudo pour les jokers) :
+// passer sur les Pintes : au moins la moitié (arrondie au-dessus) ; revenir des Pintes : au moins le double + 1
+export function minFor(f, prev) {
+  if (!prev) return 1;
+  if (f === 1) return prev.f === 1 ? prev.q + 1 : Math.ceil(prev.q / 2);
+  if (prev.f === 1) return prev.q * 2 + 1;
+  return f > prev.f ? prev.q : prev.q + 1;
+}
+// on n'ouvre pas une manche sur les Pintes
+export const higher = (b, prev) => (!prev ? b.f !== 1 : b.q >= minFor(b.f, prev) && !(b.q === prev.q && b.f === prev.f));
+// annonce sur les Pintes : on ne compte que les 1 ; sinon les 1 comptent pour la face annoncée
+export const countFace = (all, f) => all.reduce((n, d) => n + (d === f || (f !== 1 && d === 1) ? 1 : 0), 0);
 
 function roll(c) {
   const g = c.g;
@@ -87,7 +98,8 @@ const PERUDO = {
   local: true,
   rules: [
     'Chacun a ses dés, cachés sur son téléphone. On annonce une quantité de dés d’une face sur toute la table, par exemple « six 4 ».',
-    'Les 1 sont des jokers : ils comptent pour toutes les faces. On n’annonce que les faces 2 à 6.',
+    'La face 1 est la Pinte (dessinée sur le dé) : c’est un joker, elle compte pour toutes les faces.',
+    'On peut annoncer des Pintes (sauf pour ouvrir une manche) : au moins la moitié de l’annonce précédente, arrondie au-dessus (5 × 4 → 3 Pintes). Pour revenir à une face après des Pintes : au moins le double plus un (3 Pintes → 7 × une face). Sur une annonce de Pintes, on ne compte que les Pintes.',
     'À son tour : surenchérir (plus de dés, ou même nombre sur une face plus haute) ou crier « Menteur ! ».',
     'Menteur : on soulève tous les dés. Il y en a au moins autant qu’annoncé ? L’accusateur perd. Sinon, c’est l’annonceur.',
     'Le perdant boit et perd un dé, puis il relance la manche suivante. Plus de dés : cul sec et éliminé. Le dernier avec des dés gagne.',
@@ -123,7 +135,7 @@ const PERUDO = {
     if (!v || typeof v !== 'object') return false;
     const q = Math.floor(Number(v.q));
     const f = Math.floor(Number(v.f));
-    if (!(q >= 1 && q <= total(g) && f >= 2 && f <= 6)) return false;
+    if (!(q >= 1 && q <= total(g) && f >= 1 && f <= 6)) return false;
     const b = { q, f, by: uid };
     if (!higher(b, g.bid)) return false;
     g.bid = b;
@@ -178,12 +190,20 @@ export default PERUDO;
 export function Die({ v, size = 'm', hi = false }) {
   const pips = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] }[v] || [];
   return (
-    <span class={`die die-${size}${hi ? ' is-hi' : ''}${v === 1 ? ' is-paco' : ''}`} role="img" aria-label={`dé ${v}`}>
-      {Array.from({ length: 9 }).map((_, i) => <i key={i} class={pips.includes(i) ? 'on' : ''} />)}
+    <span class={`die die-${size}${hi ? ' is-hi' : ''}${v === 1 ? ' is-paco' : ''}`} role="img" aria-label={v === 1 ? 'dé : la Pinte (joker)' : `dé ${v}`}>
+      {v === 1 ? (
+        // la face joker : une petite pinte qui déborde, à la place du 1
+        <svg class="die-pinte" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6.2 7.4 L7.6 20.6 C7.7 21.5 8.3 22 9.2 22 L14.8 22 C15.7 22 16.3 21.5 16.4 20.6 L17.8 7.4 Z" fill="#E8A22A" stroke="#22201C" stroke-width="1.3" stroke-linejoin="round" />
+          <path d="M17.6 10 C20.4 10 21.2 11.4 21 13.4 C20.8 15.6 19.4 16.6 16.9 16.6" fill="none" stroke="#22201C" stroke-width="1.3" stroke-linecap="round" />
+          <path d="M5.4 7.8 C4.2 7.6 3.8 6 4.8 5.2 C4.8 3.4 6.8 2.6 8 3.6 C8.8 2 11.4 1.8 12.4 3.2 C13.6 1.8 16.4 2.2 16.8 4 C18.6 3.8 19.6 5.4 18.8 6.8 C19 8.2 17.8 8.8 16.8 8.4 C16.4 9.6 14.8 9.8 14.2 8.8 C13.6 10.2 11.6 10.2 11 9 C10.2 10 8.4 9.8 8.2 8.6 C7.2 9 5.8 8.8 5.4 7.8 Z" fill="#FFFDF6" stroke="#22201C" stroke-width="1.2" stroke-linejoin="round" />
+          <path d="M9.8 12.6 L9.8 18.6 M13.6 12.6 L13.6 18.6" stroke="#FFF4D6" stroke-width="1.2" stroke-linecap="round" opacity=".7" />
+        </svg>
+      ) : Array.from({ length: 9 }).map((_, i) => <i key={i} class={pips.includes(i) ? 'on' : ''} />)}
     </span>
   );
 }
-const bidTxt = (b) => `${b.q} × ${b.f}`;
+const bidTxt = (b) => (b.f === 1 ? `${b.q} Pinte${b.q > 1 ? 's' : ''}` : `${b.q} × ${b.f}`);
 
 function Table({ S, g, uid }) {
   if (g.phase === 'end') return <End S={S} g={g} uid={uid} />;
@@ -217,10 +237,10 @@ function Table({ S, g, uid }) {
       {g.phase === 'reveal' && r ? (
         <div class="verdict paper tape">
           <span class="ose-lead">{nickOf(S, r.caller)} crie « Menteur ! » sur {bidTxt(r.bid)}</span>
-          <p class="center">Il y en a <b class="pe-big">{r.n}</b> (avec les 1).</p>
+          <p class="center">Il y en a <b class="pe-big">{r.n}</b> (avec les Pintes).</p>
           <div class="pe-all">
             {Object.entries(r.dice).filter(([, d]) => d.length).map(([u, d]) => (
-              <div key={u} class="pe-row"><span class="pr-name">{nickOf(S, u)}</span>{d.map((v, i) => <Die key={i} v={v} size="s" hi={v === r.bid.f || v === 1} />)}</div>
+              <div key={u} class="pe-row"><span class="pr-name">{nickOf(S, u)}</span>{d.map((v, i) => <Die key={i} v={v} size="s" hi={v === r.bid.f || (r.bid.f !== 1 && v === 1)} />)}</div>
             ))}
           </div>
           <div class="verdict-who"><Who S={S} uid={r.loser} size="l" you={uid} /></div>
@@ -248,7 +268,7 @@ function End({ S, g, uid }) {
 
 function Act({ g, secret, req, send, sent }) {
   const T = total(g);
-  const min = (f) => (!g.bid ? 1 : f > g.bid.f ? g.bid.q : g.bid.q + 1);
+  const min = (f) => minFor(f, g.bid);
   const [f, setF] = useState(g.bid ? g.bid.f : 2);
   const [q, setQ] = useState(min(g.bid ? g.bid.f : 2));
   if (req.kind !== 'bid') return null;
@@ -259,9 +279,10 @@ function Act({ g, secret, req, send, sent }) {
     <div class="act">
       <h3>Tes dés</h3>
       <div class="pe-mine">{dice.map((v, i) => <Die key={i} v={v} size="l" />)}</div>
-      <p class="muted small">Les 1 comptent pour toutes les faces.</p>
-      <div class="pe-pick" role="group" aria-label="Face">
-        {[2, 3, 4, 5, 6].map((x) => (
+      <p class="muted small">Les Pintes (la face 1) comptent pour toutes les faces.</p>
+      {g.bid ? <p class="muted small">Annoncer des Pintes : au moins la moitié de l’annonce (arrondie au-dessus). Revenir des Pintes à une face : au moins le double plus un.</p> : null}
+      <div class={`pe-pick${g.bid ? ' is-six' : ''}`} role="group" aria-label="Face">
+        {(g.bid ? [1, 2, 3, 4, 5, 6] : [2, 3, 4, 5, 6]).map((x) => (
           <button type="button" key={x} class={`pe-face${f === x ? ' is-picked' : ''}`} aria-pressed={f === x ? 'true' : 'false'} disabled={sent} onClick={() => setF(x)}><Die v={x} size="m" /></button>
         ))}
       </div>
@@ -271,7 +292,7 @@ function Act({ g, secret, req, send, sent }) {
         <button type="button" class="btn" disabled={sent || qq >= T} onClick={() => setQ(qq + 1)} aria-label="Un de plus">+</button>
       </div>
       <div class="tp-answer">
-        <button type="button" class="btn btn-main btn-big" disabled={sent || !ok} onClick={() => send(req.k, { q: qq, f })}>Annoncer {qq} × {f}</button>
+        <button type="button" class="btn btn-main btn-big" disabled={sent || !ok} onClick={() => send(req.k, { q: qq, f })}>{f === 1 ? `Annoncer ${qq} Pinte${qq > 1 ? 's' : ''}` : `Annoncer ${qq} × ${f}`}</button>
         {g.bid ? <button type="button" class="btn btn-big" disabled={sent} onClick={() => send(req.k, 'liar')}>Menteur !</button> : null}
       </div>
     </div>

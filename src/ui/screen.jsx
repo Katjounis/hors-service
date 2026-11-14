@@ -4,7 +4,7 @@ import { GAMES, GAME_META } from '../games/index.js';
 import { seats, sipsOf } from '../core/host.js';
 import { plural } from '../lib/util.js';
 import { Av, Waiting, ErrorBoundary } from './common.jsx';
-import { Ambiance } from './fx.jsx';
+import { Cochon, Ambiance } from './fx.jsx';
 import { QRBlock, tintKey } from './party.jsx';
 import { Brand } from './screens.jsx';
 
@@ -21,6 +21,7 @@ export function ScreenView({ dev }) {
   return (
     <div class={`screen-view${G ? ' is-game' : ''}`}>
       <Ambiance game={G ? tintKey(S) : null} hot={!!(S && S.cfg && S.cfg.adult)} />
+      {G && S.game && S.game.g ? <Cochon card={S.game.g.card} /> : null}
       <header class="sv-head">
         <Brand small />
         <span class={`net${dev.conn ? '' : ' is-off'}`}>{dev.conn ? `Écran · salon ${code}` : 'Reconnexion…'}</span>
