@@ -267,7 +267,7 @@ function Flamme({ id }) {
 let ambN = 0;
 // Thème « table de jeu » (choisi par Samuel le 14/11) : un tapis de feutre vu de dessus, éclairé au centre,
 // sans décor dessiné. La couleur du feutre change un peu selon le jeu (nuit pour le Garou, bordeaux pour le Cul).
-const FEUTRES = { 'jamais-hard': 'violet', 'jamais-cul': 'bordeaux', garou: 'nuit', 'garou-nuit': 'nuit', paranoia: 'violet', actionverite: 'bordeaux', degaine: 'bordeaux', bombe: 'bordeaux', ware: 'nuit', buzzer: 'nuit', dessin: 'bleu' };
+const FEUTRES = { 'jamais-hard': 'violet', 'jamais-cul': 'bordeaux', garou: 'nuit', 'garou-nuit': 'nuit', paranoia: 'violet', actionverite: 'bordeaux', degaine: 'bordeaux', bombe: 'bordeaux', ware: 'nuit', buzzer: 'nuit', dessin: 'bleu', poker: 'bordeaux' };
 const OBJ_NORMAL = ['verre', 'cartes', 'pyramide', 'pizza'];
 const OBJ_HOT = ['verre', 'rouge', 'menottes'];
 let swapN = 0;

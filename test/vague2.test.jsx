@@ -6,6 +6,8 @@ import { Bot } from '../src/ui/demo.jsx';
 import { validPlay, moves, titlesFor, pv } from '../src/games/president.jsx';
 import { countFace, higher, minFor } from '../src/games/perudo.jsx';
 import { roleCounts } from '../src/games/pipoteur.jsx';
+import { evalHand, cmpHand, buildPots } from '../src/games/poker.jsx';
+import { handValue } from '../src/games/blackjack.jsx';
 
 let passed = 0;
 let failed = 0;
@@ -104,6 +106,15 @@ async function runAll() {
   ok(rc(4, 'auto', 1) === '{"nPipo":1,"nBb":1}', 'pipoteur à 4 : on peut demander un Blanc-Bec');
   ok(rc(3, 2, 1) === '{"nPipo":1,"nBb":0}', 'pipoteur à 3 : réglage trop gourmand ramené à 1 infiltré');
   ok(rc(8, 'auto', 'auto') === '{"nPipo":2,"nBb":1}', 'pipoteur auto à 8 : 2 pipoteurs et 1 Blanc-Bec');
+  // poker : combinaisons et pots annexes
+  const E = (s) => evalHand(s.split(' '));
+  ok(E('AS KS QS JS TS 2D 3C')[0] === 8 && E('AS AD AH AC KS 2D 3C')[0] === 7 && E('AS AD AH KC KS 2D 3C')[0] === 6, 'poker : quinte flush, carré, full');
+  ok(E('2S 4S 6S 8S TS KD 3C')[0] === 5 && E('AS 2D 3H 4C 5S 9D JC')[0] === 4 && E('AS 2D 3H 4C 5S 9D JC')[1] === 5, 'poker : couleur, quinte à l’As (5 haute)');
+  ok(cmpHand(E('AS AD KH QC 9S 2D 3C'), E('AS AD KH JC 9S 2D 3C')) > 0, 'poker : départage au kicker');
+  ok(cmpHand(E('KS KD 4H 4C 9S 2D 3C'), E('KS KD 5H 5C 2S 3D 7C')) < 0, 'poker : double paire, la seconde paire départage');
+  const pots = buildPots({ a: 3, b: 10, c: 10 }, {});
+  ok(pots.length === 2 && pots[0].amount === 9 && pots[1].amount === 14 && pots[1].elig.length === 2, 'poker : pot principal et pot annexe');
+  ok(handValue(['AS', 'KD']).v === 21 && handValue(['AS', 'AD', '9C']).v === 21 && handValue(['KS', 'QD', '5C']).v === 25, 'blackjack : valeur des mains (As à 1 ou 11)');
   const end = (g) => g.phase === 'end';
   const cases = [
     ['president', { rounds: 3 }, 5, end, 40000],
@@ -112,6 +123,8 @@ async function runAll() {
     ['paranoia', { turns: 2 }, 4, end, 20000],
     ['actionverite', { turns: 2 }, 3, end, 20000],
     ['tupref', { cards: 15 }, 4, end, 20000],
+    ['poker', {}, 4, end, 60000],
+    ['blackjack', { rounds: 5 }, 3, end, 30000],
   ];
   for (const [id, opts, n, fin, ms] of cases) {
     const r = await botRun(id, opts, n, fin, ms);

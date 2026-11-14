@@ -25,7 +25,7 @@ export const AV_NAMES = {
   hair: ['Rasé', 'Court', 'Mèche', 'Bouclé', 'Long', 'Chignon', 'Crête', 'Carré'],
   skin: ['Très claire', 'Claire', 'Mate', 'Foncée', 'Très foncée'],
   hairCol: ['Noirs', 'Bruns', 'Châtains', 'Blonds', 'Roux', 'Roses'],
-  kind: ['Humain', 'Alien', 'Cubique', 'Glitché', 'Robot', 'Zombie', 'Fantôme', 'Squelette'],
+  kind: ['Humain', 'Alien', 'Cubique', 'Glitché', 'Robot', 'Zombie', 'Fantôme', 'Squelette', 'Big'],
 };
 // teintes de peau propres à chaque espèce
 export const KIND_SKINS = [
@@ -37,10 +37,11 @@ export const KIND_SKINS = [
   ['#A9C29A', '#8FAE87', '#B7B98E', '#9DAAB2', '#8C9C6E'],
   ['#F7F4EE', '#DDEBF7', '#E3F4E4', '#F7DDE6', '#E6DDF5'],
   ['#F1E8D2', '#E6DBC0', '#D8CCB0', '#F4EFE6', '#E9E0CC'],
+  AV_SKINS_H(),
 ];
 function AV_SKINS_H() { return ['#F7DCC6', '#ECC09C', '#D29C70', '#A8704A', '#6B432B']; }
 // coiffures seulement pour les espèces qui ont des cheveux
-export const KIND_HAIR = [true, false, true, true, false, true, false, false];
+export const KIND_HAIR = [true, false, true, true, false, true, false, false, true];
 // ordre de stockage (ne pas changer) et ordre d'affichage dans l'atelier
 export const AV_PARTS = ['color', 'expr', 'head', 'face', 'extra', 'hair', 'skin', 'hairCol', 'kind'];
 export const AV_EDIT = ['kind', 'skin', 'hair', 'hairCol', 'expr', 'color', 'head', 'face', 'extra'];
@@ -54,7 +55,7 @@ export function makeAv(parts) {
 }
 export function randomAv() {
   const r = (n) => Math.floor(Math.random() * n);
-  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(11) : 0, Math.random() < 0.35 ? r(7) : 0, Math.random() < 0.3 ? r(5) : 0, r(8), r(5), r(6), r(8)]);
+  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(11) : 0, Math.random() < 0.35 ? r(7) : 0, Math.random() < 0.3 ? r(5) : 0, r(8), r(5), r(6), r(9)]);
 }
 export function describeAv(av) {
   const p = parseAv(av);
@@ -553,6 +554,36 @@ function Body({ p, mood }) {
       <path d="M17.6 30 C17.8 21 22.6 14.8 29.6 13.8" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity=".7" />
       <GhostFace expr={expr} mood={mood} />
       {acc}
+    </g>
+  );
+  if (kind === 8) return (
+    // Big : énorme, il prend tout le sous-bock, petite tête sur un corps immense, longue clope au bec
+    <g>
+      <text x="32" y="11.6" text-anchor="middle" font-size="11" font-family="Alfa Slab One, Georgia, serif" fill="#D9412B" stroke="#22201C" stroke-width=".8" paint-order="stroke" letter-spacing=".6">BIG</text>
+      <F d="M-10 70 C-12 48 -1 33 15 30.6 C20 35.6 26.4 37.6 32 37.6 C37.6 37.6 44 35.6 49 30.6 C65 33 76 48 74 70 Z" fill={shirt} w={2.2} />
+      <path d="M2 70 C2.4 58 6 50 11.6 45 C10.6 54 10.8 62 12 70 Z M62 70 C61.6 58 58 50 52.4 45 C53.4 54 53.2 62 52 70 Z" fill={shade(shirt, 0.84)} />
+      <L d="M20.4 52 C26 56.4 38 56.4 43.6 52 M17.6 60 C26 65 38 65 46.4 60" w={1.2} />
+      <g transform="translate(5.2 9.6) scale(.84)">
+        <HairBack k={hair} c={hc} />
+        <F d="M10.6 30 C9 41.6 14 50.4 22 54 C27 56.4 37 56.4 42 54 C50 50.4 55 41.6 53.4 30 Z" fill={sk} />
+        <L d="M19.6 49.6 C25.6 53.4 38.4 53.4 44.4 49.6" w={1.5} />
+        <F d={EAR_L} fill={sk} w={2} />
+        <F d={EAR_R} fill={sk} w={2} />
+        <F d="M32 13.6 C42.6 13.2 49.6 20 50 29.4 C50.4 37.8 47.2 44.4 41.6 47.6 C38.6 49.4 35.4 50.2 32 50.2 C28.6 50.2 25.4 49.4 22.4 47.6 C16.8 44.4 13.6 37.8 14 29.4 C14.4 20 21.4 13.2 32 13.6 Z" fill={sk} />
+        <path d="M15.6 37.4 C18.4 35.6 22.6 35.8 24.4 37.8 C22.8 40.4 18 40.6 15.6 37.4 Z M39.6 37.8 C41.4 35.8 45.6 35.6 48.4 37.4 C46 40.6 41.2 40.4 39.6 37.8 Z" fill="#E0573E" opacity=".35" />
+        <L d="M32.6 30.6 C31.8 33.4 30.6 35.6 31.4 36.4 C32 36.9 33 36.8 33.8 36.4" w={1.5} />
+        <HairFront k={hair} c={hc} hat={hatHidesTop} />
+        <Eyes expr={expr} mood={mood} />
+        {acc}
+      </g>
+      {/* longue clope roulée, papier blanc, bout filtre, braise et fumée */}
+      <g>
+        <path d="M34.4 44.4 L60.6 38.6 L61.2 41 L35 46.8 Z" transform="translate(0 -1.6)" fill="#FBF8F0" stroke="#22201C" stroke-width=".9" stroke-linejoin="round" />
+        <path d="M34.4 44.4 L39.4 43.3 L40 45.7 L35 46.8 Z" transform="translate(0 -1.6)" fill="#E8A35A" stroke="#22201C" stroke-width=".9" stroke-linejoin="round" />
+        <path d="M59.4 38.9 L60.6 38.6 L61.2 41 L60 41.3 Z" fill="#E8573A" />
+        <circle cx="61.4" cy="39.6" r="1" fill="#FFB347" />
+        <path d="M61.6 37.2 C59.6 34 63.4 32 61.6 28.6 C60.2 26 63.4 24 62.4 21" fill="none" stroke="#C9C2B6" stroke-width="1.2" stroke-linecap="round" opacity=".85" />
+      </g>
     </g>
   );
   if (kind === 7) return (

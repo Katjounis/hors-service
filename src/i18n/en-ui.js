@@ -232,4 +232,10 @@ export default [
   ['Très claire', 'Very light'], ['Claire', 'Light'], ['Mate', 'Tan'], ['Foncée', 'Dark'], ['Très foncée', 'Very dark'],
   ['Noirs', 'Black'], ['Bruns', 'Brown'], ['Châtains', 'Chestnut'], ['Blonds', 'Blond'], ['Roux', 'Red'], ['Roses', 'Pink'],
   ['Personnage', 'Character'], ['Teinte', 'Tint'], ['Humain', 'Human'], ['Alien', 'Alien'], ['Cubique', 'Blocky'], ['Glitché', 'Glitched'], ['Robot', 'Robot'], ['Zombie', 'Zombie'], ['Fantôme', 'Ghost'], ['Squelette', 'Skeleton'],
+  ['Big', 'Big'], ['Poker des gorgées', 'Sip poker'], ['Blackjack des gorgées', 'Sip blackjack'],
+  ['Se coucher', 'Fold'], ['Parler', 'Check'], ['Tapis !', 'All in!'], ['Tirer', 'Hit'], ['Rester', 'Stand'], ['Doubler', 'Double'],
+  ['Ta mise', 'Your bet'], ['La banque', 'The bank'], ['Main suivante', 'Next hand'], ['Donne suivante', 'Next deal'], ['Tes cartes', 'Your cards'],
+  ['Chacun choisit sa mise.', 'Everyone picks a bet.'], ['Tapis de départ', 'Starting stack'], ['Blindes', 'Blinds'], ['Le dernier boit en plus', 'Last place drinks extra'],
+  ['Nombre de mains', 'Number of hands'], ['Mise maximale', 'Max bet'], ['Gagné', 'Won'], ['Perdu', 'Lost'], ['Sauté', 'Bust'], ['Égalité', 'Push'],
+  ['Le gagnant distribue · le tapis ne revient jamais', 'The winner hands out · the stack never comes back'], ['La banque tire à 16 et reste à 17 · Blackjack paie 3 pour 2', 'The bank hits on 16, stands on 17 · Blackjack pays 3 to 2'],
 ];
