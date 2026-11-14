@@ -2160,3 +2160,67 @@ h3 { font-size: 1.1rem; }
 :root .bz-opts li.is-good { background: #2F7A4E; }
 :root .bz-opts li.is-wrong { background: rgba(120, 24, 14, .55); }
 :root .tp-lead { color: #F2D27A; text-transform: none; }
+
+/* ---- objets posés sur la table : rendus 3D (verre de bière sur son sous-bock, cartes, jetons, dés, capsules).
+   Images détourées avec leurs ombres, placées aux bords pour laisser le centre libre. */
+.obj { position: absolute; display: block; background: no-repeat center / contain; pointer-events: none; transition: opacity .25s ease; }
+.obj-verre { background-image: url(img/table-verre.webp); aspect-ratio: 560 / 561; width: 46vw; top: -3vh; right: -12vw; transform: rotate(-6deg); }
+.obj-cartes { background-image: url(img/table-cartes.webp); aspect-ratio: 1000 / 528; width: 108vw; bottom: -5vh; left: -24vw; transform: rotate(4deg); }
+.obj-jetons { background-image: url(img/table-jetons.webp); aspect-ratio: 700 / 487; width: 70vw; top: 38vh; right: -40vw; transform: rotate(-12deg); opacity: .9; }
+@media (min-width: 760px) {
+  .obj-verre { width: 300px; top: 3vh; right: 3vw; }
+  .obj-cartes { width: 620px; bottom: -40px; left: -70px; }
+  .obj-jetons { width: 400px; top: auto; bottom: 6vh; right: -30px; }
+}
+.ambiance.is-game .obj { opacity: .45; }
+@media (prefers-reduced-motion: reduce) { .obj { transition: none; } }
+:root .panel, :root .act, :root .local-act, :root .sec, :root .register, :root .spicy-btn, :root .tbl-wrap, :root .games-h, :root .rules, :root .screen > .form, :root .screen .stack > .form { background: rgba(4, 14, 9, .55); }
+
+/* =====================================================================================================
+   MODE CLAIR « table en chêne » : écrit à la main (plus généré), prioritaire grâce à [lang] sur <html>.
+   Les blocs deviennent des feuilles de papier posées sur le bois.
+   ===================================================================================================== */
+:root[data-theme="light"][lang] body { background: #CDB48C; color: #1F1A14; }
+:root[data-theme="light"][lang] .ambiance.feutre { background: #CDB48C url(img/table-bois.webp) center / cover !important; }
+:root[data-theme="light"][lang] .feutre-grain { display: none; }
+:root[data-theme="light"][lang] .feutre-lampe { background: radial-gradient(75% 50% at 50% 20%, rgba(255, 246, 225, .35), transparent 70%), radial-gradient(140% 100% at 50% 50%, transparent 55%, rgba(70, 45, 20, .35) 100%); }
+:root[data-theme="light"][lang] .ambiance.is-game .obj { opacity: .55; }
+:root[data-theme="light"][lang] h1, :root[data-theme="light"][lang] h2, :root[data-theme="light"][lang] h3, :root[data-theme="light"][lang] .end-title, :root[data-theme="light"][lang] .lobby h1, :root[data-theme="light"][lang] .brand-name { color: #1F1A14; text-shadow: 0 1px 0 rgba(255, 245, 225, .5); background: none; }
+:root[data-theme="light"][lang] .muted, :root[data-theme="light"][lang] .field-h, :root[data-theme="light"][lang] .lead, :root[data-theme="light"][lang] .turn-l, :root[data-theme="light"][lang] .choice-d, :root[data-theme="light"][lang] .home-foot, :root[data-theme="light"][lang] .home-foot a { color: #4F4336; }
+:root[data-theme="light"][lang] .panel, :root[data-theme="light"][lang] .act, :root[data-theme="light"][lang] .local-act, :root[data-theme="light"][lang] .sec, :root[data-theme="light"][lang] .register, :root[data-theme="light"][lang] .spicy-btn, :root[data-theme="light"][lang] .tbl-wrap, :root[data-theme="light"][lang] .games-h, :root[data-theme="light"][lang] .menu, :root[data-theme="light"][lang] .rules, :root[data-theme="light"][lang] .waiting, :root[data-theme="light"][lang] .pr-seat, :root[data-theme="light"][lang] .pe-face, :root[data-theme="light"][lang] .bz-sc, :root[data-theme="light"][lang] .quit, :root[data-theme="light"][lang] .screen > .form, :root[data-theme="light"][lang] .screen .stack > .form, :root[data-theme="light"][lang] .verdict, :root[data-theme="light"][lang] .pass, :root[data-theme="light"][lang] .invite, :root[data-theme="light"][lang] .player, :root[data-theme="light"][lang] .bz-opts li, :root[data-theme="light"][lang] .toast {
+  background: rgba(253, 249, 240, .9); color: #1F1A14; box-shadow: 0 6px 16px rgba(70, 45, 20, .18); border: 0;
+}
+:root[data-theme="light"][lang] .register .players .player { background: transparent; box-shadow: none; }
+:root[data-theme="light"][lang] .btn, :root[data-theme="light"][lang] .icon-btn, :root[data-theme="light"][lang] .menu-item, :root[data-theme="light"][lang] .pref-btn, :root[data-theme="light"][lang] .maker-opt { background: #F1E7D4; color: #1F1A14; box-shadow: 0 2px 0 rgba(70, 45, 20, .22); border: 0; }
+:root[data-theme="light"][lang] .btn:hover, :root[data-theme="light"][lang] .icon-btn:hover, :root[data-theme="light"][lang] .menu-item:hover { background: #E9DCC3; }
+:root[data-theme="light"][lang] .btn.btn-main, :root[data-theme="light"][lang] .act .btn.btn-main, :root[data-theme="light"][lang] .paper .btn.btn-main { background: var(--jeton); color: #FFF6E8; box-shadow: 0 4px 0 var(--jeton-bord); }
+:root[data-theme="light"][lang] .btn:disabled, :root[data-theme="light"][lang] .btn.btn-main:disabled { background: #E6DCC8; color: #8A7E6C; box-shadow: none; }
+:root[data-theme="light"][lang] .maker-opt.is-on { box-shadow: 0 0 0 3px #8A4A00 inset; }
+:root[data-theme="light"][lang] .chip { background: rgba(253, 249, 240, .85); color: #1F1A14; }
+:root[data-theme="light"][lang] .topbar, :root[data-theme="light"][lang] .demo-bar, :root[data-theme="light"][lang] .demo-tabs { background: rgba(253, 249, 240, .88); border: 0; }
+:root[data-theme="light"][lang] .demo-tab { color: #4F4336; }
+:root[data-theme="light"][lang] .demo-tab.is-on, :root[data-theme="light"][lang] .demo-tab[aria-selected="true"] { color: #1F1A14; }
+:root[data-theme="light"][lang] .topbar-code b, :root[data-theme="light"][lang] .turn-who, :root[data-theme="light"][lang] .ose-lead, :root[data-theme="light"][lang] .tp-lead, :root[data-theme="light"][lang] .code { color: #8A3A10; }
+:root[data-theme="light"][lang] .sheet, :root[data-theme="light"][lang] .side, :root[data-theme="light"][lang] .pen { background: #F7F0E2; color: #1F1A14; }
+:root[data-theme="light"][lang] .input, :root[data-theme="light"][lang] .codebox-cell, :root[data-theme="light"][lang] .cat-select { background: #FFFDF7; color: #1F1A14; box-shadow: 0 0 0 1px rgba(70, 45, 20, .25) inset; }
+:root[data-theme="light"][lang] .seg { background: rgba(70, 45, 20, .1); }
+:root[data-theme="light"][lang] .seg-btn { color: #1F1A14; }
+:root[data-theme="light"][lang] .seg-btn[aria-checked="true"], :root[data-theme="light"][lang] .seg-btn.is-on { background: #1F1A14; color: #FBF6EA; }
+:root[data-theme="light"][lang] .tbl th { color: #4F4336; }
+:root[data-theme="light"][lang] .tbl td, :root[data-theme="light"][lang] .tbl th { border-color: rgba(70, 45, 20, .15); }
+:root[data-theme="light"][lang] .spicy.is-on .spicy-btn { background: #F6D9DF; }
+:root[data-theme="light"][lang] .jn-card, :root[data-theme="light"][lang] .ose-card, :root[data-theme="light"][lang] .choice, :root[data-theme="light"][lang] .gcard, :root[data-theme="light"][lang] .tp-opt, :root[data-theme="light"][lang] .bz-q { box-shadow: 0 10px 20px rgba(70, 45, 20, .3); }
+:root .ambiance { z-index: -1; }
+:root[data-theme="light"][lang] .home-foot, :root[data-theme="light"][lang] .screen > .lead, :root[data-theme="light"][lang] .screen .hint, :root[data-theme="light"][lang] .screen > p.muted { background: none; box-shadow: none; border: 0; }
+/* objets : au téléphone, le verre ne dépasse que dans le coin et les jetons restent pour les grands écrans */
+@media (max-width: 759px) {
+  .obj-verre { width: 34vw; top: -9vw; right: -13vw; }
+  .obj-jetons { display: none; }
+  .obj-cartes { width: 104vw; bottom: -7vh; left: -26vw; }
+}
+:root .panel, :root .act, :root .local-act, :root .sec, :root .register, :root .spicy-btn, :root .tbl-wrap, :root .games-h, :root .rules, :root .screen > .form, :root .screen .stack > .form, :root .invite { background: rgba(6, 18, 12, .72); }
+:root .btn, :root .icon-btn, :root .menu-item, :root .pref-btn { background: rgba(6, 18, 12, .6); }
+:root .btn:hover, :root .icon-btn:hover, :root .menu-item:hover, :root .pref-btn:hover { background: rgba(6, 18, 12, .78); }
+:root .ambiance.is-game .obj { opacity: .35; }
+@media (max-width: 759px) { .obj-verre { width: 44vw; top: auto; bottom: 24vh; right: -14vw; transform: rotate(-8deg); } }
+@media (max-width: 759px) { .obj-verre { width: 40vw; bottom: 3vh; right: -12vw; } }

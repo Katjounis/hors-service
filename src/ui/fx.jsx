@@ -276,6 +276,9 @@ export function Ambiance({ game = null }) {
     <div class={`ambiance feutre feutre-${f}${game ? ' is-game' : ''}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
       <i class="feutre-grain" />
       <i class="feutre-lampe" />
+      <i class="obj obj-verre" />
+      <i class="obj obj-cartes" />
+      <i class="obj obj-jetons" />
     </div>
   );
 }

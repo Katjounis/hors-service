@@ -30,7 +30,9 @@ function fontCSS(inline) {
 
 import { lightCSS } from './tools/light-theme.mjs';
 const css0 = readFileSync('src/styles.css', 'utf8');
-const css = `${css0}\n${lightCSS(css0)}`;
+// images de la table (rendus 3D des objets, bois du mode clair) : intégrées dans la feuille pour marcher hors ligne
+const withImg = (c) => c.replace(/url\(img\/([a-z0-9-]+\.webp)\)/g, (m, f) => `url(data:image/webp;base64,${readFileSync(`src/img/${f}`).toString('base64')})`);
+const css = withImg(`${css0}\n${lightCSS(css0)}`);
 
 const common = {
   bundle: true,
