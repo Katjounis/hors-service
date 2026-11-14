@@ -68,17 +68,34 @@ export function describeAv(av) {
 // Chaque forme est posée en deux temps : l'aplat de couleur, un peu décalé comme un coloriage au feutre,
 // puis le trait noir par-dessus, doublé d'un second passage plus fin pour l'effet « repassé au feutre ».
 const OFF = 'translate(.9 .7)';
-function F({ d, fill, w = 2.2, line = true, sketch = true, op }) {
+// trait tremblé : chaque coordonnée bouge un peu, toujours de la même façon pour un même tracé
+const jitCache = new Map();
+function jit(d, amp = 0.32) {
+  const key = d + amp;
+  const hit = jitCache.get(key);
+  if (hit) return hit;
+  let i = 0;
+  const out = d.replace(/-?\d*\.?\d+/g, (n) => {
+    i += 1;
+    const h = Math.sin(i * 12.9898 + parseFloat(n) * 78.233) * 43758.5453;
+    return (parseFloat(n) + (h - Math.floor(h) - 0.5) * 2 * amp).toFixed(2);
+  });
+  jitCache.set(key, out);
+  return out;
+}
+function F({ d: d0, fill, w = 2.2, line = true, sketch = true, op, j = 0.32 }) {
+  const d = j ? jit(d0, j) : d0;
+  const d2 = j ? jit(d0, j * 1.4) : d0;
   return (
     <g>
       {fill && fill !== 'none' ? <path d={d} fill={fill} transform={OFF} opacity={op} /> : null}
       {line ? <path d={d} fill="none" stroke={INK} stroke-width={w} stroke-linecap="round" stroke-linejoin="round" /> : null}
-      {line && sketch ? <path d={d} fill="none" stroke={INK} stroke-width={w * 0.35} stroke-linecap="round" opacity=".45" transform="translate(.45 -.35)" /> : null}
+      {line && sketch ? <path d={d2} fill="none" stroke={INK} stroke-width={w * 0.35} stroke-linecap="round" opacity=".5" transform="translate(.4 -.3)" /> : null}
     </g>
   );
 }
-function L({ d, w = 2, color = INK }) {
-  return <path d={d} fill="none" stroke={color} stroke-width={w} stroke-linecap="round" stroke-linejoin="round" />;
+function L({ d, w = 2, color = INK, j = 0.22 }) {
+  return <path d={j ? jit(d, j) : d} fill="none" stroke={color} stroke-width={w} stroke-linecap="round" stroke-linejoin="round" />;
 }
 function Dot({ x, y, r = 1.5, c = INK }) {
   return <ellipse cx={x} cy={y} rx={r * 0.9} ry={r * 1.15} fill={c} />;
@@ -87,7 +104,7 @@ function Dot({ x, y, r = 1.5, c = INK }) {
 const HEAD = 'M32 13.6 C41.6 13.3 47.3 19.9 47.4 28.7 C47.6 35.9 45.2 41.7 40.6 45.3 C37.8 47.5 34.9 48.4 32 48.4 C28.6 48.4 25.6 47.3 22.9 45 C18.6 41.3 16.6 35.7 16.7 29 C16.9 20 22.6 13.8 32 13.6 Z';
 const EAR_L = 'M17.4 27.4 C13.9 26.2 12.5 29.3 13.3 32 C14 34.5 16 35.7 17.7 34.8';
 const EAR_R = 'M46.8 27.1 C50.3 25.9 51.6 29.1 50.7 31.9 C49.9 34.3 48 35.5 46.3 34.6';
-const NECK = 'M27.3 44.6 L26.9 52.4 C30 53.6 34 53.6 37.1 52.4 L36.7 44.6';
+const NECK = 'M27.3 42.6 L26.7 58 L37.3 58 L36.7 42.6 Z';
 const SHIRT = 'M5 66 C5.8 57.4 12.5 52.6 22.4 51 C25.4 54.4 28.8 55.4 32 55.4 C35.2 55.4 38.8 54.4 41.7 51 C51.5 52.6 58.2 57.4 59 66 Z';
 
 function shade(hex, k) {
@@ -102,7 +119,22 @@ function HairBack({ k, c }) {
   return null;
 }
 // cheveux sur le front et le haut du crâne
+function Strands({ k, c }) {
+  const col = shade(c, 0.68);
+  const S2 = {
+    1: 'M24.8 20 C26.6 16.4 30 14.4 34 14.2 M33.4 20.8 C35.6 17.2 39 15.6 42.6 16.4 M20.4 22.6 C21 19 23.4 16 26.6 14.6',
+    2: 'M21.6 21.4 C26.6 20.2 31.4 17.4 34.6 13.8 M28.6 22.2 C33.4 20.8 38 17.8 40.6 14.8 M37.6 19.2 C40.6 18.2 43.4 18.6 45.4 21',
+    4: 'M30.6 22 C28.6 18.6 25.8 15.6 22.4 14.8 M33.4 22 C35.6 18.6 38.4 15.6 41.8 14.8 M18.6 29 C18.6 22.4 20.2 18.6 22.8 16.6 M45.4 29 C45.4 22.4 43.8 18.6 41.2 16.6',
+    5: 'M24.4 18.6 C27.6 15.4 31 14.4 34.2 14.4 M34.4 17.2 C37.8 16.6 41.4 17.6 44 20.4',
+    7: 'M24 22.4 C24.2 18 26.6 14.8 30.4 13.8 M33.6 22.4 C34.4 18.6 37.4 15.4 41.4 15 M19.2 28.8 C19 24.6 19.8 21.8 21.4 19.8 M44.8 28.8 C45 24.6 44.2 21.8 42.6 19.8',
+  };
+  if (k === 3) return <L d="M19.4 21.4 C20.6 19.6 22.6 19.8 22.8 21.6 M27.4 15.6 C28.8 14 30.8 14.6 30.6 16.4 M36 15.2 C37.4 13.8 39.4 14.6 39 16.4 M42.4 19.4 C44 18.6 45.4 19.8 44.8 21.4 M24 18 C25.4 16.8 27 17.4 26.8 18.8 M32.6 18.6 C34 17.6 35.6 18.2 35.2 19.8" w={0.9} color={col} />;
+  return S2[k] ? <L d={S2[k]} w={0.9} color={col} /> : null;
+}
 function HairFront({ k, c, hat }) {
+  return <g><HairFront0 k={k} c={c} hat={hat} />{hat ? null : <Strands k={k} c={c} />}</g>;
+}
+function HairFront0({ k, c, hat }) {
   switch (k) {
     case 0: return <path d="M18.4 24 C19.6 17.4 25 14.4 32 14.2 C39 14 44.4 17.2 45.8 24 C41 20.6 23.2 20.6 18.4 24 Z" fill={c} opacity=".35" transform={OFF} />;
     case 1: return <F d="M16.9 27.4 C16.2 17.6 22.8 12 32.4 12 C42 12 48 17.6 47.3 27.2 C45.6 22.6 42.4 20.4 38.6 19.8 C35 21.8 28.6 22 24.8 20 C21.2 21 18.6 23.4 16.9 27.4 Z" fill={c} />;
@@ -118,7 +150,7 @@ function HairFront({ k, c, hat }) {
     case 6: return (
       <g>
         <path d="M18.6 24 C19.8 17.6 23.4 14.8 27 14 L27.6 20 C24 20.6 21 22 18.6 24 Z M45.6 24 C44.4 17.6 40.8 14.8 37.2 14 L36.6 20 C40.2 20.6 43.2 22 45.6 24 Z" fill={c} opacity=".35" transform={OFF} />
-        {hat ? null : <F d="M28.2 21.4 C27 15 28.2 8 32.4 3.6 C35.8 8 37 15 36 21.4 C34.2 22.2 30 22.2 28.2 21.4 Z" fill={c} />}
+        {hat ? null : <F d="M28.4 21.6 L27.4 14.2 L29.8 15.8 L29.2 8.6 L31.6 11.2 L32.4 3.8 L34 10.8 L36.2 8.2 L35.2 15.6 L37.4 13.8 L35.8 21.6 C33.6 22.4 30.6 22.4 28.4 21.6 Z" fill={c} />}
       </g>
     );
     case 7: return <F d="M17 29.6 C16.2 18.2 23 12.4 32 12.4 C41 12.4 47.8 18.2 47 29.6 C46.4 26.8 45.6 25 44.4 23.6 L19.6 23.6 C18.4 25 17.6 26.8 17 29.6 Z" fill={c} />;
@@ -472,6 +504,7 @@ function SkullFace({ expr, mood }) {
 let clipN = 0;
 // une espèce dessinée (sans le sous-bock) ; « glitch » réutilise la base humaine
 function Body({ p, mood }) {
+  const cid = useMemo(() => `avh${(clipN += 1)}`, []);
   const [color, expr, head, face, extra, hair, skin, hairCol, kind] = p;
   const shirt = AV_COLORS[color] || AV_COLORS[0];
   const sk = (KIND_SKINS[kind] || KIND_SKINS[0])[skin] || AV_SKINS[1];
@@ -486,7 +519,8 @@ function Body({ p, mood }) {
   );
   if (kind === 1) return (
     <g>
-      <F d="M28.6 45 L28.2 52.6 C30.6 53.4 33.4 53.4 35.8 52.6 L35.4 45" fill={sk} w={2} />
+      <F d="M28.4 42 L27.6 58 L36.4 58 L35.6 42 Z" fill={sk} w={2} />
+      <path d="M28.2 45.6 C30.6 48 33.4 48 35.8 45.6 L36 49.6 C33.4 51.4 30.6 51.4 28 49.6 Z" fill={shade(sk, 0.8)} />
       <F d={SHIRT} fill={shirt} />
       <L d="M22.4 51 C25.4 56 38.6 56 41.7 51" w={1.5} />
       {head === 0 ? <g><L d="M25 10.6 C23.6 7 21.2 4.6 18.4 3.6 M39 10.6 C40.4 7 42.8 4.6 45.6 3.6" w={1.6} /><F d="M16.2 3.6 C16.2 2.2 17.2 1.4 18.4 1.4 C19.6 1.4 20.6 2.4 20.4 3.6 C20.2 4.8 19.4 5.6 18.2 5.6 C17 5.6 16.2 4.8 16.2 3.6 Z M43.6 3.6 C43.6 2.4 44.6 1.4 45.8 1.4 C47 1.4 47.8 2.2 47.8 3.6 C47.8 4.8 47 5.6 45.8 5.6 C44.6 5.6 43.6 4.8 43.6 3.6 Z" fill={sk} w={1.3} sketch={false} /></g> : null}
@@ -508,8 +542,9 @@ function Body({ p, mood }) {
   );
   if (kind === 7) return (
     <g>
-      <F d="M28.8 46 L28.8 52.6 L35.2 52.6 L35.2 46" fill={sk} w={1.8} />
-      <L d="M28.8 48.4 L35.2 48.4 M28.8 50.6 L35.2 50.6" w={1} />
+      <F d="M28.2 43.4 C30.8 42.6 33.2 42.6 35.8 43.4 L35.4 47.4 C33 48.2 31 48.2 28.6 47.4 Z" fill={sk} w={1.7} />
+      <F d="M28.6 48.4 C31 47.6 33 47.6 35.4 48.4 L35.2 52.6 C33 53.4 31 53.4 28.8 52.6 Z" fill={sk} w={1.7} />
+      <F d="M29 53.6 C31.2 52.8 32.8 52.8 35 53.6 L35 58 L29 58 Z" fill={sk} w={1.7} />
       <F d={SHIRT} fill={shirt} />
       <L d="M22.4 51 C25.4 56 38.6 56 41.7 51" w={1.5} />
       <F d={SKULL} fill={sk} />
@@ -521,15 +556,18 @@ function Body({ p, mood }) {
   const zombie = kind === 5;
   return (
     <g>
+      <defs><clipPath id={cid}><path d={HEAD} /></clipPath></defs>
       <HairBack k={hair} c={hc} />
+      <F d={NECK} fill={sk} w={2} />
+      <path d="M27 45.6 C30.4 48.8 33.8 48.8 37 45.6 L37.1 50.4 C33.6 52.4 30.4 52.4 26.9 50.4 Z" fill={shade(sk, 0.8)} />
       <F d={SHIRT} fill={shirt} />
+      <path d="M8.4 64 C9.4 59 12.6 55.6 17.6 53.6 C16.4 57 16 60.6 16.4 64 Z M55.6 64 C54.6 59 51.4 55.6 46.4 53.6 C47.6 57 48 60.6 47.6 64 Z" fill={shade(shirt, 0.84)} />
       {zombie ? <path d="M12 60 L15 57 L17 61 L20 58 M47 59 L50 56 L52 60" fill="none" stroke={INK} stroke-width="1.2" /> : null}
       <L d="M22.4 51 C25.4 56 38.6 56 41.7 51" w={1.5} />
-      <F d={NECK} fill={sk} w={2} />
-      <path d="M27.2 46 C30.4 48.6 33.8 48.6 36.8 46 L36.9 49.2 C33.6 50.6 30.4 50.6 27.1 49.2 Z" fill={shade(sk, 0.82)} transform={OFF} />
       <F d={EAR_L} fill={sk} w={2} />
       <F d={EAR_R} fill={sk} w={2} />
       <F d={HEAD} fill={sk} />
+      <g clip-path={`url(#${cid})`}><path d="M47.6 18 C44.2 30 41.6 41.4 31.4 50 L52 52 L52 14 Z" fill={shade(sk, 0.9)} /><path d="M21.4 20.6 C23.4 17.6 26.6 16 29.6 15.6" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" opacity=".35" /></g>
       {zombie ? null : <path d="M18.8 36.4 C20.6 35.4 23 35.6 24 36.8 C23 38.2 20.4 38.4 18.8 36.4 Z M40 36.8 C41 35.6 43.4 35.4 45.2 36.4 C43.6 38.4 41 38.2 40 36.8 Z" fill="#E0573E" opacity={expr === 3 || mood === 'drink' ? 0.5 : 0.22} />}
       {zombie ? <path d="M21.4 33.6 C23.4 35.4 27.6 35.6 29.4 33.4 M34.6 33.4 C36.6 35.6 40.6 35.4 42.6 33.6" fill="none" stroke="#5E6B4E" stroke-width="2.4" opacity=".55" stroke-linecap="round" /> : null}
       <L d="M32.6 30.6 C31.8 33.4 30.6 35.6 31.4 36.4 C32 36.9 33 36.8 33.8 36.4" w={1.5} />
@@ -569,7 +607,7 @@ export function Character({ av, mood = null, bg = true, size = 64, label = null 
         </g>
       ) : null}
       <g clip-path={bg ? `url(#${id})` : undefined}>
-        <g transform="translate(3.5 6.2) scale(.89)">
+        <g transform="translate(1.9 4.6) scale(.94)">
           {kind === 3 ? (
             <g>
               <g filter={`url(#${id}c)`} transform="translate(-1.8 .3)" class="gl-c">{body}</g>
