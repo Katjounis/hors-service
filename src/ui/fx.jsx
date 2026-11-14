@@ -265,16 +265,17 @@ function Flamme({ id }) {
 }
 
 let ambN = 0;
+// Thème « table de jeu » (choisi par Samuel le 14/11) : un tapis de feutre vu de dessus, éclairé au centre,
+// sans décor dessiné. La couleur du feutre change un peu selon le jeu (nuit pour le Garou, bordeaux pour le Cul).
+const FEUTRES = { 'jamais-hard': 'violet', 'jamais-cul': 'bordeaux', garou: 'nuit', 'garou-nuit': 'nuit', paranoia: 'violet', actionverite: 'bordeaux', degaine: 'bordeaux', bombe: 'bordeaux', ware: 'nuit', buzzer: 'nuit', dessin: 'bleu' };
 export function Ambiance({ game = null }) {
   const [d1, d2, d3] = paletteOf(game);
-  const id = useMemo(() => `amb${(ambN += 1)}`, []);
-  const scene = sceneOf(game);
+  useMemo(() => (ambN += 1), []);
+  const f = FEUTRES[game] || 'vert';
   return (
-    <div class={`ambiance${game ? ' is-game' : ''} sc-${scene}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
-      <i class="amb-mur" />
-      <DecorHaut scene={scene} Fenetre={Fenetre} Cadres={Cadres} id={id} />
-      <i class="amb-ombre" />
-      <DecorBas scene={scene} />
+    <div class={`ambiance feutre feutre-${f}${game ? ' is-game' : ''}`} style={{ '--d1': d1, '--d2': d2, '--d3': d3 }} aria-hidden="true">
+      <i class="feutre-grain" />
+      <i class="feutre-lampe" />
     </div>
   );
 }

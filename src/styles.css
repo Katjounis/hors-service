@@ -2001,3 +2001,162 @@ h3 { font-size: 1.1rem; }
 @keyframes enseigne { 0%, 92% { opacity: 1; } 93% { opacity: .35; } 95% { opacity: 1; } 96% { opacity: .5; } 97%, 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .mu-reflet, .mu-enseigne, .mu-halo { animation: none !important; } }
 .sc-appart .amb-ombre::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--deco-h) * 70 / 300); background: #2A1B12; border-top: 2px solid #1E130C; }
+
+/* =====================================================================================================
+   THÈME « TABLE DE JEU » (choix de Samuel, 14/11) : un tapis de feutre vu de dessus, des cartes en papier
+   posées dessus, des plaques de jeton pour les boutons. Plus de décor dessiné, plus de cadres à bordure.
+   Seul le ruban jaune et noir reste, pour les jeux indisponibles. Titres en Alfa Slab One, cartes en Literata.
+   Toutes les règles sont préfixées par :root pour passer devant les couches précédentes.
+   ===================================================================================================== */
+:root {
+  --f-titre: 'Alfa Slab One', 'Rockwell', Georgia, serif;
+  --f-carte: 'Literata', Georgia, serif;
+  --carte: #FBF6EA;
+  --carte-2: #EFE6D2;
+  --carte-ombre: 0 10px 22px rgba(0, 0, 0, .34), 0 1px 0 rgba(255, 255, 255, .7) inset;
+  --plaque: rgba(4, 14, 9, .34);
+  --plaque-2: rgba(4, 14, 9, .5);
+  --texte-feutre: #F4EDDC;
+  --texte-doux: #C6D8CB;
+  --jeton: #C8301E;
+  --jeton-bord: #7E1A10;
+  --r: 12px;
+  --r-s: 8px;
+}
+:root body { background: #133A28; color: var(--texte-feutre); }
+
+/* ---- le tapis */
+:root .ambiance.feutre { background: radial-gradient(120% 85% at 50% 32%, #2B7550 0%, #1E5A3D 48%, #123524 100%); }
+:root .feutre-nuit { background: radial-gradient(120% 85% at 50% 32%, #2E4670 0%, #1E2F4E 50%, #0E1628 100%) !important; }
+:root .feutre-bordeaux { background: radial-gradient(120% 85% at 50% 32%, #7A2434 0%, #561824 50%, #2A0A12 100%) !important; }
+:root .feutre-violet { background: radial-gradient(120% 85% at 50% 32%, #5A3A82 0%, #3C2558 50%, #1C1030 100%) !important; }
+:root .feutre-bleu { background: radial-gradient(120% 85% at 50% 32%, #23607E 0%, #18445C 50%, #0C2232 100%) !important; }
+.feutre-grain { position: absolute; inset: 0; opacity: .5; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
+.feutre-lampe { position: absolute; inset: 0; background: radial-gradient(70% 45% at 50% 18%, rgba(255, 236, 190, .12), transparent 70%), radial-gradient(140% 100% at 50% 50%, transparent 55%, rgba(0, 0, 0, .45) 100%); }
+:root .ambiance::before, :root .ambiance::after { display: none; }
+
+/* ---- typo */
+:root h1, :root h2, :root h3, :root .end-title, :root .lobby h1 { font-family: var(--f-titre); font-weight: 400; letter-spacing: 0; color: var(--texte-feutre); }
+:root .muted, :root .field-h, :root .small.muted { color: var(--texte-doux); }
+:root .lead { color: var(--texte-doux); }
+
+/* ---- marque : lettrage sur le tapis, plus d'étiquette scotchée */
+:root .brand { background: none; box-shadow: none; transform: none; padding: 0; border: 0; }
+:root .brand::before, :root .brand::after { display: none; }
+:root .brand-name { font-family: var(--f-titre); color: var(--texte-feutre); text-shadow: 0 3px 0 rgba(0, 0, 0, .35); font-size: clamp(2.6rem, 13vw, 3.6rem); line-height: .92; text-transform: uppercase; }
+:root .brand-s .brand-name { font-size: 1.2rem; text-shadow: 0 2px 0 rgba(0, 0, 0, .35); }
+:root .brand-stripe, :root .ruban, :root .game-head + .ruban, :root .tape::before, :root .tape::after { display: none; }
+
+/* ---- boutons : plaques de jeton */
+:root .btn, :root .icon-btn, :root .menu-item, :root .pref-btn, :root .link.btn { background: var(--plaque); color: var(--texte-feutre); border: 0; border-radius: var(--r-s); box-shadow: none; }
+:root .btn:hover, :root .icon-btn:hover, :root .menu-item:hover, :root .pref-btn:hover { background: var(--plaque-2); }
+:root .btn.btn-main, :root .paper .btn.btn-main, :root .act .btn.btn-main { background: var(--jeton); color: #FFF6E8; border: 0; box-shadow: 0 4px 0 var(--jeton-bord); }
+:root .btn.btn-main:hover { background: #D63A26; }
+:root .btn.btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--jeton-bord); }
+:root .btn.btn-main:disabled, :root .btn:disabled { background: rgba(0, 0, 0, .22); color: rgba(244, 237, 220, .55); box-shadow: none; opacity: 1; transform: none; }
+:root .btn-danger { background: #8A1E14; color: #FFF6E8; }
+:root .icon-btn { border-radius: 50%; }
+
+/* ---- accueil : les deux modes sont des cartes à jouer posées en éventail */
+:root .home-choices { gap: 14px; }
+:root .choice, :root .choice.choice-main { position: relative; background: var(--carte); color: #1C1915; border: 0; border-radius: 14px; box-shadow: var(--carte-ombre); padding: 18px 18px 18px 64px; min-height: 96px; }
+:root .choice:hover, :root .choice.choice-main:hover { background: #FFFBF2; }
+:root .choice:nth-child(odd) { transform: rotate(-1.2deg); }
+:root .choice:nth-child(even) { transform: rotate(1deg); }
+:root .choice::after { display: none; }
+:root .choice::before { content: 'A\A♠'; white-space: pre; position: absolute; left: 18px; top: 14px; font: 400 1.5rem/1 var(--f-titre); text-align: center; color: #1C1915; }
+:root .choice:nth-child(2)::before { content: 'R\A♥'; color: #B8261A; }
+:root .choice:nth-child(3)::before { content: 'D\A♣'; }
+:root .choice:nth-child(4)::before { content: 'V\A♦'; color: #B8261A; }
+:root .choice-ico { display: none; }
+:root .choice-t { font: 400 1.35rem/1.1 var(--f-titre); color: #1C1915; }
+:root .choice-d, :root .choice.choice-main .choice-d { color: #5A544A; }
+:root .home-foot { background: none; border: 0; color: var(--texte-doux); }
+
+/* ---- conteneurs : du feutre plus foncé, sans bordure */
+:root .panel, :root .act, :root .local-act, :root .sec, :root .register, :root .spicy-btn, :root .screen .hint, :root .screen > p.muted, :root .screen > .stack > p.muted, :root .screen > .lead, :root .lobby > p.muted, :root .tbl-wrap, :root .games-h, :root .menu, :root .rules, :root .waiting, :root .pr-seat, :root .pe-face, :root .bz-sc, :root .quit, :root .screen > .form, :root .screen .stack > .form, :root .verdict, :root .pass {
+  background: var(--plaque); border: 0; border-radius: var(--r); box-shadow: none; color: var(--texte-feutre);
+}
+:root .verdict, :root .pass, :root .quit { background: var(--plaque-2); }
+:root .panel-warn { background: rgba(120, 24, 14, .55); }
+:root .topbar { background: rgba(0, 0, 0, .3); border: 0; }
+:root .topbar-code b { font-family: var(--f-titre); color: #F2D27A; letter-spacing: .08em; }
+:root .chip { background: rgba(0, 0, 0, .3); border: 0; border-radius: 999px; color: var(--texte-feutre); }
+:root .sheet, :root .side { background: #0F2A1D; border: 0; border-radius: 16px 16px 0 0; }
+:root .is-side .sheet, :root .sheet.is-side { border-radius: 16px 0 0 16px; }
+
+/* ---- champs */
+:root .input, :root .codebox-cell, :root .cat-select { background: rgba(0, 0, 0, .3); border: 0; border-radius: var(--r-s); color: var(--texte-feutre); }
+:root .input:focus { outline: 3px solid #F2D27A; outline-offset: 1px; }
+:root .seg { background: rgba(0, 0, 0, .3); border: 0; border-radius: var(--r-s); padding: 3px; gap: 3px; }
+:root .seg-btn { background: transparent; border: 0; border-radius: 6px; color: var(--texte-feutre); }
+:root .seg-btn[aria-checked="true"], :root .seg-btn.is-on { background: var(--carte); color: #1C1915; }
+
+/* ---- vraies cartes : questions, mots, options */
+:root .jn-card, :root .ose-card, :root .bz-q, :root .tp-opt, :root .pa-secret, :root .cf-rule, :root .pe-bid, :root .word-card, :root .card-q {
+  background: var(--carte); color: #1C1915; border: 0; border-radius: 14px; box-shadow: var(--carte-ombre);
+}
+:root .jn-card { transform: rotate(-1deg); }
+:root .jn-q, :root .ose-q, :root .tp-txt, :root .pa-secret { font-family: var(--f-carte); font-weight: 600; letter-spacing: -.005em; }
+:root .jn-q { font-size: clamp(1.5rem, 6.4vw, 2rem); line-height: 1.18; }
+:root .jn-badge { border-radius: 4px; }
+:root .tp-a { background: #E9F3F4; }
+:root .tp-b { background: #FBE9E2; }
+:root .tp-opt.is-lose { outline-color: #FFD27A; }
+
+/* ---- liste des jeux : des cartes à jouer */
+:root .gcard { background: var(--carte); color: #1C1915; border: 0; border-radius: 14px; box-shadow: var(--carte-ombre); padding: 8px; overflow: hidden; }
+:root .gcard-art { border: 0; border-radius: 8px; overflow: hidden; }
+:root .gcard-no { background: transparent; color: #B8261A; font-family: var(--f-titre); font-weight: 400; }
+:root .gcard-name { font-family: var(--f-titre); color: #1C1915; text-transform: none; letter-spacing: 0; font-size: 1.1rem; }
+:root .gcard-min { color: #5A544A; }
+:root .gcard.is-off .gcard-name { color: #6E675C; }
+:root .gcard.is-off .gcard-min { color: #A0301E; }
+
+/* ---- tour, tampons, pénalités */
+:root .turn-who { font-family: var(--f-titre); color: #F2D27A; }
+:root .turn-l { color: var(--texte-doux); }
+:root .pen { border: 0; border-radius: 14px; overflow: hidden; background: #0F2A1D; box-shadow: 0 14px 28px rgba(0, 0, 0, .45); }
+:root .pen-give, :root .pen-take { border: 0; }
+:root .ose-lead { color: #F2D27A; font-family: var(--f-titre); text-transform: none; }
+
+/* ---- joueurs, tableaux */
+:root .player { background: var(--plaque); border: 0; border-radius: var(--r-s); }
+:root .register .players .player { background: transparent; }
+:root .tbl th { color: var(--texte-doux); }
+:root .tbl td, :root .tbl th { border-color: rgba(255, 255, 255, .1); }
+
+/* ---- cartes à jouer dessinées : coins arrondis comme de vraies cartes */
+:root .pc { border-radius: 8px; }
+
+/* ---- interrupteur Cul et HARD */
+:root .spicy.is-on .spicy-btn { background: rgba(120, 18, 40, .6); }
+:root .spicy-knob { border-radius: 999px; }
+:root .spicy-knob::after { border-radius: 50%; }
+
+/* ---- le ruban jaune et noir reste pour les jeux indisponibles (demande de Samuel) */
+:root .gcard .tile-ban { background: var(--ruban); }
+:root .games-h::after, :root .home-choices::before { display: none; }
+:root .screen > .lead, :root .screen .hint, :root .screen > p.muted, :root .screen > .stack > p.muted, :root .lobby > p.muted { background: none; padding: 0; }
+:root .maker-opt { background: var(--plaque); border: 0; border-radius: 10px; }
+:root .maker-opt.is-on { background: var(--plaque-2); box-shadow: 0 0 0 3px #F2D27A inset; border: 0; }
+:root .maker-opt.is-color { border-radius: 50%; }
+:root .maker-opt.is-color.is-on { outline: 3px solid #F2D27A; box-shadow: none; }
+:root .invite, :root .qr-box { background: var(--plaque); border: 0; border-radius: var(--r); }
+
+/* mode clair : la même table, feutre clair (vert sauge), cartes et plaques claires */
+:root[data-theme="light"] .ambiance.feutre { background: radial-gradient(120% 85% at 50% 32%, #E4EDE0 0%, #CFDECB 55%, #B6CAB2 100%) !important; }
+:root[data-theme="light"] .feutre-grain { opacity: .25; }
+:root[data-theme="light"] body { background: #CFDECB; }
+:root[data-theme="light"] .brand-name { color: #1C3A2A; text-shadow: none; }
+:root[data-theme="light"] .turn-who, :root[data-theme="light"] .topbar-code b, :root[data-theme="light"] .ose-lead { color: #7A4A00; }
+:root[data-theme="light"] .btn.btn-main, :root[data-theme="light"] .act .btn.btn-main, :root[data-theme="light"] .paper .btn.btn-main { color: #FFF6E8 !important; }
+:root[data-theme="light"] .brand, :root[data-theme="light"] .brand-name { background: none !important; }
+:root[data-theme="light"] .demo-tabs, :root[data-theme="light"] .demo-bar { background: #EFE8DB; }
+:root[data-theme="light"] .demo-tab { color: #22201C; }
+:root .ose-card .ose-lead, :root .pe-bid .ose-lead, :root .jn-card .ose-lead, :root .cf-rule .ose-lead { color: #8A5A1E; }
+:root .bz-opts li { background: var(--plaque); border: 0; border-radius: var(--r-s); }
+:root .bz-opts li.is-good { background: #2F7A4E; }
+:root .bz-opts li.is-wrong { background: rgba(120, 24, 14, .55); }
+:root .tp-lead { color: #F2D27A; text-transform: none; }

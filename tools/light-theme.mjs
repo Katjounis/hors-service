@@ -5,10 +5,10 @@
 const PROPS = /^(color|background|background-color|border|border-color|border-top|border-bottom|border-left|border-right|border-top-color|border-bottom-color|outline|outline-color|fill|stroke|text-shadow|box-shadow|caret-color|accent-color)$/;
 
 // couleurs de texte claires sur fond sombre : passent en encre
-const TEXT_LIGHT = ['var(--papier)', 'var(--papier-2)', '#F2EADB', '#FFFDF6', '#E6DCC8', '#fff', '#FFF', '#ffffff', '#FFFFFF'];
+const TEXT_LIGHT = ['var(--texte-feutre)', 'var(--papier)', 'var(--papier-2)', '#F2EADB', '#FFFDF6', '#E6DCC8', '#fff', '#FFF', '#ffffff', '#FFFFFF'];
 const VARS = {
   'var(--bitume)': '#EFE8DB', 'var(--bitume-2)': '#F7F2E8', 'var(--bitume-3)': '#E6DDCC',
-  'var(--surface)': '#FBF7EF', 'var(--surface-2)': '#F2EBDD', 'var(--filet)': '#CBBEA8',
+  'var(--surface)': '#FBF7EF', 'var(--surface-2)': '#F2EBDD', 'var(--filet)': '#CBBEA8', 'var(--plaque)': 'rgba(255, 252, 244, .6)', 'var(--plaque-2)': 'rgba(255, 252, 244, .82)',
 };
 
 function hexLum(h) {
@@ -33,6 +33,7 @@ function mapValue(prop, v) {
   if (isText) {
     for (const t of TEXT_LIGHT) if (out.trim() === t || out.trim() === `${t} !important`) return out.replace(t, 'var(--encre)');
     if (out.includes('var(--poussiere)')) return out.replace('var(--poussiere)', '#5C554B');
+    if (out.includes('var(--texte-doux)')) return out.replace('var(--texte-doux)', '#4A5A4E');
     if (out.trim() === 'var(--jaune)' || out.trim() === 'var(--jaune-2)') return '#7A5A00';
     const m = out.trim().match(/^#[0-9A-Fa-f]{3,6}/);
     if (m) { const l = hexLum(m[0]); if (l !== null && l > 0.72) return out.replace(m[0], 'var(--encre)'); }
@@ -85,7 +86,7 @@ function walk(css, prefix) {
     }
     const body = css.slice(open + 1, close);
     i = close + 1;
-    if (head.includes(':root') && !head.includes('[')) continue;
+    if (/^:root\s*$/.test(head) || head.startsWith(':root[')) continue;
     const decls = [];
     for (const d of body.split(/;(?![^(]*\))/)) {
       const k = d.indexOf(':');
@@ -115,7 +116,7 @@ function walk(css, prefix) {
     if (!decls.length) continue;
     const sel = head.split(',').map((s) => {
       s = s.trim();
-      if (/^(html|:root)\b/.test(s)) return s.replace(/^(html|:root)/, `${prefix}`);
+      if (/^(html|:root)\b/.test(s)) return s.replace(/^(html|:root)/, `${prefix}`).replace(/^(:root\[data-theme="light"\])\s*$/, '$1');
       if (/^body\b/.test(s)) return `${prefix} ${s}`;
       return `${prefix} ${s}`;
     }).join(', ');
