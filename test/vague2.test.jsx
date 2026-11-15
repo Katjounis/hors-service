@@ -1,7 +1,9 @@
 // Jeux de la vague 2 (Président, Cercle de feu, Menteur aux dés, Paranoïa, Action ou vérité, Tu préfères) : parties complètes par des joueurs automatiques.
 import { MemoryHub, MemoryBackend } from '../src/net/memory.js';
 import { Device } from '../src/core/device.js';
-import { GAMES } from '../src/games/index.js';
+import { GAMES, GAME_LIST } from '../src/games/index.js';
+import { IDS as ART_IDS } from '../src/ui/gameart.jsx';
+import { existsSync } from 'fs';
 import { Bot } from '../src/ui/demo.jsx';
 import { validPlay, moves, titlesFor, pv } from '../src/games/president.jsx';
 import { countFace, higher, minFor } from '../src/games/perudo.jsx';
@@ -84,6 +86,7 @@ async function botRun(id, opts, n, finishWhen, maxMs = 30000) {
 async function logic() {
   console.log('Règles');
   const h = ['3C', '3D', '5H', 'KS', '2C', '2D'];
+  for (const G of GAME_LIST) ok(ART_IDS.has(G.id) && existsSync(`src/jeux/${G.id}.webp`), `illustration affichée pour ${G.name}`);
   ok(validPlay(h, ['3C', '3D'], null), 'Président : paire en ouverture');
   ok(!validPlay(h, ['3C', '5H'], null), 'Président : valeurs différentes refusées');
   ok(!validPlay(h, ['5H'], { n: 1, v: pv('KS') }), 'Président : plus faible refusé');
