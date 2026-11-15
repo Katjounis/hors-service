@@ -129,10 +129,11 @@ export function ProfileFields({ value, onChange, idp = 'p' }) {
   const set = (k, x) => onChange({ ...v, [k]: x });
   return (
     <div class="form">
-      <label class="field" for={`${idp}-nick`}>
+      <label class={`field field-nick${(v.nick || "").trim() ? '' : ' is-empty'}`} for={`${idp}-nick`}>
         <span class="field-l">Ton pseudo</span>
-        <input id={`${idp}-nick`} class="input" maxLength={16} autoComplete="nickname" value={v.nick}
+        <input id={`${idp}-nick`} class="input input-nick" aria-describedby={(v.nick || "").trim() || idp === 'local' ? undefined : `${idp}-nick-h`} maxLength={16} autoComplete="nickname" value={v.nick}
           placeholder="Ex. Julie" onInput={(e) => set('nick', e.currentTarget.value)} />
+        {(v.nick || "").trim() || idp === 'local' ? null : <span class="field-h nick-h" id={`${idp}-nick-h`}>Obligatoire pour entrer dans la soirée.</span>}
       </label>
       <AvatarMaker value={avatarId(v.av)} onChange={(a) => set('av', a)} idp={idp} />
       <div class="field">

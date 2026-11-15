@@ -2457,3 +2457,22 @@ h3 { font-size: 1.1rem; }
 .maker { min-width: 0; max-width: 100%; }
 .maker > * { min-width: 0; max-width: 100%; }
 .maker-tabs .cat-tab { padding: 0 10px; font-size: .86rem; }
+
+/* pseudo : la case qu'on oublie, en clair sur le fond sombre */
+.field-nick .input-nick { background: var(--papier); color: var(--encre); border-color: var(--papier); font-weight: 700; font-size: 1.1rem; min-height: 52px; }
+.field-nick .input-nick::placeholder { color: #6E6458; font-weight: 400; }
+.field-nick .input-nick:focus { border-color: var(--jaune); outline: 2px solid var(--jaune); outline-offset: 2px; }
+.field-nick.is-empty .field-l { color: var(--jaune); }
+.field-nick .nick-h { color: var(--jaune); }
+
+/* règles : trois lignes d'abord, la notice complète à déplier */
+.rules .bref-t { margin: 8px 0 2px; font: 400 1rem/1.4 var(--f-titre); color: var(--jaune); }
+.rules .bref { list-style: none; margin: 0; padding: 0; }
+.rules .bref li { display: block; padding: 7px 0 7px 18px; position: relative; border-top: 1px solid var(--ligne); font-weight: 600; }
+.rules .bref li:first-child { border-top: 0; }
+.rules .bref li::before { content: ''; position: absolute; left: 2px; top: 1.05em; width: 7px; height: 7px; background: var(--jaune); counter-increment: none; }
+.bref-more { margin: 6px 0 4px; border-top: 1px solid var(--ligne); }
+.bref-more summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: space-between; list-style: none; color: var(--poussiere); font-weight: 700; }
+.bref-more summary::-webkit-details-marker { display: none; }
+.bref-more summary::after { content: ''; width: 8px; height: 8px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform .2s ease; margin-right: 4px; }
+.bref-more[open] summary::after { transform: rotate(-135deg); }

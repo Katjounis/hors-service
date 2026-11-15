@@ -135,6 +135,7 @@ export function Party({ dev, local, embedded = false }) {
   useEffect(() => { if (keep) { try { saveEvening(S, local ? 'local' : 'salon'); } catch (e) { /* stockage plein */ } } }, [keep, sig]);
   // un jeu qui démarre (ou le retour au choix des jeux) s’affiche depuis le haut, avant d’être dessiné
   const scene = S && S.status === 'game' && S.game ? `g${S.game.seq}` : 'lobby';
+  useEffect(() => { if (S && S.status === 'game' && S.game && dev.mode !== 'demo') countPlay(S.game.id, `${S.code}:${S.game.seq}`); }, [scene]);
   useLayoutEffect(() => { try { if (!embedded && window.scrollY) window.scrollTo(0, 0); } catch (e) { /* ignoré */ } }, [scene]);
   if (!S) return <div class="screen"><h1 class="visually-hidden">Hors Service</h1><Waiting>Redémarrage…</Waiting></div>;
   const inGame = S.status === 'game' && S.game;
@@ -283,6 +284,23 @@ function useRail() {
 }
 
 const CAT_KEY = 'hs:cat';
+// ordre de base : les gros jeux d'abord, puis ceux qu'on lance le plus sur ce téléphone remontent
+const ORDER = ['jamais', 'poker', 'blackjack', 'actionverite', 'toutankhamon', '96', 'garou', 'president', 'tupref', 'cercle', 'perudo', 'purple', 'paranoia', 'oserait', 'pipoteur', 'coinche', 'bombe', 'ware', 'degaine', 'buzzer', 'dessin', 'autres', 'trouve', 'hippodrome'];
+const PLAYS_KEY = 'hs:plays';
+function loadPlays() { try { return JSON.parse(localStorage.getItem(PLAYS_KEY) || '{}') || {}; } catch (e) { return {}; } }
+function countPlay(id, tag) {
+  try {
+    const p = loadPlays();
+    if (p._last === tag) return;
+    p[id] = (p[id] || 0) + 1; p._last = tag;
+    localStorage.setItem(PLAYS_KEY, JSON.stringify(p));
+  } catch (e) { /* stockage bloqué */ }
+}
+function sortGames(list, plays, banOf) {
+  const rank = (G) => { const i = ORDER.indexOf(G.id); return (i < 0 ? ORDER.length : i) - 3 * Math.min(plays[G.id] || 0, 8); };
+  return list.map((G, i) => ({ G, i, r: rank(G), b: banOf(G) ? 1 : 0 }))
+    .sort((a, b) => a.b - b.b || a.r - b.r || a.i - b.i).map((x) => x.G);
+}
 function loadCat() { try { const c = localStorage.getItem(CAT_KEY); return CATS.some(([id]) => id === c) ? c : 'tous'; } catch (e) { return 'tous'; } }
 function Lobby({ dev, S, local }) {
   const rail = useRail();
@@ -290,10 +308,12 @@ function Lobby({ dev, S, local }) {
   const setCat = (v) => { setCatState(v); try { localStorage.setItem(CAT_KEY, v); } catch (e) { /* stockage bloqué */ } if (rail.ref.current) rail.ref.current.scrollLeft = 0; };
   const tabs = [['tous', 'Tous'], ...CATS.filter(([id]) => id !== 'coquin' || S.cfg.adult)];
   const cur = tabs.some(([id]) => id === cat) ? cat : 'tous';
-  const shown = cur === 'tous' ? GAME_LIST : GAME_LIST.filter((G) => catsOf(G).includes(cur));
   const [sheet, setSheet] = useState(null);
   const list = seats(S);
   const active = list.filter((u) => isOnline(dev, u, local)).length;
+  const banOf = (G) => local && G.local === false ? 'Un téléphone par joueur' : !local && G.solo ? 'Sur un seul téléphone' : active < G.min ? `Il faut ${G.min} joueurs` : null;
+  const plays = useMemo(loadPlays, []);
+  const shown = sortGames(cur === 'tous' ? GAME_LIST : GAME_LIST.filter((G) => catsOf(G).includes(cur)), plays, banOf);
   return (
     <div class="lobby stack">
       <h1>Soirée en service</h1>
@@ -323,7 +343,7 @@ function Lobby({ dev, S, local }) {
         <div class="games-rail" ref={rail.ref}>
           {shown.map((G) => {
             const m = GAME_META[G.id];
-            const ban = local && G.local === false ? 'Un téléphone par joueur' : !local && G.solo ? 'Sur un seul téléphone' : active < G.min ? `Il faut ${G.min} joueurs` : null;
+            const ban = banOf(G);
             return (
               <button type="button" key={G.id} class={`gcard${ban ? ' is-off' : ''}`} style={{ '--c': m.color, '--n': Number(m.no) }} onClick={() => setSheet(G.id)}
                 aria-label={`Jeu ${m.no}, ${G.name}${ban ? `, ${ban}` : ''}`}>
@@ -400,10 +420,7 @@ function GameSheet({ dev, S, G, local, onClose }) {
       <div class="side-art" style={{ '--c': GAME_META[G.id].color }}><GameArt id={G.id} color={GAME_META[G.id].color} /></div>
       <p class="sheet-tag">{G.tagline}</p>
       <p class="muted small">{G.min} joueurs minimum{G.solo ? ' · un seul téléphone' : ''}{G.local === false ? ' · un téléphone chacun' : ''}</p>
-      <details class="rules-fold">
-        <summary>Règles du jeu</summary>
-        <Rules G={G} />
-      </details>
+      <Rules G={G} />
       {dev.isHost ? (
         <>
           {(G.options || []).map((o) => {

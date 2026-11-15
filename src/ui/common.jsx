@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from 'preact/hooks';
 import { SUIT_SYMBOL, label, isRed } from '../lib/cards.js';
 import { Icon } from './icons.jsx';
 import { Character } from './avatar.jsx';
+import { BREF } from '../games/bref.js';
 
 const AV_PX = { s: 30, m: 42, l: 56, xl: 92 };
 
@@ -136,8 +137,21 @@ export function Sheet({ title, onClose, children, side = false }) {
 }
 
 // Règles d'un jeu : notice numérotée sur papier
-export function Rules({ G }) {
-  return <div class="rules paper"><ol>{G.rules.map((r, i) => <li key={i}>{r}</li>)}</ol></div>;
+// d'abord trois lignes pour lancer la partie, la notice complète reste à déplier
+export function Rules({ G, full }) {
+  const b = BREF[G.id];
+  const list = <ol>{G.rules.map((r, i) => <li key={i}>{r}</li>)}</ol>;
+  if (!b || full) return <div class="rules paper">{list}</div>;
+  return (
+    <div class="rules paper">
+      <p class="bref-t">En bref</p>
+      <ul class="bref">{b.map((r, i) => <li key={i}>{r}</li>)}</ul>
+      <details class="bref-more">
+        <summary>Toutes les règles</summary>
+        {list}
+      </details>
+    </div>
+  );
 }
 
 export function PlayerGrid({ S, uids, onPick, picked, disabled, sub }) {
