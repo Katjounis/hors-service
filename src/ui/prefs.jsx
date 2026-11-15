@@ -1,6 +1,7 @@
 // Préférences d'affichage propres à ce téléphone : mode clair ou sombre, français ou anglais.
 import { useState, useEffect } from 'preact/hooks';
 import { getLang, setLang, onLang } from '../i18n/index.js';
+import { sonsOn, setSons, son } from './sons.js';
 
 const TKEY = 'hs:theme';
 export function loadTheme() {
@@ -16,6 +17,7 @@ export function applyTheme(t) {
 export function PrefToggles({ compact = false }) {
   const [theme, setTheme] = useState(loadTheme);
   const [lang, setL] = useState(getLang());
+  const [sons, setS] = useState(sonsOn);
   useEffect(() => onLang(setL), []);
   const flipTheme = () => {
     const t = theme === 'light' ? 'dark' : 'light';
@@ -29,6 +31,9 @@ export function PrefToggles({ compact = false }) {
     <div class={`prefs${compact ? ' is-compact' : ''}`}>
       <button type="button" class="pref-btn" aria-pressed={theme === 'light' ? 'true' : 'false'} onClick={flipTheme}>
         <span class={`pref-dot${theme === 'light' ? ' is-light' : ''}`} aria-hidden="true" />{theme === 'light' ? 'Mode sombre' : 'Mode clair'}
+      </button>
+      <button type="button" class="pref-btn" aria-pressed={sons ? 'true' : 'false'} onClick={() => { setSons(!sons); setS(!sons); if (!sons) setTimeout(() => son('ding'), 30); }}>
+        {sons ? 'Couper les sons' : 'Activer les sons'}
       </button>
       <button type="button" class="pref-btn" translate="no" lang={lang === 'en' ? 'fr' : 'en'} onClick={() => setLang(lang === 'en' ? 'fr' : 'en')}>
         {lang === 'en' ? 'Français' : 'English'}

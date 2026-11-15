@@ -6,6 +6,7 @@ import { GameArt } from './gameart.jsx';
 import { seats, sipsOf, csValue } from '../core/host.js';
 import { plural } from '../lib/util.js';
 import { PIQUE, pickLine } from '../content/chambre.js';
+import { son } from './sons.js';
 import { surnoms } from '../lib/surnoms.js';
 import { Av, Who, nickOf, Sheet, ErrorBoundary, Waiting, useTicker, Stamp, Ribbon, Turn, Rules, MoodCtx } from './common.jsx';
 import { Icon } from './icons.jsx';
@@ -203,10 +204,10 @@ function Moments({ dev, S, local }) {
   const g = S.status === 'game' && S.game ? S.game.g : null;
   const G = g ? GAMES[S.game.id] : null;
   const req = !local && g && G ? G.request({ S, g, secret: dev.secret, uid: dev.uid, now: dev.backend.now(), local: false }) : null;
-  useOnce(pen ? `pen:${pen.id}` : null, () => buzz(pen.cs ? [120, 60, 120] : 70));
-  useOnce(gift ? `gift:${gift.id}` : null, () => { buzz([30, 40, 30]); confetti(22); });
-  useOnce(req && !req.optional ? `tour:${S.game.seq}:${req.k}:${dev.uid}` : null, () => buzz(25));
-  useOnce(g && g.phase === 'end' ? `fin:${S.code}:${S.game.seq}` : null, () => confetti(34));
+  useOnce(pen ? `pen:${pen.id}` : null, () => { buzz(pen.cs ? [120, 60, 120] : 70); son('tampon'); });
+  useOnce(gift ? `gift:${gift.id}` : null, () => { buzz([30, 40, 30]); confetti(22); son('ding'); });
+  useOnce(req && !req.optional ? `tour:${S.game.seq}:${req.k}:${dev.uid}` : null, () => { buzz(25); son('tic'); });
+  useOnce(g && g.phase === 'end' ? `fin:${S.code}:${S.game.seq}` : null, () => { confetti(34); son('fanfare'); });
   return null;
 }
 
@@ -722,7 +723,7 @@ function PenCard({ S, item, more, local, onSend }) {
       {item.pts ? <p class="pen-why">Sans alcool : points de pénalité{item.cs ? ' (un cul sec)' : ''}.</p> : null}
       {item.sober ? <p class="pen-defi-txt">{item.def}</p> : null}
       <div class="pen-btns">
-        <button type="button" class="btn btn-main" disabled={busy} onClick={() => onSend('done')}>{item.sober ? 'Gage fait' : item.pts ? 'Points notés' : 'C’est bu'}</button>
+        <button type="button" class="btn btn-main" disabled={busy} onClick={() => { if (!item.sober && !item.pts) son('verre'); onSend('done'); }}>{item.sober ? 'Gage fait' : item.pts ? 'Points notés' : 'C’est bu'}</button>
         <button type="button" class="btn" disabled={busy} onClick={() => { setBusy(true); onSend('swap'); }}>{item.sober ? 'Un autre gage' : 'Un gage à la place'}</button>
         <button type="button" class="btn btn-ghost" disabled={busy} onClick={() => onSend('pass')}>Je passe</button>
       </div>

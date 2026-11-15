@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { sceneOf, DecorBas, DecorHaut } from './decor.jsx';
 import { Character } from './avatar.jsx';
+import { son } from './sons.js';
 
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 
@@ -394,6 +395,7 @@ export function Cochon({ card }) {
     let h = 0;
     for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     setShow({ txt: COCHON[h % COCHON.length], n: h });
+    son('tampon');
     const t = setTimeout(() => setShow(null), 1900);
     return () => clearTimeout(t);
   }, [key]);
@@ -416,6 +418,7 @@ export function Chambre({ S, me }) {
     if (!p) return undefined;
     setShow({ i: last.i, txt: last.txt, av: p.av, mine: last.u === me });
     if (last.u === me) buzz([30, 60, 30]);
+    son('trombone');
     const t = setTimeout(() => setShow(null), 2600);
     return () => clearTimeout(t);
   }, [last ? last.i : 0]);

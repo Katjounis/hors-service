@@ -41,4 +41,5 @@ export default [
   ['Bob', 'Bucket hat'], ['Casquette à l’envers', 'Backwards cap'], ['Bandeau éponge', 'Sweatband'], ['Couronne de fleurs', 'Flower crown'], ['Lunettes cœur', 'Heart glasses'], ['Moustache guidon', 'Handlebar moustache'],
   ['Phrases maison', 'House lines'], ['Phrases', 'Lines'], ['Nouvelle phrase', 'New line'], ['Ajouter cette phrase', 'Add this line'], ['Aucune phrase maison pour l’instant.', 'No house lines yet.'],
   ['Vos propres chambrages : ils s’affichent en grand quand quelqu’un se dégonfle, enchaîne les gorgées ou boit un cul sec. Écrivez {nom} pour placer le nom de la victime.', 'Your own roasts: they show up big when someone chickens out, keeps drinking or downs a glass. Write {nom} where the victim’s name goes.'],
+  ['Couper les sons', 'Mute sounds'], ['Activer les sons', 'Turn sounds on'],
 ];
