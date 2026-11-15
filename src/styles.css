@@ -2533,3 +2533,32 @@ h3 { font-size: 1.1rem; }
 .tn-rules { padding: 12px 14px; border-radius: 10px; background: rgba(4, 14, 9, .34); }
 .tn-rules-t { display: block; font: 400 1rem/1.2 var(--f-titre); color: #FFD23F; margin-bottom: 6px; }
 .tn-rules ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+
+/* ---- objets propres à chaque jeu (rendus 3D, même échelle : largeur = taille réelle en cm) */
+.obj-des { background-image: url(img/table-des.webp); aspect-ratio: 520 / 303; width: calc(var(--k) * 20); }
+.obj-bougie { background-image: url(img/table-bougie.webp); aspect-ratio: 334 / 320; width: calc(var(--k) * 11.1); }
+.obj-bombe { background-image: url(img/table-bombe.webp); aspect-ratio: 340 / 321; width: calc(var(--k) * 11.3); }
+.obj-buzzer { background-image: url(img/table-buzzer.webp); aspect-ratio: 336 / 310; width: calc(var(--k) * 11.2); }
+.obj-crayon { background-image: url(img/table-crayon.webp); aspect-ratio: 520 / 374; width: calc(var(--k) * 20.6); }
+.obj-score { background-image: url(img/table-score.webp); aspect-ratio: 520 / 417; width: calc(var(--k) * 17.4); }
+.obj-shots { background-image: url(img/table-shots.webp); aspect-ratio: 314 / 347; width: calc(var(--k) * 10.5); }
+.obj-bouteille { background-image: url(img/table-bouteille.webp); aspect-ratio: 449 / 257; width: calc(var(--k) * 15); }
+.obj-piece { background-image: url(img/table-piece.webp); aspect-ratio: 235 / 198; width: calc(var(--k) * 7.8); }
+.obj-telephone { background-image: url(img/table-telephone.webp); aspect-ratio: 347 / 422; width: calc(var(--k) * 11.6); }
+/* trois emplacements pendant un jeu, au bord de l'écran */
+.ambiance.is-game .obj.slot-a { top: 9vh; bottom: auto; right: calc(var(--k) * -3); left: auto; rotate: -8deg; }
+.ambiance.is-game .obj.slot-b { top: auto; bottom: 4vh; left: calc(var(--k) * -4); right: auto; rotate: 6deg; }
+.ambiance.is-game .obj.slot-c { top: auto; bottom: 1vh; right: calc(var(--k) * -4); left: auto; rotate: -5deg; }
+@media (min-width: 760px) {
+  .ambiance.is-game .obj.slot-a { top: 6vh; right: 3vw; }
+  .ambiance.is-game .obj.slot-b { bottom: 3vh; left: 3vw; }
+  .ambiance.is-game .obj.slot-c { bottom: 2vh; right: 3vw; }
+}
+/* tables en bois et en ardoise pour certains jeux */
+:root .feutre-bois, .feutre-prev.feutre-bois { background: radial-gradient(120% 85% at 50% 30%, rgba(30, 14, 4, .05) 0%, rgba(30, 14, 4, .35) 55%, rgba(12, 5, 1, .7) 100%), url(img/fond-bois.webp) center / 900px repeat !important; }
+:root .feutre-ardoise, .feutre-prev.feutre-ardoise { background: radial-gradient(120% 85% at 50% 30%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .3) 55%, rgba(0, 0, 0, .6) 100%), url(img/fond-ardoise.webp) center / 900px repeat !important; }
+.ambiance.is-game { --k: 1.75vw; }
+@media (min-width: 760px) { .ambiance.is-game { --k: 14px; } }
+.ambiance.is-game .obj.slot-c { opacity: .6; }
+.ambiance.is-game .obj.slot-c { bottom: 4vh; right: 5vw; }
+.ambiance.is-game .obj.slot-b { bottom: 3vh; left: 2vw; }

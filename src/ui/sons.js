@@ -1,9 +1,9 @@
 // Bruitages synthétisés (Web Audio, aucun fichier) : verre, tampon, trombone triste, ding, fanfare.
 // Coupables depuis les préférences ; rien ne joue tant qu'on n'a pas touché l'écran.
-const KEY = 'hs:sons';
+const KEY = 'hs:son'; // même réglage que le son des animations (fx.jsx)
 let ctx = null;
-export function sonsOn() { try { return localStorage.getItem(KEY) !== 'off'; } catch (e) { return true; } }
-export function setSons(v) { try { localStorage.setItem(KEY, v ? 'on' : 'off'); } catch (e) { /* stockage bloqué */ } }
+export function sonsOn() { try { return localStorage.getItem(KEY) !== '0'; } catch (e) { return true; } }
+export function setSons(v) { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch (e) { /* stockage bloqué */ } }
 function ac() {
   if (typeof window === 'undefined' || !sonsOn()) return null;
   const A = window.AudioContext || window.webkitAudioContext;

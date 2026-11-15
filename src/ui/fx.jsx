@@ -270,7 +270,21 @@ let ambN = 0;
 // Thème « table de jeu » (choisi par Samuel le 14/11) : un tapis de feutre vu de dessus, éclairé au centre,
 // sans décor dessiné. La couleur du feutre change un peu selon le jeu (nuit pour le Garou, bordeaux pour le Cul).
 const FEUTRES = { 'jamais-hard': 'violet', 'jamais-cul': 'bordeaux', garou: 'nuit', 'garou-nuit': 'nuit', paranoia: 'violet', actionverite: 'bordeaux', degaine: 'bordeaux', bombe: 'bordeaux', ware: 'nuit', buzzer: 'nuit', dessin: 'bleu', poker: 'bordeaux', roulette: 'bordeaux', ring: 'nuit' };
-const OBJ_NORMAL = ['verre', 'cartes', 'pyramide', 'pizza'];
+Object.assign(FEUTRES, { jamais: 'bois', 'jamais-soft': 'bois', tournee: 'bois', perudo: 'bois', president: 'bois', cercle: 'bois', dessin: 'ardoise', pipoteur: 'ardoise', autres: 'ardoise', oserait: 'bleu', 'tupref': 'bleu' });
+const OBJ_NORMAL = ['verre', 'cartes', 'pyramide', 'cartes'];
+// pendant un jeu : trois objets qui vont avec ; le premier, propre au jeu, en bas à droite (la zone qui reste visible)
+const OBJ_JEU = {
+  poker: ['shots', 'cartes', 'piece'], blackjack: ['shots', 'cartes', 'piece'], roulette: ['shots', 'bouteille', 'piece'],
+  perudo: ['des', 'verre', 'cartes'], garou: ['bougie', 'cartes', 'verre'], bombe: ['bombe', 'verre', 'cartes'],
+  buzzer: ['buzzer', 'piece', 'verre'], dessin: ['crayon', 'verre', 'cartes'], coinche: ['score', 'cartes', 'verre'],
+  president: ['shots', 'cartes', 'pyramide'], cercle: ['bouteille', 'cartes', 'verre'], actionverite: ['bouteille', 'verre', 'cartes'],
+  degaine: ['telephone', 'verre', 'cartes'], ware: ['telephone', 'des', 'verre'], ring: ['piece', 'shots', 'verre'],
+  tournee: ['shots', 'bouteille', 'cartes'], paranoia: ['bougie', 'piece', 'verre'], pipoteur: ['crayon', 'verre', 'cartes'],
+  autres: ['crayon', 'verre', 'cartes'], oserait: ['shots', 'verre', 'cartes'], tupref: ['piece', 'verre', 'cartes'],
+  96: ['shots', 'cartes', 'pyramide'], purple: ['shots', 'cartes', 'verre'], hippodrome: ['piece', 'cartes', 'verre'],
+  toutankhamon: ['bougie', 'verre', 'pyramide'], trouve: ['shots', 'cartes', 'verre'], jamais: ['shots', 'verre', 'cartes'],
+};
+const objsOf = (game, hot) => (hot ? OBJ_HOT : (game && OBJ_JEU[String(game).split('-')[0]]) || OBJ_NORMAL);
 const OBJ_HOT = ['verre', 'rouge', 'menottes'];
 let swapN = 0;
 export function Ambiance({ game = null, hot = false }) {
@@ -278,21 +292,22 @@ export function Ambiance({ game = null, hot = false }) {
   const first = useMemo(() => (ambN += 1) === 1, []);
   const f = hot ? 'cul' : FEUTRES[game] || 'vert';
   // changement de feutre ou de mode : l'ancien tapis s'efface, les objets sont ramassés puis reposés
-  const prev = useRef({ f, hot });
+  const list = objsOf(game, hot);
+  const prev = useRef({ f, hot, list });
   const [swap, setSwap] = useState(null);
   const [stamp, setStamp] = useState(null);
   useEffect(() => {
     const p = prev.current;
-    prev.current = { f, hot };
-    if (p.f === f && p.hot === hot) return undefined;
+    prev.current = { f, hot, list };
+    const out = p.list.filter((o) => !list.includes(o));
+    if (p.f === f && p.hot === hot && !out.length) return undefined;
     const n = ++swapN;
-    setSwap({ n, f: p.f, out: p.hot !== hot ? (p.hot ? OBJ_HOT : OBJ_NORMAL).filter((o) => o !== 'verre') : [] });
+    setSwap({ n, f: p.f, out, slots: p.list });
     if (p.hot !== hot) { setStamp({ n, on: hot }); buzz(hot ? [30, 40, 60] : 30); }
     const t1 = setTimeout(() => setSwap((s) => (s && s.n === n ? null : s)), 700);
     const t2 = setTimeout(() => setStamp((s) => (s && s.n === n ? null : s)), 1250);
     return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [f, hot]);
-  const list = hot ? OBJ_HOT : OBJ_NORMAL;
+  }, [f, hot, list.join()]);
   const anim = first || (swap && swap.out.length);
   return (
     <>
@@ -300,8 +315,8 @@ export function Ambiance({ game = null, hot = false }) {
         {swap ? <i class={`feutre-prev feutre-${swap.f}`} key={`p${swap.n}`} /> : null}
         <i class="feutre-grain" />
         <i class="feutre-lampe" />
-        {list.map((o, i) => <i key={o} class={`obj obj-${o}`} style={{ '--i': o === 'verre' ? 0 : i }} />)}
-        {swap ? swap.out.map((o) => <i key={`out-${o}-${swap.n}`} class={`obj obj-${o} is-out`} />) : null}
+        {list.map((o, i) => <i key={o} class={`obj obj-${o}${game ? ` slot-${'cba'[i]}` : ''}`} style={{ '--i': o === 'verre' ? 0 : i }} />)}
+        {swap ? swap.out.map((o) => <i key={`out-${o}-${swap.n}`} class={`obj obj-${o} is-out${game && swap.slots ? ` slot-${'cba'[swap.slots.indexOf(o)] || 'a'}` : ''}`} />) : null}
       </div>
       {stamp ? <div class={`hot-stamp${stamp.on ? '' : ' is-calme'}`} key={`s${stamp.n}`} aria-hidden="true"><span>{stamp.on ? 'Cul et hard' : 'Retour au calme'}</span></div> : null}
     </>

@@ -771,6 +771,20 @@ if (SCENE === 'menottes') {
   card(appCard('Je n’ai jamais…', 'oublié de fermer les rideaux au mauvais moment.', 'Mode cul', '#B8261A'), -6.5, 8.5, -0.25, 0.03);
 }
 
+
+// ---------------------------------------------------------------- objets de décor par jeu (fond transparent)
+if (SCENE === 'o-des') { diceCup(-4, 0, 0.6); [[3, -2, 0.3, 5], [6, 1.6, 1.1, 0], [8.6, -1.4, 0.7, 4], [4.4, 4.6, 0.2, 1]].forEach(([x, z, r, t]) => die(x, z, r, t)); }
+if (SCENE === 'o-bougie') { candle(-3, 0); candle(3.5, 2.5, 5.5); }
+if (SCENE === 'o-bombe') { bomb(0, 0); }
+if (SCENE === 'o-buzzer') { buzzer(0, 0); }
+if (SCENE === 'o-crayon') { paper(0, 0, 0.1, 15, 11, (g) => { g.strokeStyle = '#1C1915'; g.lineWidth = 7; g.lineCap = 'round'; g.beginPath(); g.ellipse(420, 360, 140, 105, 0, 0, 6.28); g.moveTo(320, 290); g.lineTo(290, 200); g.lineTo(370, 265); g.moveTo(510, 265); g.lineTo(560, 195); g.lineTo(525, 290); g.stroke(); g.beginPath(); g.arc(370, 345, 10, 0, 6.28); g.arc(470, 345, 10, 0, 6.28); g.fill(); }, false); pencil(4, 7, -0.5, 0x2F55A4); }
+if (SCENE === 'o-score') { paper(0, 0, -0.08, 9, 12, (g) => { g.fillStyle = '#1F3F8A'; g.font = '600 46px Literata'; g.fillText('Nous   Eux', 90, 150); g.fillText('80      0', 90, 240); g.fillText('160    90', 90, 330); g.fillText('250   250', 90, 420); g.fillText('330   410', 90, 510); }); pencil(5, 5, 0.6); }
+if (SCENE === 'o-shots') { shotGlass(-3.5, 0, 0xC88A1E); shotGlass(1, -2.4, 0x9E1B26); shotGlass(1.6, 2.6, 0xC88A1E); }
+if (SCENE === 'o-bouteille') { bottle(0, 0, 0.4); }
+if (SCENE === 'o-piece') { coin(-2, 0, 1.4); coin(1.8, 1.6, 1.4); coin(0.6, -2.4, 1.4); }
+if (SCENE === 'o-couronne') { crown(0, 0, 1.3); }
+if (SCENE === 'o-telephone') { phone(0, 0, 0.3, (c, w, h) => { c.fillStyle = '#E5502F'; c.fillRect(0, 0, w, h / 2); c.fillStyle = '#2F55A4'; c.fillRect(0, h / 2, w, h / 2); c.fillStyle = '#FFF6E8'; c.textAlign = 'center'; c.font = '400 150px "Alfa Slab One"'; c.fillText('TAPE !', w / 2, h * 3 / 4 + 50); }); }
+
 // ---------------------------------------------------------------- illustrations des jeux (cadrage 3:2)
 const J = SCENE.startsWith('jeu-') ? SCENE.slice(4) : null;
 if (J) {
