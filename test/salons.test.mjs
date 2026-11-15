@@ -84,6 +84,7 @@ ok(wA && wB && wC, `chaque téléphone reçoit son mot (${wA}, ${wB}, ${wC})`);
 const tvText = await tv.locator('body').innerText();
 ok(![wA, wB, wC].some((w) => tvText.includes(w)), 'l’écran n’affiche aucun mot secret');
 ok(!(await C.locator('body').innerText()).includes(wB) || wB === wC, 'Julie ne voit pas le mot de Samuel (sauf si c’est le même)');
+ok(await B.locator('.game.manette').count() === 1, 'avec un écran branché, le téléphone passe en manette (le plateau reste sur la télé)');
 await B.screenshot({ path: `${SHOTS}/b4-02-telephone-mot.png` });
 await tv.waitForTimeout(300);
 await tv.screenshot({ path: `${SHOTS}/b4-03-ecran-jeu.png` });

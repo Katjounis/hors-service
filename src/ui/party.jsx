@@ -90,7 +90,7 @@ export function TeleCast({ code }) {
   const stop = () => { try { castConn && castConn.terminate(); } catch (e) { /* ignoré */ } castConn = null; setSt('off'); };
   return (
     <div class="tele">
-      <p>La télé affiche le plateau, les scores et les cartes communes. <b>Ton téléphone reste ta manette</b> : tu joues dessus comme d’habitude, tes cartes cachées n’apparaissent jamais à l’écran.</p>
+      <p>{'Toute la partie se joue sur la télé : plateau, cartes, scores. Les téléphones deviennent des manettes avec seulement les gros boutons de choix (et tes cartes cachées, qui n’apparaissent jamais à l’écran).'}</p>
       {canCast ? (
         st === 'on'
           ? <button type="button" class="btn btn-wide" onClick={stop}>Arrêter la diffusion</button>
@@ -482,7 +482,10 @@ function GameScreen({ dev, S, G, local }) {
   const g = S.game ? S.game.g : null; // l'état peut changer pendant un rendu (retour au salon)
   const [rules, setRules] = useState(false);
   const [quit, setQuit] = useState(false);
+  const [peek, setPeek] = useState(false);
   if (!G || !g) return <Waiting>Redémarrage du jeu…</Waiting>;
+  // mode manette : une télé affiche le plateau, le téléphone ne garde que les choix (gros boutons)
+  const manette = !local && dev.role !== 'screen' && Array.isArray(dev.screens) && dev.screens.length > 0 && !peek;
   const m = GAME_META[G.id];
   const uid = local ? null : dev.uid;
   const clock = () => dev.backend.now();
@@ -492,7 +495,7 @@ function GameScreen({ dev, S, G, local }) {
   const ended = g.phase === 'end';
   const table = <G.Table S={S} g={g} uid={uid} clock={clock} secret={local ? null : dev.secret} local={!!local} sendAs={sendAs} dev={dev} />;
   return (
-    <div class="game">
+    <div class={`game${manette ? ' manette' : ''}`}>
       <div class="game-head">
         <div>
           <span class="game-no">Jeu {m.no}</span>
@@ -514,19 +517,26 @@ function GameScreen({ dev, S, G, local }) {
       ) : null}
       <Ribbon key={S.game.seq} />
       {turn && !ended && S.roster[turn] ? <Turn S={S} uid={turn} me={uid} {...(G.turnText ? G.turnText(g) : {})} /> : null}
-      <ErrorBoundary>
-        {ended ? <Report S={S} G={G} g={g}>{table}</Report> : table}
-      </ErrorBoundary>
+      {manette ? (
+        !req ? <div class="manette-wait paper"><b>{ended ? 'Bilan sur l’écran' : 'Regarde l’écran'}</b><span>{ended ? 'L’hôte choisit la suite.' : 'Ton téléphone vibre quand c’est à toi de jouer.'}</span></div> : null
+      ) : (
+        <ErrorBoundary>
+          {ended ? <Report S={S} G={G} g={g}>{table}</Report> : table}
+        </ErrorBoundary>
+      )}
       {req ? (
         <ErrorBoundary>
-          <G.Act S={S} g={g} secret={dev.secret} uid={uid} req={req} clock={clock} dev={dev}
+          <G.Act S={S} g={g} secret={dev.secret} uid={uid} req={req} clock={clock} dev={dev} manette={manette}
             send={(k, v) => dev.gameInput(k, v)} post={(k, v) => dev.gamePost(k, v)} sent={!req.live && dev.isSent(req.k)} />
           <Retry dev={dev} k={`${S.game.seq}:${req.k}`} />
         </ErrorBoundary>
       ) : null}
       {local ? <LocalTurns dev={dev} S={S} G={G} local={local} /> : null}
       {dev.isHost ? <HostBar dev={dev} S={S} G={G} g={g} local={local} quiet={!!req} />
-        : ended ? <Waiting>L’hôte choisit la suite.</Waiting> : null}
+        : ended && !manette ? <Waiting>L’hôte choisit la suite.</Waiting> : null}
+      {!local && Array.isArray(dev.screens) && dev.screens.length > 0 ? (
+        <button type="button" class="link manette-peek" onClick={() => setPeek(!peek)}>{peek ? 'Repasser en manette' : 'Voir le plateau sur mon téléphone'}</button>
+      ) : null}
       {rules ? (
         <Sheet title={`Règles : ${G.name}`} onClose={() => setRules(false)}><Rules G={G} /></Sheet>
       ) : null}

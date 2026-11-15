@@ -314,8 +314,8 @@ function Act({ g, uid, req, send, sent }) {
   return (
     <div class="act">
       <h3>À toi · <Total cards={h.cards} /></h3>
-      <div class="bj-cards">{h.cards.map((x, i) => <PlayingCard key={`${x}${i}`} c={x} size="l" />)}</div>
-      <p class="muted small center">La banque montre {handValue([g.dealer[0]]).v === 11 ? 'un As' : handValue([g.dealer[0]]).v}. Ta mise : {plural(g.bets[uid], 'gorgée', 'gorgées')}.</p>
+      <div class="bj-cards act-pub">{h.cards.map((x, i) => <PlayingCard key={`${x}${i}`} c={x} size="l" />)}</div>
+      <p class="muted small center act-pub">La banque montre {handValue([g.dealer[0]]).v === 11 ? 'un As' : handValue([g.dealer[0]]).v}. Ta mise : {plural(g.bets[uid], 'gorgée', 'gorgées')}.</p>
       <div class="pk-btns pk-btns-3">
         <button type="button" class="btn btn-main" disabled={sent} onClick={() => send(req.k, 'hit')}>Tirer</button>
         <button type="button" class="btn" disabled={sent} onClick={() => send(req.k, 'stand')}>Rester</button>

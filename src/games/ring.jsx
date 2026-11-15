@@ -139,8 +139,11 @@ const RING = {
     return false;
   },
 
-  actions({ g }) {
+  actions({ S, g }) {
     if (g.phase === 'bet') return [{ id: 'go', label: `Fin des paris (${plural(g.betters.length, 'pari', 'paris')})`, primary: true }];
+    if (g.phase === 'duel' && g.kind === 'irl' && S && S.roster[g.a] && S.roster[g.b]) {
+      return [{ id: 'winA', label: `${S.roster[g.a].nick} gagne`, primary: true }, { id: 'winB', label: `${S.roster[g.b].nick} gagne`, primary: true }, { id: 'reroll', label: 'Autre défi' }, { id: 'skip', label: 'Annuler ce duel' }];
+    }
     if (g.phase === 'duel') return [{ id: 'reroll', label: 'Autre défi' }, { id: 'skip', label: 'Annuler ce duel' }, { id: 'end', label: 'Arrêter là', confirm: 'Arrêter la partie et voir le bilan ?' }];
     if (g.phase === 'res') {
       if (g.max && g.n >= g.max) return [{ id: 'end', label: 'Bilan', primary: true }];
@@ -152,6 +155,7 @@ const RING = {
   act(c, id, arg) {
     const g = c.g;
     if (id === 'go' && g.phase === 'bet') { g.phase = 'duel'; return true; }
+    if ((id === 'winA' || id === 'winB') && g.phase === 'duel' && g.kind === 'irl') { resolve(c, id === 'winA' ? g.a : g.b); return true; }
     if (id === 'win' && g.phase === 'duel' && g.kind === 'irl' && arg && (arg.uid === g.a || arg.uid === g.b)) { resolve(c, arg.uid); return true; }
     if (id === 'reroll' && g.phase === 'duel') {
       const p = c.priv;
@@ -211,16 +215,7 @@ function Table({ S, g, uid, dev, clock }) {
       {g.phase === 'duel' && g.kind === 'cf' ? (
         <p class="center">{g.tieMsg ? `Égalité (${g.tieMsg}), on rejoue. ` : ''}{'Chacun choisit son coup en secret.'}</p>
       ) : null}
-      {g.phase === 'duel' && g.kind === 'irl' && dev && dev.isHost ? (
-        <div class="ring-judge">
-          <p class="center">Qui a gagné ?</p>
-          <div class="bus-btns two">
-            <button type="button" class="btn btn-big" onClick={() => dev.host('game', { id: 'win', arg: { uid: g.a } })}>{nickOf(S, g.a)}</button>
-            <button type="button" class="btn btn-big" onClick={() => dev.host('game', { id: 'win', arg: { uid: g.b } })}>{nickOf(S, g.b)}</button>
-          </div>
-        </div>
-      ) : null}
-      {g.phase === 'duel' && g.kind === 'irl' && !(dev && dev.isHost) ? <p class="muted center">L’hôte désigne le gagnant.</p> : null}
+      {g.phase === 'duel' && g.kind === 'irl' ? <p class="muted center">{dev && dev.isHost ? 'Qui a gagné ? Tranche avec les boutons du bas.' : 'L’hôte désigne le gagnant.'}</p> : null}
       {g.phase === 'res' && r ? <Result S={S} g={g} uid={uid} clock={clock} /> : null}
     </div>
   );
