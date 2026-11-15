@@ -24,4 +24,7 @@ export const BREF = {
   tupref: ['Deux options : chacun choisit en secret.', 'La minorité boit.', 'Seul contre tous : double peine.'],
   poker: ['Tapis de 10 gorgées chacun, Texas hold’em classique.', 'Mise, suis, relance ou couche-toi ; la meilleure main remporte le pot.', 'Le gagnant ne garde rien : il distribue les gorgées du pot.'],
   blackjack: ['Mise 1 à 5 gorgées contre la banque.', 'Tire, reste ou double pour t’approcher de 21 sans dépasser.', 'Gagné : tu distribues ta mise. Perdu : tu la bois.'],
+  roulette: ['Six verres, un seul piégé. Personne ne sait lequel.', 'Chacun son tour choisit un verre : propre, ouf ; piégé, cul sec.', 'Se dégonfler coûte des gorgées, et tout le monde le voit.'],
+  ring: ['Deux joueurs tirés au sort montent sur le ring, les autres parient.', 'Pierre, feuille, ciseaux en secret, ou un défi en vrai tranché par la table.', 'Le perdant boit, les mauvais parieurs aussi.'],
+  tournee: ['Une consigne s’affiche avec vos prénoms, on la lit et on l’applique.', 'Des règles restent en jeu quelques cartes, des duels, des votes à main levée.', 'Tout se règle en vrai, carte suivante.'],
 };

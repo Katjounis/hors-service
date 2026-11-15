@@ -292,7 +292,7 @@ function useRail() {
 
 const CAT_KEY = 'hs:cat';
 // ordre de base : les gros jeux d'abord, puis ceux qu'on lance le plus sur ce téléphone remontent
-const ORDER = ['jamais', 'poker', 'blackjack', 'actionverite', 'toutankhamon', '96', 'garou', 'president', 'tupref', 'cercle', 'perudo', 'purple', 'paranoia', 'oserait', 'pipoteur', 'coinche', 'bombe', 'ware', 'degaine', 'buzzer', 'dessin', 'autres', 'trouve', 'hippodrome'];
+const ORDER = ['jamais', 'poker', 'blackjack', 'actionverite', 'tournee', 'toutankhamon', 'roulette', '96', 'garou', 'ring', 'president', 'tupref', 'cercle', 'perudo', 'purple', 'paranoia', 'oserait', 'pipoteur', 'coinche', 'bombe', 'ware', 'degaine', 'buzzer', 'dessin', 'autres', 'trouve', 'hippodrome'];
 const PLAYS_KEY = 'hs:plays';
 function loadPlays() { try { return JSON.parse(localStorage.getItem(PLAYS_KEY) || '{}') || {}; } catch (e) { return {}; } }
 function countPlay(id, tag) {

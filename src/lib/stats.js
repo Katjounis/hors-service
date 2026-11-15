@@ -13,6 +13,7 @@ export function loadStats() {
 }
 
 // résumé d'une soirée à partir de l'état publié par l'hôte
+import { surnoms } from './surnoms.js';
 export function summarize(S) {
   const ids = (S.order || []).filter((u) => S.roster && S.roster[u]);
   const players = ids.map((u) => {
@@ -27,7 +28,8 @@ export function summarize(S) {
   const rec = {};
   for (const [k, r] of Object.entries(S.rec || {})) if (r && S.roster[r.uid]) rec[k] = { nick: S.roster[r.uid].nick, av: S.roster[r.uid].av, v: r.v };
   const t0 = S.t0 || Date.now();
-  return { id: `${S.code}-${t0}`, date: t0, minutes: Math.max(1, Math.round(((S.t || Date.now()) - t0) / 60000)), players, played: S.played || [], rec };
+  const sur = Object.entries(surnoms(S)).map(([u, t]) => [t, S.roster[u].nick]);
+  return { id: `${S.code}-${t0}`, date: t0, minutes: Math.max(1, Math.round(((S.t || Date.now()) - t0) / 60000)), players, played: S.played || [], rec, sur };
 }
 
 export function saveEvening(S, mode) {

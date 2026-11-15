@@ -209,7 +209,7 @@ async function stressLocal(G, n, ms) {
       }
     }
     if (S.rev === lastRev) stall++; else { stall = 0; lastRev = S.rev; }
-    if (hostMove(host, G, stall)) stall = 0;
+    if (hostMove(host, G, stall)) { stall = 0; answers++; }
     checkState(S, `${G.name} (un seul téléphone)`);
   }
   const res = { ends, answers, phase: host.S.game && host.S.game.g.phase };

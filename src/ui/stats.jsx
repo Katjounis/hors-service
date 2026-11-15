@@ -37,6 +37,7 @@ export function StatsScreen({ onBack }) {
               <li key={s.id} class="soiree paper">
                 <div class="soiree-h"><b>{fdate(s.date)}</b><span class="muted small">{s.mode === 'salon' ? 'chacun son téléphone' : 'un téléphone'} · {s.minutes} min</span></div>
                 <div class="soiree-av">{s.players.slice(0, 8).map((p) => <Av key={p.uid} p={p} size="s" />)}</div>
+                {s.sur && s.sur.length ? <p class="small soiree-sur">{s.sur.map(([t, n]) => `${t} : ${n}`).join(' · ')}</p> : null}
                 <p class="muted small">{s.played.map((id) => (GAMES[id] ? GAMES[id].name : id)).filter((x, i, a) => a.indexOf(x) === i).join(', ')}</p>
                 <button type="button" class="btn btn-small" onClick={() => setRecap(s)}>Récap</button>
               </li>

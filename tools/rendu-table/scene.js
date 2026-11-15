@@ -801,6 +801,9 @@ if (J) {
     case 'actionverite': card(appCard('Action', 'Imite un pingouin jusqu’à ton prochain tour.', 'Action ou vérité', '#B8261A'), -6.5, 0.5, -0.15); card(appCard('Vérité', 'Ton pire râteau ?', 'Action ou vérité', '#1F4FA0'), 0.5, 0, 0.1, 0.08); bottle(10.5, -1, 0.9); break;
     case 'poker': card(cardFace('A', '♠'), -9.5, 2.5, -0.3, 0.03); card(cardFace('A', '♥'), -6.4, 2.9, 0.08, 0.08); [cardFace('7', '♦'), cardFace('A', '♣'), cardFace('9', '♠')].forEach((t, i) => card(t, -1.6 + i * 4.6, -3.4, (rnd() - 0.5) * 0.08, 0.03)); deck(13.4, -3.2, 0.2, 5); [[8.5, 5.6], [11.6, 4.6], [10.6, 8.2]].forEach(([x, z]) => shotGlass(x, z, 0xC88A1E)); break;
     case 'blackjack': card(back, -2.5, -4.5, 0.05, 0.03); card(figureCard('R', '♠'), 1.2, -4.2, 0.12, 0.08); card(cardFace('A', '♠'), -5.5, 4, -0.18, 0.03); card(figureCard('V', '♥'), -2.3, 4.6, 0.12, 0.08); deck(10.5, -4, 0.3, 6); shotGlass(5.4, 5.2, 0xC88A1E); shotGlass(8.6, 4.4, 0xC88A1E); break;
+    case 'roulette': [[-10.5, 1.2], [-6.3, -1.6], [-2.1, 1.6], [2.1, -1.4], [6.3, 1.4], [10.5, -1.2]].forEach(([x, z], i) => shotGlass(x, z, i === 3 ? 0x9E1B26 : 0xC88A1E)); coin(1, 6.5); break;
+    case 'ring': card(appCard('Le Ring', 'Bras de fer de pouces. Le perdant boit.', 'Duel', '#B8261A'), -4.5, 0.4, -0.1); shotGlass(5.8, -2.6, 0xB8261A); shotGlass(9.8, 1.2, 0x2F55A4); coin(6.5, 5, 1.1); break;
+    case 'tournee': card(appCard('Nouvelle règle', 'On boit de la main gauche. Faute : une gorgée.', 'La Tournée', '#1E6B44'), -6, 0.6, -0.12); for (let r = 0; r < 2; r++) for (let i = 0; i < 3; i++) shotGlass(3.6 + i * 4.2, -3 + r * 5.2, [0xC88A1E, 0x3F7A2A, 0x9E1B26][(r + i) % 3]); break;
     case 'tupref': card(appCard('Tu préfères…', 'ne plus jamais boire de café', 'Option A', '#B8261A'), -4, 0.4, -0.12); card(appCard('…ou bien', 'ne plus jamais dormir plus de six heures', 'Option B', '#1F4FA0'), 4, 0, 0.12, 0.08); break;
   }
 }

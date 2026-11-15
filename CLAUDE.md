@@ -1,6 +1,6 @@
 # Hors Service : consignes pour Claude
 
-PWA de jeux de soirée (surtout des jeux à boire), sur un seul téléphone qu'on se passe ou chacun sur le sien dans un salon (code à 4 caractères). 24 jeux. Projet de Samuel (GitHub Katjounis) et Théo.
+PWA de jeux de soirée (surtout des jeux à boire), sur un seul téléphone qu'on se passe ou chacun sur le sien dans un salon (code à 4 caractères). 27 jeux. Projet de Samuel (GitHub Katjounis) et Théo.
 
 ## Façon de travailler
 
