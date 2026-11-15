@@ -90,6 +90,7 @@ export function AvatarMaker({ value, onChange, idp }) {
           <div class="maker-moods" role="group" aria-label="Essayer une réaction">
             <button type="button" class={`btn btn-small${mood === 'win' ? ' is-on' : ''}`} aria-pressed={mood === 'win' ? 'true' : 'false'} onClick={() => setMood(mood === 'win' ? null : 'win')}>Gagne</button>
             <button type="button" class={`btn btn-small${mood === 'drink' ? ' is-on' : ''}`} aria-pressed={mood === 'drink' ? 'true' : 'false'} onClick={() => setMood(mood === 'drink' ? null : 'drink')}>Boit</button>
+            <button type="button" class={`btn btn-small${mood === 'rire' ? ' is-on' : ''}`} aria-pressed={mood === 'rire' ? 'true' : 'false'} onClick={() => setMood(mood === 'rire' ? null : 'rire')}>Rigole</button>
           </div>
         </div>
       </div>

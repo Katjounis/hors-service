@@ -19,8 +19,8 @@ export const AV_HAIRS = ['#2A231F', '#5A3824', '#94643A', '#E2BC6E', '#C1532A', 
 export const AV_NAMES = {
   color: ['Jaune', 'Orange', 'Rouge', 'Rose', 'Violet', 'Bleu', 'Menthe', 'Vert', 'Kraft', 'Gris'],
   expr: ['Content', 'Blasé', 'Surpris', 'Bourré', 'Diabolique', 'Amoureux', 'Endormi', 'Clin d’œil'],
-  head: ['Rien', 'Casquette', 'Couronne', 'Chapeau de fête', 'Bandeau', 'Casque de chantier', 'Auréole', 'Cornes', 'Bonnet', 'Fleur', 'Casque audio', 'Chapka', 'Kippa'],
-  face: ['Rien', 'Lunettes de soleil', 'Lunettes rondes', 'Moustache', 'Nez de clown', 'Monocle', 'Masque de ski', 'Cache-œil'],
+  head: ['Rien', 'Casquette', 'Couronne', 'Chapeau de fête', 'Bandeau', 'Casque de chantier', 'Auréole', 'Cornes', 'Bonnet', 'Fleur', 'Casque audio', 'Chapka', 'Kippa', 'Bob', 'Casquette à l’envers', 'Bandeau éponge', 'Couronne de fleurs'],
+  face: ['Rien', 'Lunettes de soleil', 'Lunettes rondes', 'Moustache', 'Nez de clown', 'Monocle', 'Masque de ski', 'Cache-œil', 'Lunettes cœur', 'Moustache guidon'],
   extra: ['Rien', 'Verre à la main', 'Nœud papillon', 'Cravate', 'Micro', 'Tatouages'],
   hair: ['Rasé', 'Court', 'Mèche', 'Bouclé', 'Long', 'Chignon', 'Crête', 'Carré'],
   skin: ['Très claire', 'Claire', 'Mate', 'Foncée', 'Très foncée'],
@@ -162,6 +162,17 @@ function HairFront0({ k, c, hat }) {
 }
 
 function Eyes({ expr, mood }) {
+  if (mood === 'rire') {
+    return (
+      <g>
+        <L d="M22.6 30.8 C24 28.6 26.6 28.4 28.6 30.4 M35.4 30.4 C37.4 28.4 40 28.6 41.4 30.8" w={2.2} />
+        <F d="M24.8 37.6 C26.4 46.6 37.6 46.6 39.2 37.6 C34.4 39 29.6 39 24.8 37.6 Z" fill="#8E2A22" w={2} />
+        <F d="M27.8 43.4 C30 45.4 34 45.4 36.2 43.4 C34.6 42.2 29.4 42.2 27.8 43.4 Z" fill="#E0573E" w={1} sketch={false} />
+        <F d="M20.6 32.4 C19.4 34.6 19.6 36 20.8 36.4 C22 36.8 22.8 35.6 22.2 34.4 C21.8 33.6 21.2 33 20.6 32.4 Z" fill="#7FB6EA" w={1.2} sketch={false} />
+        <F d="M43.4 32.4 C44.6 34.6 44.4 36 43.2 36.4 C42 36.8 41.2 35.6 41.8 34.4 C42.2 33.6 42.8 33 43.4 32.4 Z" fill="#7FB6EA" w={1.2} sketch={false} />
+      </g>
+    );
+  }
   if (mood === 'win') {
     return (
       <g>
@@ -248,6 +259,40 @@ function Eyes({ expr, mood }) {
 
 function Hat({ k, c }) {
   switch (k) {
+    case 13: return (
+      <g>
+        <F d="M19.2 21.4 C18.8 12.4 24.4 8 32 8 C39.6 8 45.2 12.4 44.8 21.4 Z" fill="#7C9460" />
+        <F d="M12.6 25.4 C15.4 20.6 48.6 20.6 51.4 25.4 C46 28.2 18 28.2 12.6 25.4 Z" fill="#6A8250" />
+        <L d="M19.4 19.4 C26 18.2 38 18.2 44.6 19.4" w={1.1} />
+        <L d="M17.6 25.4 L18.2 24.2 M22.6 26.4 L23 25.2 M27.6 26.8 L27.8 25.6 M32.6 27 L32.6 25.8 M37.6 26.8 L37.4 25.6 M42.4 26.4 L42 25.2 M46.6 25.6 L46 24.4" w={0.7} />
+      </g>
+    );
+    case 14: return (
+      <g>
+        <F d="M19.4 21.8 C13.6 21.2 7.6 22.4 5.8 24.6 C10.4 26 15.4 25.8 18.2 24.6 Z" fill={shade(RED, 0.8)} w={1.9} />
+        <F d="M16.4 23.6 C15.8 14.6 22.8 9.6 32.4 9.6 C42 9.6 48.4 14.4 47.8 23.4 C40.4 21.6 24 21.6 16.4 23.6 Z" fill={RED} />
+        <F d="M37.6 22 C38.4 18.8 43.6 18.8 44.6 22.4 C42.4 22 40 21.8 37.6 22 Z" fill={PAPER} w={1.2} />
+        <L d="M32.4 9.8 C33.2 14 33.4 18 33 21.6" w={1.1} />
+        <Dot x={32.4} y={9.6} r={1.4} />
+      </g>
+    );
+    case 15: return (
+      <g>
+        <F d="M16.2 21.4 C24 18.8 40 18.8 47.8 21.4 L47.6 26.6 C40 24 24 24 16.4 26.6 Z" fill={PAPER} />
+        <L d="M16.3 23 C24 20.6 40 20.6 47.7 23 M16.4 25 C24 22.6 40 22.6 47.6 25" w={1.2} color={RED} />
+      </g>
+    );
+    case 16: return (
+      <g>
+        {[[16.6, 23.4, '#EFA0B4'], [21, 19.4, YEL], [26.2, 17, '#9EC3F0'], [32, 16.2, '#EFA0B4'], [37.8, 17, YEL], [43, 19.4, '#9EC3F0'], [47.4, 23.4, '#EFA0B4']].map(([x, y, col], i) => (
+          <g key={i}>
+            <F d={`M${x - 4.4} ${y + 1.4} C${x - 3.6} ${y - 0.2} ${x - 2.6} ${y - 0.4} ${x - 1.8} ${y + 0.6} C${x - 2.6} ${y + 2} ${x - 3.6} ${y + 2.2} ${x - 4.4} ${y + 1.4} Z`} fill="#6FA35A" w={1} sketch={false} />
+            <F d={`M${x - 2.6} ${y} C${x - 2.6} ${y - 3} ${x + 2.6} ${y - 3} ${x + 2.6} ${y} C${x + 2.6} ${y + 3} ${x - 2.6} ${y + 3} ${x - 2.6} ${y} Z`} fill={col} w={1.3} sketch={false} />
+            <Dot x={x} y={y} r={0.9} c={i % 2 ? RED : YEL} />
+          </g>
+        ))}
+      </g>
+    );
     case 12: return (
       <g>
         <F d="M21.8 14.4 C23.4 7.6 40.6 7.6 42.2 14.4 C36.8 12.6 27.2 12.6 21.8 14.4 Z" fill="#2F55A4" w={1.6} />
@@ -340,6 +385,15 @@ function Hat({ k, c }) {
 
 function FaceAcc({ k }) {
   switch (k) {
+    case 8: return (
+      <g>
+        {[25.6, 38.4].map((x) => (
+          <F key={x} d={`M${x} ${35.2} C${x - 6} ${31.4} ${x - 5.6} ${25.6} ${x - 2.4} ${25.8} C${x - 1} ${25.9} ${x} ${27} ${x} ${28} C${x} ${27} ${x + 1} ${25.9} ${x + 2.4} ${25.8} C${x + 5.6} ${25.6} ${x + 6} ${31.4} ${x} ${35.2} Z`} fill="#E5502F" w={1.7} />
+        ))}
+        <L d="M30.4 29.2 C31.4 28.6 32.6 28.6 33.6 29.2 M20.6 28.4 L16.8 27.2 M43.4 28.4 L47.2 27.2" w={1.5} />
+      </g>
+    );
+    case 9: return <F d="M32 37 C29 35 24 35.4 21.6 36.6 C19.6 37.6 18.4 36.6 19 34.6 C17 35.6 17 38.6 19.6 39.4 C22.6 40.2 28.4 39.4 32 38.4 C35.6 39.4 41.4 40.2 44.4 39.4 C47 38.6 47 35.6 45 34.6 C45.6 36.6 44.4 37.6 42.4 36.6 C40 35.4 35 35 32 37 Z" fill={INK} w={1.2} sketch={false} />;
     case 1: return (
       <g>
         <F d="M21.4 28 C24 27.4 27.6 27.4 29.8 28 C30 31.6 28.6 34 25.6 34 C22.8 34 21.4 31.6 21.4 28 Z M34.2 28 C36.4 27.4 40 27.4 42.6 28 C42.6 31.6 41.2 34 38.4 34 C35.4 34 34 31.6 34.2 28 Z" fill={INK} w={1.8} sketch={false} />
@@ -422,7 +476,7 @@ function Extra({ k, shirt, sk }) {
 // ---------------------------------------------------------------- espèces
 const ALIEN_HEAD = 'M32 8.6 C45.4 8.6 51.2 17.8 50.4 28 C49.4 38.4 41.2 47.4 32 48.4 C22.8 47.4 14.6 38.4 13.6 28 C12.8 17.8 18.6 8.6 32 8.6 Z';
 function AlienFace({ expr, mood, sk }) {
-  const e = mood === 'win' ? 'win' : mood === 'drink' ? 'drink' : expr;
+  const e = (mood === 'win' || mood === 'rire') ? 'win' : mood === 'drink' ? 'drink' : expr;
   const eyeL = 'M18.6 27.6 C20.2 22.8 26.8 22.2 29.4 27 C28.8 31.4 23.4 33.4 18.6 27.6 Z';
   const eyeR = 'M45.4 27.6 C43.8 22.8 37.2 22.2 34.6 27 C35.2 31.4 40.6 33.4 45.4 27.6 Z';
   if (e === 6 || e === 'win') return (<g><L d="M19 28 C22 31 26.6 31 29.4 28 M34.6 28 C37.4 31 42 31 45 28" w={2.2} /><L d={e === 'win' ? 'M27.6 39.4 C29.6 42.6 34.4 42.6 36.4 39.4' : 'M30.6 40.6 C31.6 41.2 32.4 41.2 33.4 40.6'} w={1.8} /></g>);
@@ -448,7 +502,7 @@ const PX = 3.6, PX0 = 17.6, PY0 = 12.4;
 function Px({ c, r, fill, w = 1, h = 1 }) { return <rect x={PX0 + c * PX} y={PY0 + r * PX} width={PX * w + 0.05} height={PX * h + 0.05} fill={fill} />; }
 function CubeHead({ expr, mood, sk, hc, hair, shirt }) {
   const dark = shade(sk, 0.82);
-  const e = mood === 'win' ? 'win' : mood === 'drink' ? 'drink' : expr;
+  const e = (mood === 'win' || mood === 'rire') ? 'win' : mood === 'drink' ? 'drink' : expr;
   const cells = [];
   // visage
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) cells.push(<Px key={`s${r}-${c}`} c={c} r={r} fill={(r + c * 3) % 7 === 0 ? dark : sk} />);
@@ -491,7 +545,7 @@ function CubeHead({ expr, mood, sk, hc, hair, shirt }) {
   );
 }
 function RobotHead({ expr, mood, sk, shirt, head }) {
-  const e = mood === 'win' ? 'win' : mood === 'drink' ? 'drink' : expr;
+  const e = (mood === 'win' || mood === 'rire') ? 'win' : mood === 'drink' ? 'drink' : expr;
   const led = e === 4 ? '#FF5A4A' : e === 5 ? '#FF7FA8' : '#6BF2D8';
   const eyes = e === 6 || e === 'win' ? <L d="M22.6 29 L28 29 M36 29 L41.4 29" w={2.4} color={led} />
     : e === 5 ? <g fill={led}><path d="M25.2 31.6 L22.4 28.6 C21.8 27.4 23.4 26 25.2 27.6 C27 26 28.6 27.4 28 28.6 Z" /><path d="M38.8 31.6 L36 28.6 C35.4 27.4 37 26 38.8 27.6 C40.6 26 42.2 27.4 41.6 28.6 Z" /></g>
@@ -519,7 +573,7 @@ function RobotHead({ expr, mood, sk, shirt, head }) {
 }
 const GHOST = 'M32 9.6 C44.4 9.6 50.4 18.8 50.4 31 L50.4 60.6 C47.8 63.4 45.6 58.4 42.6 61.2 C39.6 64 37.4 58.4 34.4 61.2 C31.4 64 29.2 58.4 26.2 61.2 C23.2 64 21 58.4 18 61.2 C16 63 13.6 62.4 13.6 60.4 L13.6 31 C13.6 18.8 19.6 9.6 32 9.6 Z';
 function GhostFace({ expr, mood }) {
-  const e = mood === 'win' ? 'win' : mood === 'drink' ? 'drink' : expr;
+  const e = (mood === 'win' || mood === 'rire') ? 'win' : mood === 'drink' ? 'drink' : expr;
   const hole = (x, y, rx, ry) => <ellipse cx={x} cy={y} rx={rx} ry={ry} fill="#2A2530" />;
   return (
     <g>
@@ -534,7 +588,7 @@ function GhostFace({ expr, mood }) {
 }
 const SKULL = 'M32 12 C43.2 12 49.2 19.2 49.2 28.2 C49.2 34 46.6 37.4 43.2 38.8 L42.2 44.2 C38.2 47.4 25.8 47.4 21.8 44.2 L20.8 38.8 C17.4 37.4 14.8 34 14.8 28.2 C14.8 19.2 20.8 12 32 12 Z';
 function SkullFace({ expr, mood }) {
-  const e = mood === 'win' ? 'win' : mood === 'drink' ? 'drink' : expr;
+  const e = (mood === 'win' || mood === 'rire') ? 'win' : mood === 'drink' ? 'drink' : expr;
   const socket = (x, s) => <path d={`M${x - 4.4} ${29.6} C${x - 4.6} ${25.4} ${x - 1.4} ${24.2} ${x + 0.6} ${24.6} C${x + 3.6} ${25} ${x + 4.8} ${27.4} ${x + 4.2} ${30.4} C${x + 3.6} ${33.2} ${x + 1} ${34} ${x - 1} ${33.6} C${x - 3} ${33.2} ${x - 4.4} ${31.8} ${x - 4.4} ${29.6} Z`} fill="#2A2530" transform={s} />;
   return (
     <g>

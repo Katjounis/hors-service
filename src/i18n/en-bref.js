@@ -37,4 +37,8 @@ export default [
   ['Ça pique un peu, non ?', 'Stings a bit, huh?'], ['Prends ton souffle.', 'Take a deep breath.'], ['Mange un truc après.', 'Eat something after.'],
   ['Cul levé, on regarde.', 'Bottoms up, we’re watching.'], ['D’une traite, pas en trois fois.', 'In one go, not three.'], ['Les autres comptent jusqu’à cinq.', 'The others count to five.'],
   ['Quelqu’un t’a dans le viseur.', 'Someone’s got you in their sights.'], ['Vengeance autorisée au prochain tour.', 'Revenge allowed next round.'], ['Tu vas laisser passer ça ?', 'You gonna let that slide?'],
+  ['{0} devient « {1} »', '{0} is now “{1}”'], ['L’Éponge', 'The Sponge'], ['Le Bourreau', 'The Executioner'], ['La Poule mouillée', 'The Chicken'], ['Le Siphon', 'The Siphon'], ['Le Cascadeur', 'The Stuntman'], ['Rigole', 'Laughs'],
+  ['Bob', 'Bucket hat'], ['Casquette à l’envers', 'Backwards cap'], ['Bandeau éponge', 'Sweatband'], ['Couronne de fleurs', 'Flower crown'], ['Lunettes cœur', 'Heart glasses'], ['Moustache guidon', 'Handlebar moustache'],
+  ['Phrases maison', 'House lines'], ['Phrases', 'Lines'], ['Nouvelle phrase', 'New line'], ['Ajouter cette phrase', 'Add this line'], ['Aucune phrase maison pour l’instant.', 'No house lines yet.'],
+  ['Vos propres chambrages : ils s’affichent en grand quand quelqu’un se dégonfle, enchaîne les gorgées ou boit un cul sec. Écrivez {nom} pour placer le nom de la victime.', 'Your own roasts: they show up big when someone chickens out, keeps drinking or downs a glass. Write {nom} where the victim’s name goes.'],
 ];

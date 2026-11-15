@@ -2,7 +2,7 @@
 // Tout reste sur ce téléphone (localStorage).
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import qrcode from 'qrcode-generator';
-import { loadStats, profiles, allRecords, RECORDS, clearStats, loadGages, saveGages, gagesOn, setGagesOn, gagesLink } from '../lib/stats.js';
+import { loadStats, profiles, allRecords, RECORDS, clearStats, loadGages, saveGages, loadPiques, savePiques, gagesOn, setGagesOn, gagesLink } from '../lib/stats.js';
 import { GAMES } from '../games/index.js';
 import { plural } from '../lib/util.js';
 import { Av } from './common.jsx';
@@ -29,7 +29,7 @@ export function StatsScreen({ onBack }) {
   return (
     <div class="screen">
       <TopBack title="Stats et gages maison" onBack={onBack} />
-      <Seg name="Rubrique" value={tab} onChange={setTab} options={[['soirees', 'Soirées'], ['records', 'Records'], ['joueurs', 'Joueurs'], ['gages', 'Gages']]} />
+      <Seg name="Rubrique" value={tab} onChange={setTab} options={[['soirees', 'Soirées'], ['records', 'Records'], ['joueurs', 'Joueurs'], ['gages', 'Gages'], ['piques', 'Phrases']]} />
       {tab === 'soirees' ? (
         st.soirees.length ? (
           <ul class="soirees">
@@ -65,7 +65,8 @@ export function StatsScreen({ onBack }) {
         ) : <p class="muted">Les profils se créent tout seuls, soirée après soirée.</p>
       ) : null}
       {tab === 'gages' ? <GagesEditor /> : null}
-      {tab !== 'gages' ? (
+      {tab === 'piques' ? <PiquesEditor /> : null}
+      {tab !== 'gages' && tab !== 'piques' ? (
         wipe ? (
           <div class="quit paper tape pose" role="alertdialog" aria-label="Effacer les stats ?">
             <p><b>Effacer toutes les stats de ce téléphone ?</b> Historique, profils et records disparaissent. Les gages maison sont gardés.</p>
@@ -76,6 +77,30 @@ export function StatsScreen({ onBack }) {
           </div>
         ) : <button type="button" class="link" onClick={() => setWipe(true)}>Effacer les stats de ce téléphone</button>
       ) : null}
+    </div>
+  );
+}
+
+export function PiquesEditor() {
+  const [list, setList] = useState(() => loadPiques());
+  const [txt, setTxt] = useState('');
+  const update = (l) => { savePiques(l); setList(loadPiques()); };
+  const add = () => { const t = txt.trim(); if (!t) return; update([...list, t]); setTxt(''); };
+  return (
+    <div class="stack gages">
+      <p class="muted">{'Vos propres chambrages : ils s’affichent en grand quand quelqu’un se dégonfle, enchaîne les gorgées ou boit un cul sec. Écrivez {nom} pour placer le nom de la victime.'}</p>
+      <label class="field" for="pique-new">
+        <span class="field-l">Nouvelle phrase</span>
+        <textarea id="pique-new" class="input" rows={2} maxLength={90} value={txt} placeholder="Ex. {nom} boit comme un trou, comme d’hab." onInput={(e) => setTxt(e.currentTarget.value)} />
+      </label>
+      <button type="button" class="btn btn-wide" disabled={!txt.trim()} onClick={add}>Ajouter cette phrase</button>
+      {list.length ? (
+        <ul class="gage-list">
+          {list.map((g, i) => (
+            <li key={`${i}-${g}`}><span>{g}</span><button type="button" class="icon-btn" aria-label={`Supprimer : ${g}`} onClick={() => update(list.filter((_, j) => j !== i))}>×</button></li>
+          ))}
+        </ul>
+      ) : <p class="muted small">Aucune phrase maison pour l’instant.</p>}
     </div>
   );
 }

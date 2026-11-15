@@ -4,7 +4,7 @@
 
 import { HostEngine, newState } from './host.js';
 import { partyCode, parseJSON, emitter, rid, sanitizeNick, clone, avatarId } from '../lib/util.js';
-import { loadGages, gagesOn } from '../lib/stats.js';
+import { loadGages, gagesOn, loadPiques } from '../lib/stats.js';
 
 const errMsg = (e) => (e && e.userMessage) || 'Connexion impossible pour le moment. Vérifie le réseau et réessaie.';
 const userError = (m) => Object.assign(new Error(m), { userMessage: m });
@@ -42,6 +42,7 @@ export class Device {
 
   // gages maison du groupe (écrits sur ce téléphone), mélangés aux gages de l'appli par le moteur
   gagesMaison() { return gagesOn() ? loadGages() : []; }
+  piquesMaison() { return loadPiques(); }
 
   changed() {
     if (this._q) return;

@@ -440,7 +440,7 @@ details.log ol, details.log ul { margin: 8px 0 0; padding-left: 20px; display: f
 .toasts { position: fixed; z-index: 60; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(92%, 480px); display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
 .toast { padding: 10px 14px; border-radius: 2px; background: var(--papier); color: var(--encre); border: 1px solid var(--encre); font-weight: 700; animation: poser .2s ease-out both; }
 .toast-warn { color: var(--rouge); }
-.toast-game { background: var(--jaune); }
+.toast-game, .toast-surnom { background: var(--jaune); }
 
 /* ---------- un seul téléphone */
 .pass { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 26px 16px 20px; }
@@ -2487,3 +2487,9 @@ h3 { font-size: 1.1rem; }
 @media (prefers-reduced-motion: reduce) { .chambre, .chambre-av, .chambre-t { animation: none; } .chambre { opacity: 1; } }
 :root .pen-pique { margin: 0 16px 4px; font-weight: 700; color: #FFD23F; }
 :root[data-theme="light"][lang] .pen-pique { color: #7A4B00; }
+
+/* persos qui se moquent : petite secousse de rire */
+.av-rire .bouille { animation: ch-secoue .2s ease-in-out 2; transform-origin: 50% 80%; }
+@media (prefers-reduced-motion: reduce) { .av-rire .bouille { animation: none; } }
+:root .surnom { color: #FFD23F; font-weight: 700; }
+:root[data-theme="light"][lang] .surnom { color: #7A4B00; }

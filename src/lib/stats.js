@@ -155,6 +155,14 @@ export function loadGages() {
 export function saveGages(list) {
   store.set('gages', [...new Set(list.map((x) => String(x).trim().slice(0, 140)).filter(Boolean))].slice(0, 200));
 }
+// phrases maison : chambrages écrits par le groupe, {nom} = la victime
+export function loadPiques() {
+  const g = store.get('piques', []);
+  return Array.isArray(g) ? g.filter((x) => typeof x === 'string' && x.trim()).slice(0, 100) : [];
+}
+export function savePiques(list) {
+  store.set('piques', [...new Set(list.map((x) => String(x).trim().slice(0, 90)).filter(Boolean))].slice(0, 100));
+}
 export function gagesOn() { return store.get('gagesOn', true) !== false; }
 export function setGagesOn(v) { store.set('gagesOn', !!v); }
 

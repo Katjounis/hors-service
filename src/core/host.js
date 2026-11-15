@@ -7,6 +7,7 @@ import { rid, parseJSON, clone, shuffle, pick, avatarId } from '../lib/util.js';
 import { GAMES } from '../games/index.js';
 import { DEFIS } from '../content/defis.js';
 import { CHAMBRE, pickLine, fill } from '../content/chambre.js';
+import { surnoms } from '../lib/surnoms.js';
 
 export const LEVELS = { 1: 'Tranquille', 2: 'Drôle', 3: 'Piquant' };
 // combien de gorgées vaut un cul sec dans le compteur de la soirée (réglable par l'hôte)
@@ -124,8 +125,14 @@ export class HostEngine {
     if (S.chT && t - S.chT < 5000) return;
     S.chT = t;
     S.evi += 1;
-    const line = pickLine(CHAMBRE[kind], `${S.evi}${uid}`);
-    S.ev.push({ i: S.evi, txt: fill(line, this.name(uid), b), to: '*', k: 'chambre', u: uid });
+    let maison = [];
+    try { maison = (this.d.piquesMaison ? this.d.piquesMaison() : []) || []; } catch (e) { maison = []; }
+    let txt;
+    if (maison.length && Math.random() < 0.4) {
+      const m = pick(maison);
+      txt = m.includes('{nom}') ? m.split('{nom}').join(this.name(uid)) : `${this.name(uid)} : ${m}`;
+    } else txt = fill(pickLine(CHAMBRE[kind], `${S.evi}${uid}`), this.name(uid), b);
+    S.ev.push({ i: S.evi, txt, to: '*', k: 'chambre', u: uid });
     if (S.ev.length > 30) S.ev.splice(0, S.ev.length - 30);
   }
 
@@ -241,6 +248,7 @@ export class HostEngine {
     }
     S.pen.splice(i, 1);
     const lead0 = this.leader();
+    const sur0 = surnoms(S);
     const t = S.tally[uid] || (S.tally[uid] = { d: 0, c: 0, x: 0 });
     if (v === 'pass') t.x += 1;
     else if (item.sober) t.c += 1;
@@ -259,7 +267,13 @@ export class HostEngine {
     else if (lead1 === uid && lead0 !== uid && sipsOf(S, uid) >= 8) this.chambre(uid, 'roi');
     else if (item.cs && !item.sober && !item.pts) this.chambre(uid, 'cs');
     else if (!item.sober && !item.pts && item.n >= 5) this.chambre(uid, 'big', item.n);
+    this.annonceSurnoms(sur0);
     return true;
+  }
+
+  annonceSurnoms(avant) {
+    const apres = surnoms(this.S);
+    for (const [u, t] of Object.entries(apres)) if (avant[u] !== t) this.ev(`${this.name(u)} devient « ${t} »`, '*', 'surnom');
   }
 
   leader() {
@@ -283,6 +297,7 @@ export class HostEngine {
     }
     if (total < 1 || total > gift.n) return false;
     S.gifts.splice(i, 1);
+    const sur0 = surnoms(S);
     for (const [to, m] of plan) this.pen(to, m, `de la part de ${this.name(uid)}`, uid);
     const [top] = plan.slice().sort((a, b) => b[1] - a[1]);
     if (top && top[1] >= 4 && plan.length === 1) this.chambre(top[0], 'cible', this.name(uid));
@@ -290,6 +305,7 @@ export class HostEngine {
     const tg = S.tally[uid] || (S.tally[uid] = { d: 0, c: 0, x: 0 });
     tg.g = (tg.g || 0) + total;
     this.ev(`${this.name(uid)} a distribué ${gift.n} gorgée${gift.n > 1 ? 's' : ''}`, '*', 'gift');
+    this.annonceSurnoms(sur0);
     return true;
   }
 

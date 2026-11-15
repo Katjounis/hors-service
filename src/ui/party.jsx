@@ -6,12 +6,13 @@ import { GameArt } from './gameart.jsx';
 import { seats, sipsOf, csValue } from '../core/host.js';
 import { plural } from '../lib/util.js';
 import { PIQUE, pickLine } from '../content/chambre.js';
+import { surnoms } from '../lib/surnoms.js';
 import { Av, Who, nickOf, Sheet, ErrorBoundary, Waiting, useTicker, Stamp, Ribbon, Turn, Rules, MoodCtx } from './common.jsx';
 import { Icon } from './icons.jsx';
 import { buzz, confetti, useOnce, Ambiance, Cochon, Chambre } from './fx.jsx';
 import { saveEvening, summarize } from '../lib/stats.js';
 import { WrappedView } from './wrapped.jsx';
-import { GagesEditor } from './stats.jsx';
+import { GagesEditor, PiquesEditor } from './stats.jsx';
 import { Mentions, Confidentialite } from './legal.jsx';
 import { PrefToggles } from './prefs.jsx';
 import { ProfileFields, Seg, PartyFields, AdultPacks, defaultProfile, penMode } from './screens.jsx';
@@ -145,6 +146,8 @@ export function Party({ dev, local, embedded = false }) {
   const moods = new Map();
   for (const x of S.pen) if (S.roster[x.uid]) moods.set(S.roster[x.uid], 'drink');
   for (const x of S.gifts) if (S.roster[x.uid]) moods.set(S.roster[x.uid], 'win');
+  // les autres se moquent de ceux qui boivent
+  if (S.pen.some((x) => S.roster[x.uid] && !x.sober)) for (const u of seats(S)) if (S.roster[u] && !moods.has(S.roster[u])) moods.set(S.roster[u], 'rire');
   return (
     <MoodCtx.Provider value={moods}>
     <div class="party">
@@ -210,6 +213,7 @@ function Moments({ dev, S, local }) {
 // ------------------------------------------------------------------ salle d'attente
 function Register({ dev, S, local, list }) {
   const me = local ? null : dev.uid;
+  const sur = surnoms(S);
   return (
     <section class="register">
       <h2>Registre <span class="count">{list.length}</span></h2>
@@ -222,7 +226,7 @@ function Register({ dev, S, local, list }) {
               <span class="player-n">{String(i + 1).padStart(2, '0')}</span>
               <Av p={p} size="m" dim={!on} />
               <span class="player-name">{p.nick}{u === me ? <em class="you">toi</em> : null}{u === S.host && !local ? <em class="tag">hôte</em> : null}</span>
-              <span class="player-meta">{penMode(p)}{on ? '' : <><br />hors ligne</>}</span>
+              <span class="player-meta">{sur[u] ? <b class="surnom">{sur[u]}</b> : null}{sur[u] ? <br /> : null}{penMode(p)}{on ? '' : <><br />hors ligne</>}</span>
             </li>
           );
         })}
@@ -794,6 +798,7 @@ function MenuSheet({ dev, S, local, onClose }) {
     );
   }
   if (tab === 'tele') return <Sheet title="Afficher sur la télé" onClose={onClose}><TeleCast code={S.code} /></Sheet>;
+  if (tab === 'piques') return <Sheet title="Phrases maison" onClose={onClose}><PiquesEditor /></Sheet>;
   if (tab === 'gages') {
     return (
       <Sheet title="Gages maison" onClose={onClose}>
@@ -868,6 +873,7 @@ function MenuSheet({ dev, S, local, onClose }) {
         {item('Compteur de la soirée', () => setTab('tally'))}
         {item('Récap de la soirée (story)', () => setTab('recap'))}
         {item('Gages maison', () => setTab('gages'))}
+        {item('Phrases maison', () => setTab('piques'))}
         {item('Mentions légales', () => setTab('mentions'))}
         {item('Confidentialité', () => setTab('confid'))}
         {dev.isHost ? item('Joueurs et ordre des places', () => setTab('players')) : null}
