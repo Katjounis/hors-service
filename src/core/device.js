@@ -341,6 +341,7 @@ export class Device {
       if (e.i <= this.seenEv) continue;
       // les arrivées ne sont signalées qu'à l'hôte (en ligne), pour ne pas encombrer les écrans
       if (e.k === 'join' && (this.mode === 'local' || !this.engine)) continue;
+      if (e.k === 'chambre') continue; // affiché en grand par <Chambre>
       if (e.to === '*' || e.to === this.uid || this.mode === 'local') this.toast(e.txt, e.k);
     }
     this.seenEv = Math.max(this.seenEv, S.evi);

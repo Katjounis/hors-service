@@ -6,6 +6,7 @@
 import { rid, parseJSON, clone, shuffle, pick, avatarId } from '../lib/util.js';
 import { GAMES } from '../games/index.js';
 import { DEFIS } from '../content/defis.js';
+import { CHAMBRE, pickLine, fill } from '../content/chambre.js';
 
 export const LEVELS = { 1: 'Tranquille', 2: 'Drôle', 3: 'Piquant' };
 // combien de gorgées vaut un cul sec dans le compteur de la soirée (réglable par l'hôte)
@@ -113,6 +114,19 @@ export class HostEngine {
     let l = this.S.cfg.level;
     for (const u of this.activeUids()) l = Math.min(l, this.S.roster[u].lim || 3);
     return l;
+  }
+
+  // chambrage : une phrase en grand sur tous les écrans (une toutes les 5 s au plus, la plus forte gagne)
+  chambre(uid, kind, b = null) {
+    const S = this.S;
+    if (!S.roster[uid] || !CHAMBRE[kind]) return;
+    const t = Date.now();
+    if (S.chT && t - S.chT < 5000) return;
+    S.chT = t;
+    S.evi += 1;
+    const line = pickLine(CHAMBRE[kind], `${S.evi}${uid}`);
+    S.ev.push({ i: S.evi, txt: fill(line, this.name(uid), b), to: '*', k: 'chambre', u: uid });
+    if (S.ev.length > 30) S.ev.splice(0, S.ev.length - 30);
   }
 
   name(uid) { return (this.S.roster[uid] && this.S.roster[uid].nick) || 'Quelqu’un'; }
@@ -226,13 +240,32 @@ export class HostEngine {
       return true;
     }
     S.pen.splice(i, 1);
+    const lead0 = this.leader();
     const t = S.tally[uid] || (S.tally[uid] = { d: 0, c: 0, x: 0 });
     if (v === 'pass') t.x += 1;
     else if (item.sober) t.c += 1;
     else if (item.pts) t.p = (t.p || 0) + item.pts;
     else if (item.cs) t.cs = (t.cs || 0) + 1;
     else t.d += item.n;
+    // séries : pénalités prises coup sur coup (moins de 4 minutes entre deux)
+    S.serie = S.serie || {};
+    const now = Date.now();
+    const sr = S.serie[uid] && now - S.serie[uid].at < 240000 ? S.serie[uid] : { n: 0 };
+    S.serie[uid] = { n: v === 'pass' ? 0 : sr.n + 1, at: now };
+    const lead1 = this.leader();
+    if (v === 'pass') this.chambre(uid, 'pass');
+    else if (S.serie[uid].n === 5) this.chambre(uid, 'serie5');
+    else if (S.serie[uid].n === 3) this.chambre(uid, 'serie3');
+    else if (lead1 === uid && lead0 !== uid && sipsOf(S, uid) >= 8) this.chambre(uid, 'roi');
+    else if (item.cs && !item.sober && !item.pts) this.chambre(uid, 'cs');
+    else if (!item.sober && !item.pts && item.n >= 5) this.chambre(uid, 'big', item.n);
     return true;
+  }
+
+  leader() {
+    let best = null; let n = 0;
+    for (const u of Object.keys(this.S.tally)) { const k = sipsOf(this.S, u); if (k > n) { n = k; best = u; } }
+    return best;
   }
 
   applyGift(uid, id, v) {
@@ -251,6 +284,8 @@ export class HostEngine {
     if (total < 1 || total > gift.n) return false;
     S.gifts.splice(i, 1);
     for (const [to, m] of plan) this.pen(to, m, `de la part de ${this.name(uid)}`, uid);
+    const [top] = plan.slice().sort((a, b) => b[1] - a[1]);
+    if (top && top[1] >= 4 && plan.length === 1) this.chambre(top[0], 'cible', this.name(uid));
     // gorgées données (pour les stats et le récap de la soirée)
     const tg = S.tally[uid] || (S.tally[uid] = { d: 0, c: 0, x: 0 });
     tg.g = (tg.g || 0) + total;

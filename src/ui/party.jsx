@@ -5,9 +5,10 @@ import { GAMES, GAME_LIST, GAME_META, CATS, catsOf } from '../games/index.js';
 import { GameArt } from './gameart.jsx';
 import { seats, sipsOf, csValue } from '../core/host.js';
 import { plural } from '../lib/util.js';
+import { PIQUE, pickLine } from '../content/chambre.js';
 import { Av, Who, nickOf, Sheet, ErrorBoundary, Waiting, useTicker, Stamp, Ribbon, Turn, Rules, MoodCtx } from './common.jsx';
 import { Icon } from './icons.jsx';
-import { buzz, confetti, useOnce, Ambiance, Cochon } from './fx.jsx';
+import { buzz, confetti, useOnce, Ambiance, Cochon, Chambre } from './fx.jsx';
 import { saveEvening, summarize } from '../lib/stats.js';
 import { WrappedView } from './wrapped.jsx';
 import { GagesEditor } from './stats.jsx';
@@ -149,6 +150,7 @@ export function Party({ dev, local, embedded = false }) {
     <div class="party">
       <Ambiance game={inGame ? tintKey(S) : null} hot={!!S.cfg.adult} />
       {inGame && S.game.g ? <Cochon card={S.game.g.card} /> : null}
+      <Chambre S={S} me={local ? null : dev.uid} />
       <header class="topbar">
         <button type="button" class="topbar-code" onClick={() => setMenu('invite')} aria-label={local ? 'Joueurs' : `Inviter des joueurs, code ${S.code}`}>
           {local ? 'Un seul téléphone' : <>Soirée <b>{S.code}</b></>}
@@ -697,6 +699,7 @@ function PenCard({ S, item, more, local, onSend }) {
   const csNote = item.cs && !item.sober && !item.pts;
   const from = item.from && S.roster[item.from] ? item.from : null;
   const why = from ? '' : item.why === 'cumul' ? 'Plusieurs pénalités regroupées' : item.why;
+  const pique = pickLine(item.cs ? PIQUE.cs : from ? PIQUE.from : item.n >= 5 ? PIQUE.big : PIQUE.base, item.id);
   return (
     <div class="pen pen-take" role="alertdialog" aria-label={`Pénalité : ${stamp}`}>
       <div class="pen-band">
@@ -710,6 +713,7 @@ function PenCard({ S, item, more, local, onSend }) {
           <p class="pen-from"><span>envoyé par</span> <Av p={S.roster[from]} size="s" /> <b>{nickOf(S, from)}</b></p>
         ) : why ? <p class="pen-why">{why}</p> : null}
       </div>
+      {!item.sober ? <p class="pen-pique">{pique}</p> : null}
       {csNote ? <p class="pen-why">Compte pour {csValue(S)} gorgées dans le compteur.</p> : null}
       {item.pts ? <p class="pen-why">Sans alcool : points de pénalité{item.cs ? ' (un cul sec)' : ''}.</p> : null}
       {item.sober ? <p class="pen-defi-txt">{item.def}</p> : null}

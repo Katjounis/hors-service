@@ -2,6 +2,7 @@
 // coupés par prefers-reduced-motion (sauf la vibration, qui n'est pas un mouvement à l'écran).
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { sceneOf, DecorBas, DecorHaut } from './decor.jsx';
+import { Character } from './avatar.jsx';
 
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 
@@ -398,4 +399,31 @@ export function Cochon({ card }) {
   }, [key]);
   if (!show) return null;
   return <div class="cochon" key={show.n} aria-hidden="true"><span>{show.txt}</span></div>;
+}
+
+// Chambrage : le personnage de la victime tombe au milieu de l'écran avec une phrase, sur tous les téléphones.
+// Ne rejoue pas les anciens événements à l'ouverture de l'appli.
+export function Chambre({ S, me }) {
+  const seen = useRef(null);
+  const [show, setShow] = useState(null);
+  const last = S && S.ev ? S.ev.filter((e) => e.k === 'chambre').pop() : null;
+  useEffect(() => {
+    if (!S) return undefined;
+    if (seen.current == null) { seen.current = last ? last.i : 0; return undefined; }
+    if (!last || last.i <= seen.current) return undefined;
+    seen.current = last.i;
+    const p = S.roster[last.u];
+    if (!p) return undefined;
+    setShow({ i: last.i, txt: last.txt, av: p.av, mine: last.u === me });
+    if (last.u === me) buzz([30, 60, 30]);
+    const t = setTimeout(() => setShow(null), 2600);
+    return () => clearTimeout(t);
+  }, [last ? last.i : 0]);
+  if (!show) return null;
+  return (
+    <div class={`chambre${show.mine ? ' is-moi' : ''}`} key={show.i} role="status">
+      <span class="chambre-av" aria-hidden="true"><Character av={show.av} mood="drink" size={132} /></span>
+      <span class="chambre-t">{show.txt}</span>
+    </div>
+  );
 }

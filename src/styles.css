@@ -2476,3 +2476,14 @@ h3 { font-size: 1.1rem; }
 .bref-more summary::-webkit-details-marker { display: none; }
 .bref-more summary::after { content: ''; width: 8px; height: 8px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform .2s ease; margin-right: 4px; }
 .bref-more[open] summary::after { transform: rotate(-135deg); }
+
+/* chambrage : la victime tombe sur la table, une phrase tamponnée, puis tout repart */
+.chambre { position: fixed; left: 0; right: 0; top: 18vh; z-index: 95; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; padding: 0 16px; animation: feutre-part .25s ease-in 2.3s forwards; }
+.chambre-av { display: block; width: 132px; height: 132px; border-radius: 50%; background: #FBF6EA; border: 4px solid #FBF6EA; box-shadow: 0 12px 24px rgba(0, 0, 0, .45); overflow: hidden; animation: ch-tombe .22s ease-out backwards, ch-secoue .18s ease-in-out .3s 3; }
+.chambre-t { max-width: 88vw; padding: 8px 16px; background: #FFD23F; color: #22201C; text-align: center; font: 400 clamp(1.3rem, 6.5vw, 2.2rem)/1.1 var(--f-titre); rotate: -3deg; box-shadow: 0 10px 20px rgba(0, 0, 0, .4); animation: tampon-hot .2s ease-out .12s backwards; }
+.chambre.is-moi .chambre-t { background: #C8301E; color: #FBF6EA; }
+@keyframes ch-tombe { from { transform: translateY(-60vh) rotate(-25deg); } to { transform: none; } }
+@keyframes ch-secoue { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-9deg); } 70% { transform: rotate(9deg); } }
+@media (prefers-reduced-motion: reduce) { .chambre, .chambre-av, .chambre-t { animation: none; } .chambre { opacity: 1; } }
+:root .pen-pique { margin: 0 16px 4px; font-weight: 700; color: #FFD23F; }
+:root[data-theme="light"][lang] .pen-pique { color: #7A4B00; }
