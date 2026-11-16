@@ -33,3 +33,8 @@ Le texte parle maintenant du compteur anonyme (install.js). Garder ce passage.
 - Textes tout public : `textes.js` (chargé avant l'app) réécrit à l'affichage tout ce qui parle de boire tant que `cfg.adult` est coupé. Deux branchements dans l'app : `HS_TXT` appelé au début de la fonction JSX `n`, et `window.HS_ADULTE` mis à jour dans `changed()`.
 - Roulette russe et paquet « Alcool » de Qui oserait visibles seulement en Version Adulte.
 - Reste à faire pour les stores : relire les paquets de cartes Soft (quelques cartes parlent encore d'alcool, ex. « Je n'ai jamais bu dans une chaussure »).
+
+# Cartes et répétitions (16/11/2026, fait dans le fichier publié)
+
+- `contenus.js` (dans le head, avant l'app) : environ 180 cartes en plus (Je n'ai jamais Soft, Qui oserait Classique, Quiz sur les autres, gages). À intégrer dans tes paquets sources.
+- Tirage sans répétition : `shuffle` de l'API des jeux passe par `HS_MELANGE`, et les gages par `HS_TIRE` (au lieu de `$n`).

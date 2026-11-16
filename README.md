@@ -61,6 +61,10 @@ Tester en local : dans ce dossier, `python3 -m http.server 8080`, puis ouvrir `h
 
 `textes.js` est chargé dans le `<head>`, avant l'app. Tant que la Version Adulte n'est pas activée, il remplace à l'affichage gorgées par pénalités, « boit » par « prend une pénalité », cul sec par grosse pénalité, et renomme Poker et Blackjack « de soirée ». La Roulette russe et le paquet Alcool de Qui oserait n'apparaissent qu'en Version Adulte. À chaque nouvelle version, garder `<script src="textes.js"></script>` en haut et les petites modifs listées dans `briefs/`.
 
+## Cartes en plus et tirage sans répétition (contenus.js)
+
+`contenus.js` est chargé dans le `<head>`, avant l'app. Il ajoute des cartes à Je n’ai jamais (Soft), Qui oserait (Classique), Quiz sur les autres et aux gages, et retient sur le téléphone de l’hôte les cartes déjà sorties : elles repassent en fin de pile jusqu’à ce que tout le paquet ait été vu. Les gages évitent les 25 derniers sortis. Les vrais jeux de cartes (32, 52, 54 cartes) ne sont pas touchés.
+
 ## Mettre à jour
 
 Remplace les fichiers : les téléphones prennent la nouvelle version à l’ouverture suivante (avec du réseau).
