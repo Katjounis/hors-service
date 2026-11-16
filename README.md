@@ -65,6 +65,10 @@ Tester en local : dans ce dossier, `python3 -m http.server 8080`, puis ouvrir `h
 
 `contenus.js` est chargé dans le `<head>`, avant l'app. Il ajoute des cartes à Je n’ai jamais (Soft), Qui oserait (Classique), Quiz sur les autres et aux gages, et retient sur le téléphone de l’hôte les cartes déjà sorties : elles repassent en fin de pile jusqu’à ce que tout le paquet ait été vu. Les gages évitent les 25 derniers sortis. Les vrais jeux de cartes (32, 52, 54 cartes) ne sont pas touchés.
 
+## Paquets Soft, HARD, Cul et Alcool (cartes.js)
+
+`cartes.js` (dans le `<head>`, après `contenus.js`) ajoute environ 480 cartes aux paquets de Je n’ai jamais (HARD, Cul), Qui oserait (Alcool, Cul, HARD), Tu préfères, Paranoïa, Action ou vérité, Quiz sur les autres (niveau 3) et Pipoteur. Chaque paquet d’origine commence par `...HS_X("nom")` pour les récupérer.
+
 ## Mettre à jour
 
 Remplace les fichiers : les téléphones prennent la nouvelle version à l’ouverture suivante (avec du réseau).

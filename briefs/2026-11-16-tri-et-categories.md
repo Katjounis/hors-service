@@ -38,3 +38,4 @@ Le texte parle maintenant du compteur anonyme (install.js). Garder ce passage.
 
 - `contenus.js` (dans le head, avant l'app) : environ 180 cartes en plus (Je n'ai jamais Soft, Qui oserait Classique, Quiz sur les autres, gages). À intégrer dans tes paquets sources.
 - Tirage sans répétition : `shuffle` de l'API des jeux passe par `HS_MELANGE`, et les gages par `HS_TIRE` (au lieu de `$n`).
+- `cartes.js` : environ 480 cartes de plus dans tous les niveaux (Soft, HARD, Cul, Alcool) pour Je n'ai jamais, Qui oserait, Tu préfères, Paranoïa, Action ou vérité, Quiz sur les autres et Pipoteur. Branchées en tête de chaque paquet avec `...HS_X("nom")`. À intégrer dans tes sources.

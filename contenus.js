@@ -235,12 +235,14 @@
     for (var n = 0; n < t.length; n++) (dejaVu[cle(t[n])] ? anciens : neufs).push(t[n]);
 
     // Tout le paquet a été vu : on repart de zéro
-    if (neufs.length < 12) { neufs = t.slice(); anciens = []; vus = []; }
+    if (neufs.length < 30) { neufs = t.slice(); anciens = []; vus = []; }
 
-    var resultat = melange(neufs).concat(melange(anciens));
-    // Une partie tire rarement plus de 15 cartes : on note les 15 premières comme vues
-    var marques = resultat.slice(0, 15).map(cle);
-    ecrire(k, vus.concat(marques).slice(-600));
+    // Certains jeux piochent au début du tableau, d'autres à la fin : les cartes neuves vont aux deux bouts,
+    // les cartes déjà vues au milieu, et on note comme vues les 15 premières et les 15 dernières.
+    var m = melange(neufs), moitie = Math.ceil(m.length / 2);
+    var resultat = m.slice(0, moitie).concat(melange(anciens), m.slice(moitie));
+    var marques = resultat.slice(0, 15).concat(resultat.slice(-15)).map(cle);
+    ecrire(k, vus.concat(marques).slice(-1200));
     return resultat;
   };
 
