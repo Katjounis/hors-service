@@ -1,22 +1,26 @@
 # Brief Théo : tri des jeux et catégories (16/11/2026)
 
-À faire dans le code source, pas dans le fichier publié. Rien n'est supprimé : les jeux mis de côté restent dans le code, juste masqués.
+Déjà fait par Claude dans le fichier publié (index.html). **À reporter dans ton code source**, sinon ta prochaine version l'écrase.
 
-## Accueil, dans cet ordre
+## Catégories de l'accueil (onglets, dans cet ordre)
 
-1. **Nos jeux phares** (en grand) : Le 96, Pipoteur, Qui oserait… ?
-2. **Pour lancer la soirée** : Je n'ai jamais, Quiz sur les autres, Bombe
-3. **Cartes et bluff** : Purple, Hippodrome, Toutankhamon, Trouve la carte
-4. **Bientôt** (2 max, avec le ruban) : Tu préfères…, Paranoïa
+1. **Nos jeux phares** (onglet ouvert par défaut) : Le 96, Pipoteur, Qui oserait… ?
+2. **Pour lancer la soirée** : tag ambiance ou culture
+3. **Cartes et bluff** : tag cartes ou bluff
+4. **Réflexes et chaos** : tag reflexe
+5. **Cul et hard** (si le mode est activé)
+6. **Tous** (en dernier)
 
-## Masqués, à développer plus tard (pas affichés)
+Dans le code : `ni` (liste des onglets), `zc` (onglet vers tags), tag `phare` ajouté à 96, pipoteur et oserait dans `ib`, ces trois jeux en tête de `qd`.
 
-Quiz buzzer, Action ou vérité, GlouGlou Garou, Le Président, Coinche, Poker des gorgées, Blackjack des gorgées, Le Menteur aux dés, Roulette russe
+## Masqués (code gardé, plus affichés dans la liste)
 
-## Mis de côté (masqués, code gardé)
+Dégaine, Hors Service Ware, Dessine et devine, Le Cercle de feu, Le Ring, La Tournée (`HS_MASQUES`, juste avant le composant du lobby).
 
-Dégaine, Hors Service Ware, Dessine et devine, Le Cercle de feu, Le Ring, La Tournée
+## Confidentialité
+
+Le texte parle maintenant du compteur anonyme (install.js). Garder ce passage.
 
 ## À ne pas casser
 
-Garder `<script src="install.js" defer></script>` juste avant `</body>` et `./install.js` dans le service worker.
+`<script src="install.js" defer></script>` juste avant `</body>`, et `./install.js` dans le service worker.

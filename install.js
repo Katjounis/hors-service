@@ -4,9 +4,9 @@
 (function () {
   "use strict";
 
-  var CLE_ID = "hs_id";
-  var CLE_PING = "hs_ping_jour";
-  var CLE_INVIT = "hs_invit";          // { vues: n, prochaine: timestamp }
+  var CLE_ID = "hs:id";
+  var CLE_PING = "hs:ping";
+  var CLE_INVIT = "hs:invit";          // { vues: n, prochaine: timestamp }
   var DELAI_PREMIERE_MS = 60 * 1000;   // laisser jouer une minute avant de proposer
   var DELAI_RELANCE_MS = 7 * 24 * 3600 * 1000;
   var MAX_INVITATIONS = 3;
