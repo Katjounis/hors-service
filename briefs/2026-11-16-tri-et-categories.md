@@ -24,3 +24,10 @@ Le texte parle maintenant du compteur anonyme (install.js). Garder ce passage.
 ## À ne pas casser
 
 `<script src="install.js" defer></script>` juste avant `</body>`, et `./install.js` dans le service worker.
+
+# Version store (16/11/2026, aussi faite dans le fichier publié)
+
+- Plus d'écran 18+ à l'ouverture : la vérification se fait quand l'hôte active la **Version Adulte** (ex « Mode Cul et HARD »), avec le message de prévention alcool.
+- Profil : « Sans alcool » par défaut, l'autre choix s'appelle « Gorgées (Version Adulte) ».
+- Gorgées seulement si `cfg.adult` est activé : sinon le joueur prend gages ou points, même s'il a choisi Gorgées (dans les deux fonctions de pénalité).
+- Reste à faire pour les stores : réécrire les règles et textes des jeux qui parlent de boire quand la Version Adulte est coupée, et renommer Poker et Blackjack « des gorgées ».

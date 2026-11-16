@@ -100,14 +100,8 @@
     fermer();
   }
 
-  function ageValide() {
-    try { return localStorage.getItem("hs:age") === "1"; } catch (e) { return false; }
-  }
-
   function afficher() {
     if (!peutInviter() || fond) return;
-    // Pas par-dessus l'écran 18+ : on attend que la personne l'ait validé
-    if (!ageValide()) { setTimeout(afficher, 1000); return; }
     if (!iphone && !demandeAndroid) return; // navigateur qui ne sait pas installer : on ne propose rien
 
     var etat = lire(CLE_INVIT, { vues: 0, prochaine: 0 });
