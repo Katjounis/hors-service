@@ -1908,6 +1908,10 @@ h3 { font-size: 1.1rem; }
 .players .player-mode .seg-btn { font-size: .78rem; padding: 4px 6px; min-height: 40px; }
 .players .player-mode .seg { flex-wrap: nowrap; }
 .players .player-n ~ .player-name { flex-basis: 100%; }
+/* registre de l'accueil : avatar et prénom centrés l'un sous l'autre, quel que soit le nombre de joueurs */
+.register .players .player, .register .players .player:first-child { flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: flex-start; width: 72px; padding: 4px 0; }
+.register .players .player-name { flex: none; width: 100%; max-width: 72px; text-align: center; }
+.register .players { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; gap: 6px 2px; }
 
 /* ---------- décor v3 : une scène par type de jeu */
 .sc-foret .amb-mur { background: linear-gradient(180deg, #0E1424 0%, #121A2C 70%, #0E1410 100%); }
