@@ -30,4 +30,6 @@ Le texte parle maintenant du compteur anonyme (install.js). Garder ce passage.
 - Plus d'écran 18+ à l'ouverture : la vérification se fait quand l'hôte active la **Version Adulte** (ex « Mode Cul et HARD »), avec le message de prévention alcool.
 - Profil : « Sans alcool » par défaut, l'autre choix s'appelle « Gorgées (Version Adulte) ».
 - Gorgées seulement si `cfg.adult` est activé : sinon le joueur prend gages ou points, même s'il a choisi Gorgées (dans les deux fonctions de pénalité).
-- Reste à faire pour les stores : réécrire les règles et textes des jeux qui parlent de boire quand la Version Adulte est coupée, et renommer Poker et Blackjack « des gorgées ».
+- Textes tout public : `textes.js` (chargé avant l'app) réécrit à l'affichage tout ce qui parle de boire tant que `cfg.adult` est coupé. Deux branchements dans l'app : `HS_TXT` appelé au début de la fonction JSX `n`, et `window.HS_ADULTE` mis à jour dans `changed()`.
+- Roulette russe et paquet « Alcool » de Qui oserait visibles seulement en Version Adulte.
+- Reste à faire pour les stores : relire les paquets de cartes Soft (quelques cartes parlent encore d'alcool, ex. « Je n'ai jamais bu dans une chaussure »).

@@ -58,6 +58,8 @@
   var ua = navigator.userAgent || "";
   var iphone = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var telephone = window.matchMedia("(pointer: coarse)").matches;
+  var safari = iphone && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  var android = /Android/.test(ua);
 
   function peutInviter() {
     if (installee || !telephone) return false;
@@ -102,7 +104,8 @@
 
   function afficher() {
     if (!peutInviter() || fond) return;
-    if (!iphone && !demandeAndroid) return; // navigateur qui ne sait pas installer : on ne propose rien
+    if (/^#ecran/.test(location.hash)) return; // écran de jeu sur une télé ou une tablette
+    if (!iphone && !android) return;
 
     var etat = lire(CLE_INVIT, { vues: 0, prochaine: 0 });
     ecrire(CLE_INVIT, { vues: etat.vues + 1, prochaine: Date.now() + DELAI_RELANCE_MS });
@@ -114,16 +117,24 @@
       document.head.appendChild(s);
     }
 
+    var ouPartager = safari ? "en bas de Safari" : "dans la barre d’adresse";
     var corps = iphone
       ? '<p class="hsi-texte">Deux gestes et Hors Service s’ouvre en plein écran, comme une vraie app, même sans réseau.</p>' +
         '<ol class="hsi-etapes">' +
-        "<li><span>Touche " + ICONE_PARTAGER + " <b>Partager</b> en bas de Safari</span></li>" +
+        "<li><span>Touche " + ICONE_PARTAGER + " <b>Partager</b> " + ouPartager + "</span></li>" +
         "<li><span>Choisis <b>Sur l’écran d’accueil</b>, puis <b>Ajouter</b></span></li>" +
         "</ol>" +
         '<div class="hsi-actions"><button type="button" class="btn btn-main btn-wide hsi-ok">Compris</button></div>'
-      : '<p class="hsi-texte">Hors Service s’ouvre en plein écran, comme une vraie app, même sans réseau. Rien à télécharger sur un store.</p>' +
+      : demandeAndroid
+      ? '<p class="hsi-texte">Hors Service s’ouvre en plein écran, comme une vraie app, même sans réseau. Rien à télécharger sur un store.</p>' +
         '<div class="hsi-actions"><button type="button" class="btn btn-main btn-wide hsi-installer">Installer</button>' +
-        '<button type="button" class="hsi-plustard">Plus tard</button></div>';
+        '<button type="button" class="hsi-plustard">Plus tard</button></div>'
+      : '<p class="hsi-texte">Hors Service s’ouvre en plein écran, comme une vraie app, même sans réseau.</p>' +
+        '<ol class="hsi-etapes">' +
+        "<li><span>Touche le menu <b>⋮</b> en haut à droite</span></li>" +
+        "<li><span>Choisis <b>Installer l’application</b> ou <b>Ajouter à l’écran d’accueil</b></span></li>" +
+        "</ol>" +
+        '<div class="hsi-actions"><button type="button" class="btn btn-main btn-wide hsi-ok">Compris</button></div>';
 
     fond = document.createElement("div");
     fond.className = "hsi-fond";
