@@ -19,7 +19,38 @@
     el.style.setProperty("--hs-d", Math.round(ms) + "ms");
     el.classList.remove("hs-flip", "hs-donne", "hs-roule");
     void el.offsetWidth; // relance l'animation
-    el.classList.add(el.classList.contains("die") ? "hs-roule" : el.classList.contains("pc-back") ? "hs-donne" : "hs-flip");
+    if (el.classList.contains("die")) {
+      el.style.setProperty("--hs-x", (Math.random() < 0.5 ? -1 : 1) * (30 + Math.random() * 40) + "px");
+      el.style.setProperty("--hs-t", (Math.random() < 0.5 ? -1 : 1) * (540 + Math.round(Math.random() * 360)) + "deg");
+      el.classList.add("hs-roule");
+      brasser(el, ms);
+    } else {
+      el.classList.add(el.classList.contains("pc-back") ? "hs-donne" : "hs-flip");
+    }
+  }
+
+  // Pendant qu'un dé roule, ses faces défilent, puis il retombe sur la vraie
+  var FACES = [[4], [0, 8], [0, 4, 8], [0, 2, 6, 8], [0, 2, 4, 6, 8], [0, 2, 3, 5, 6, 8]];
+  function brasser(el, ms) {
+    var points = el.querySelectorAll("i");
+    if (points.length !== 9) return;
+    clearInterval(el._hsT);
+    var debut = Date.now() + ms, fin = debut + 380;
+    el._hsT = setInterval(function () {
+      var now = Date.now();
+      if (now < debut) return;
+      var f;
+      if (now >= fin || !el.isConnected) {
+        clearInterval(el._hsT);
+        // la vraie face, lue sur le dé tel qu'il est maintenant (« dé 4 »)
+        var v = parseInt((el.getAttribute("aria-label") || "").replace(/\D+/g, ""), 10);
+        f = FACES[v - 1];
+        if (!f) return;
+      } else {
+        f = FACES[Math.floor(Math.random() * 6)];
+      }
+      for (var j = 0; j < 9; j++) points[j].className = f.indexOf(j) >= 0 ? "on" : "";
+    }, 75);
   }
 
   function plusTard(el, ms) {
@@ -63,11 +94,13 @@
     nouvelles.sort(function (a, b) {
       return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
     });
-    var pas = delai(nouvelles.length);
+    // Les dés (fin de manche) arrivent presque d'un coup ; les cartes une par une
+    var des = nouvelles.filter(function (el) { return el.classList.contains("die"); }).length;
+    var pas = des > nouvelles.length / 2 ? Math.min(45, 400 / nouvelles.length) : delai(nouvelles.length);
     for (var k = 0; k < nouvelles.length; k++) retourner(nouvelles[k], k * pas);
     // Plusieurs cartes d'un coup : le verdict et les gorgées attendent la dernière carte
     if (nouvelles.length < 2) return;
-    var fin = (nouvelles.length - 1) * pas + 500;
+    var fin = (nouvelles.length - 1) * pas + (des > nouvelles.length / 2 ? 350 : 500);
     for (var a = 0; a < ajouts.length; a++) {
       var n = ajouts[a];
       if (n.nodeType !== 1) continue;
