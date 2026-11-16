@@ -12,6 +12,7 @@
 <script src="textes.js"></script>
 <script src="contenus.js"></script>
 <script src="cartes.js"></script>
+<script src="anim.js" defer></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hors Service</title>
 <meta name="description" content="Jeux de soirée sur téléphone : chacun le sien, les secrets restent secrets.">
@@ -434,6 +435,25 @@ details.log ol, details.log ul { margin: 8px 0 0; padding-left: 20px; display: f
 .pc-back { background: var(--kraft); border-color: var(--encre); }
 .pc-pattern { position: absolute; inset: 4px; border: 1.5px solid var(--encre); border-radius: 2px; background: repeating-linear-gradient(45deg, rgba(34, 32, 28, .22) 0 2px, transparent 2px 7px); /* raison : dos de carte hachuré */ }
 .pc-btn { cursor: pointer; transition: translate .12s ease-out; }
+/* révélation des cartes (anim.js) : chaque carte se retourne, une par une */
+.pc.hs-flip { animation: hs-flip .55s var(--hs-d, 0ms) cubic-bezier(.3, .75, .3, 1) both; }
+.pc.hs-flip::after {
+  content: ''; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; z-index: 3;
+  background: repeating-linear-gradient(45deg, rgba(34, 32, 28, .22) 0 2px, transparent 2px 7px), var(--kraft);
+  box-shadow: inset 0 0 0 4px var(--kraft), inset 0 0 0 5.5px var(--encre);
+  animation: hs-dos .55s var(--hs-d, 0ms) both;
+}
+.pc.hs-donne { animation: hs-donne .4s var(--hs-d, 0ms) cubic-bezier(.2, .8, .3, 1.1) both; }
+@keyframes hs-flip {
+  0% { transform: perspective(700px) translateY(-14px) rotateY(180deg) scale(1.06); }
+  60% { transform: perspective(700px) translateY(-4px) rotateY(-8deg) scale(1.03); }
+  100% { transform: none; }
+}
+@keyframes hs-dos { 0%, 42% { opacity: 1; } 43%, 100% { opacity: 0; } }
+@keyframes hs-donne { from { opacity: 0; transform: translate(-30px, -40px) rotate(-14deg); } }
+.hs-apres { animation: hs-apres .35s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes hs-apres { from { opacity: 0; transform: translateY(10px) scale(.95); } }
+@media (prefers-reduced-motion: reduce) { .pc.hs-flip, .pc.hs-donne, .pc.hs-flip::after { animation: none; } .pc.hs-flip::after { display: none; } }
 .pc-btn:disabled { opacity: .45; cursor: not-allowed; }
 .pc-sel { translate: 0 -8px; outline: 2px solid var(--encre); outline-offset: -5px; }
 .pc-tag {
@@ -2519,6 +2539,7 @@ body:has(.pk) .act.pk-act {
   background: #1F1A18; color: #F6EFDF; box-shadow: 0 -12px 40px rgba(0, 0, 0, .55); animation: pk-feuille .3s cubic-bezier(.2, .9, .3, 1) both;
 }
 @keyframes pk-feuille { from { transform: translateY(100%); } }
+body:has(.quit) .act.pk-act, body:has(.quit) .dock { display: none; }
 body:has(.pk) .act.pk-act h3 { margin: 0; text-align: center; }
 body:has(.pk) .act.pk-act .pk-board-s { display: none; }
 body:has(.pk) .act.pk-act .pk-hole-big { margin: 8px 0 4px; }
