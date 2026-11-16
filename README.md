@@ -55,7 +55,7 @@ Tester en local : dans ce dossier, `python3 -m http.server 8080`, puis ouvrir `h
 
 ## Invitation à installer et compteur (install.js)
 
-`install.js` est séparé du reste de l’app : il propose d’ajouter Hors Service à l’écran d’accueil (une minute après l’écran 18+, trois fois maximum, une semaine entre deux) et envoie au serveur de salons, une fois par jour, un identifiant aléatoire pour compter les téléphones actifs. À chaque nouvelle version, garder la ligne `<script src="install.js" defer></script>` juste avant `</body>` et `./install.js` dans la liste du service worker. Chiffres du mois : `https://hors-service-salons.chaux-samuel.workers.dev/stats`.
+`install.js` est séparé du reste de l’app : il propose d’ajouter Hors Service à l’écran d’accueil (dès l’écran 18+ validé, trois fois maximum, une semaine entre deux) et envoie au serveur de salons, une fois par jour, un identifiant aléatoire pour compter les téléphones actifs. À chaque nouvelle version, garder la ligne `<script src="install.js" defer></script>` juste avant `</body>` et `./install.js` dans la liste du service worker. Chiffres du mois : `https://hors-service-salons.chaux-samuel.workers.dev/stats`.
 
 ## Mettre à jour
 

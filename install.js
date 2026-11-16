@@ -7,7 +7,7 @@
   var CLE_ID = "hs:id";
   var CLE_PING = "hs:ping";
   var CLE_INVIT = "hs:invit";          // { vues: n, prochaine: timestamp }
-  var DELAI_PREMIERE_MS = 60 * 1000;   // laisser jouer une minute avant de proposer
+  var DELAI_PREMIERE_MS = 1500;        // juste le temps que l'accueil s'affiche
   var DELAI_RELANCE_MS = 7 * 24 * 3600 * 1000;
   var MAX_INVITATIONS = 3;
 
@@ -107,7 +107,7 @@
   function afficher() {
     if (!peutInviter() || fond) return;
     // Pas par-dessus l'écran 18+ : on attend que la personne l'ait validé
-    if (!ageValide()) { setTimeout(afficher, 15000); return; }
+    if (!ageValide()) { setTimeout(afficher, 1000); return; }
     if (!iphone && !demandeAndroid) return; // navigateur qui ne sait pas installer : on ne propose rien
 
     var etat = lire(CLE_INVIT, { vues: 0, prochaine: 0 });
