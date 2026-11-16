@@ -1,5 +1,5 @@
 // Hors Service : révélation des cartes.
-// Chaque carte qui apparaît (ou qui change de valeur) se retourne. Quand plusieurs cartes
+// Chaque carte (ou dé) qui apparaît (ou qui change de valeur) se retourne. Quand plusieurs cartes
 // arrivent en même temps, elles se retournent une par une, dans l'ordre de l'écran,
 // donc joueur par joueur. Marche pour tous les jeux et sur tous les écrans, sans toucher aux jeux.
 (function () {
@@ -17,9 +17,9 @@
 
   function retourner(el, ms) {
     el.style.setProperty("--hs-d", Math.round(ms) + "ms");
-    el.classList.remove("hs-flip", "hs-donne");
+    el.classList.remove("hs-flip", "hs-donne", "hs-roule");
     void el.offsetWidth; // relance l'animation
-    el.classList.add(el.classList.contains("pc-back") ? "hs-donne" : "hs-flip");
+    el.classList.add(el.classList.contains("die") ? "hs-roule" : el.classList.contains("pc-back") ? "hs-donne" : "hs-flip");
   }
 
   function plusTard(el, ms) {
@@ -35,9 +35,9 @@
 
   function ajouter(liste, n) {
     if (!n || n.nodeType !== 1) return;
-    if (n.classList && n.classList.contains("pc")) liste.push(n);
+    if (n.classList && (n.classList.contains("pc") || n.classList.contains("die"))) liste.push(n);
     if (n.querySelectorAll) {
-      var sous = n.querySelectorAll(".pc");
+      var sous = n.querySelectorAll(".pc, .die");
       for (var i = 0; i < sous.length; i++) liste.push(sous[i]);
     }
   }
@@ -48,7 +48,7 @@
       var m = mutations[i];
       if (m.type === "childList") {
         for (var j = 0; j < m.addedNodes.length; j++) { ajouter(nouvelles, m.addedNodes[j]); ajouts.push(m.addedNodes[j]); }
-      } else if (m.type === "attributes" && m.target.classList && m.target.classList.contains("pc") &&
+      } else if (m.type === "attributes" && m.target.classList && (m.target.classList.contains("pc") || m.target.classList.contains("die")) &&
                  m.oldValue !== m.target.getAttribute("aria-label")) {
         nouvelles.push(m.target); // carte retournée ou remplacée au même endroit
       }
