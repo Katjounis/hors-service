@@ -5,7 +5,7 @@
   "use strict";
 
   // Textes qui doivent rester tels quels (choix et avertissements liés à la Version Adulte)
-  var INTOUCHABLES = /Version Adulte|18 ans|majeurs|abus d.alcool|avoir bu/;
+  var INTOUCHABLES = /Version Adulte|questions coquines|18 ans|majeurs|abus d.alcool|avoir bu/;
 
   // Limites de mot qui tiennent compte des lettres accentuées (\b ne les connaît pas)
   var L = "A-Za-z0-9_\u00C0-\u017F";
@@ -20,6 +20,7 @@
   var REGLES = [
     [/Poker des gorgées/g, "Poker de soirée"],
     [/Blackjack des gorgées/g, "Blackjack de soirée"],
+    mot("du cul sec", "de la grosse pénalité"),
     mot("cul sec", "grosse pénalité"),
     mot("Cul sec", "Grosse pénalité"),
     mot("CUL SEC", "GROSSE PÉNALITÉ"),
