@@ -53,6 +53,22 @@ Tester en local : dans ce dossier, `python3 -m http.server 8080`, puis ouvrir `h
 - iPhone (Safari) : bouton Partager › **Sur l’écran d’accueil**.
 - Android (Chrome) : menu ⋮ › **Installer l’application**.
 
+## Invitation à installer et compteur (install.js)
+
+`install.js` est séparé du reste de l’app : il propose d’ajouter Hors Service à l’écran d’accueil (dès l’écran 18+ validé, trois fois maximum, une semaine entre deux) et envoie au serveur de salons, une fois par jour, un identifiant aléatoire pour compter les téléphones actifs. À chaque nouvelle version, garder la ligne `<script src="install.js" defer></script>` juste avant `</body>` et `./install.js` dans la liste du service worker. Chiffres du mois : `https://hors-service-salons.chaux-samuel.workers.dev/stats`.
+
+## Version tout public (textes.js)
+
+`textes.js` est chargé dans le `<head>`, avant l'app. Tant que la Version Adulte n'est pas activée, il remplace à l'affichage gorgées par pénalités, « boit » par « prend une pénalité », cul sec par grosse pénalité, et renomme Poker et Blackjack « de soirée ». La Roulette russe et le paquet Alcool de Qui oserait n'apparaissent qu'en Version Adulte. À chaque nouvelle version, garder `<script src="textes.js"></script>` en haut et les petites modifs listées dans `briefs/`.
+
+## Cartes en plus et tirage sans répétition (contenus.js)
+
+`contenus.js` est chargé dans le `<head>`, avant l'app. Il ajoute des cartes à Je n’ai jamais (Soft), Qui oserait (Classique), Quiz sur les autres et aux gages, et retient sur le téléphone de l’hôte les cartes déjà sorties : elles repassent en fin de pile jusqu’à ce que tout le paquet ait été vu. Les gages évitent les 25 derniers sortis. Les vrais jeux de cartes (32, 52, 54 cartes) ne sont pas touchés.
+
+## Paquets Soft, HARD, Cul et Alcool (cartes.js)
+
+`cartes.js` (dans le `<head>`, après `contenus.js`) ajoute environ 480 cartes aux paquets de Je n’ai jamais (HARD, Cul), Qui oserait (Alcool, Cul, HARD), Tu préfères, Paranoïa, Action ou vérité, Quiz sur les autres (niveau 3) et Pipoteur. Chaque paquet d’origine commence par `...HS_X("nom")` pour les récupérer.
+
 ## Mettre à jour
 
 Remplace les fichiers : les téléphones prennent la nouvelle version à l’ouverture suivante (avec du réseau).

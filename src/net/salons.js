@@ -276,7 +276,7 @@ export class SalonBackend {
   // ---------- messages de l'app
   sendProfile(profile) {
     this.profile = profile;
-    const avatar = { av: profile.av, drink: !!profile.drink, sob: profile.sob === 'points' ? 'points' : 'gage', lim: profile.lim || 3 };
+    const avatar = { av: profile.av, drink: !!profile.drink, sob: profile.sob === 'points' ? 'points' : 'gage', lim: profile.lim || 3, gn: profile.gn === 'm' || profile.gn === 'f' ? profile.gn : 'x' };
     return this.rawSend({ t: 'profile', name: profile.nick, avatar });
   }
   updateProfile(code, profile) { this.sendProfile(profile); return Promise.resolve(); }

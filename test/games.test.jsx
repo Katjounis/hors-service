@@ -60,6 +60,13 @@ async function sync(host, devs) {
 const req = (d) => GAMES[d.S.game.id].request({ S: d.S, g: G(d), secret: d.secret, uid: d.uid, local: false });
 
 // ------------------------------------------------------------------ Pipoteur
+// l'ordre des joueurs tourne d'une partie à l'autre : place de départ = numéro de la partie modulo le nombre de joueurs
+function rot(host) {
+  const L = host.engine.activeUids();
+  const k = host.S.game && L.length ? host.S.game.seq % L.length : 0;
+  return L.slice(k).concat(L.slice(0, k));
+}
+
 async function testPipoteur() {
   console.log('Pipoteur');
   const { host, devs } = await party(5);
@@ -405,6 +412,11 @@ async function testTrouve() {
     await until(() => G(gu).step === step, 2000, 'manche visible');
     gu.gameInput(`a${step}`, a);
     if (b) {
+      // le croupier choisit sa réponse : « c'est plus » (ou « beaucoup plus »)
+      await until(() => G(host).phase === 'hint', 2000, 'le croupier répond');
+      const dl = byUid(devs, G(host).dealer);
+      await until(() => G(dl).phase === 'hint', 2000, 'réponse visible pour le croupier');
+      dl.gameInput(`h${step}`, '0');
       await until(() => G(host).phase === 'guess2', 2000, '2e essai');
       await until(() => G(gu).phase === 'guess2', 2000, '2e essai visible');
       gu.gameInput(`b${step}`, b);
@@ -454,12 +466,13 @@ async function testTrouveTour() {
   await start(host, devs, 'trouve');
   const order = host.S.order.slice();
   const dealer = G(host).dealer;
-  ok(dealer === order[0], 'la place 1 commence croupier');
+  ok(dealer === rot(host)[0], 'le premier joueur de la partie commence croupier');
   const seen = [];
   for (let i = 0; i < 6; i++) {
     await sync(host, devs);
     const step = G(host).step;
-    const withReq = devs.filter((d) => req(d));
+    // le croupier qui a un 2 ou un Valet peut aussi faire le coup spécial (demande facultative)
+    const withReq = devs.filter((d) => req(d) && req(d).kind !== 'special');
     ok(withReq.length === 1 && withReq[0].uid === G(host).guesser, `manche ${i + 1} : un seul joueur face au croupier`);
     seen.push(G(host).guesser);
     P(host).card = '5H';
@@ -468,7 +481,8 @@ async function testTrouveTour() {
     host.host('game', { id: 'next' });
     await until(() => G(host).step === step + 1, 2000, 'manche suivante');
   }
-  const ring = order.filter((u) => u !== dealer);
+  const di = order.indexOf(dealer);
+  const ring = [...order.slice(di + 1), ...order.slice(0, di)];
   ok(seen.join() === [...ring, ...ring].join(), 'les joueurs passent dans l’ordre des places (sens des aiguilles d’une montre), croupier exclu');
   await host.endParty();
 }
@@ -523,6 +537,9 @@ async function testPaquets() {
 async function testCompteur() {
   console.log('Compteur de la soirée');
   const { host, devs } = await party(3);
+  // les gorgées n'existent qu'en Version Adulte (sinon ce sont des gages)
+  host.host('settings', { adult: true });
+  await until(() => host.S.cfg.adult === true, 2000, 'Version Adulte activée');
   const e = host.engine;
   ok(e.S.cfg.cs === 10 && !('max' in e.S.cfg), 'pas de limite sur la soirée ; un cul sec vaut 10 gorgées par défaut');
   const u = devs[1].uid;
@@ -553,6 +570,9 @@ async function testCompteur() {
 async function testSansAlcool() {
   console.log('Sans alcool par joueur : gages ou points, buveurs et non-buveurs ensemble');
   const { host, devs } = await party(3);
+  // les gorgées n'existent qu'en Version Adulte
+  host.host('settings', { adult: true });
+  await until(() => host.S.cfg.adult === true, 2000, 'Version Adulte activée');
   const e = host.engine;
   const [a, b, c] = devs;
   b.saveProfile({ ...b.profile, drink: false, sob: 'gage' });
@@ -601,10 +621,11 @@ async function testArcade() {
   }
   const { host, devs } = await party(3, { mode: 'local' });
   const e = host.engine;
-  const pl = host.S.order.slice();
+  let pl;
   // Dégaine
   await start(host, devs, 'degaine', { sips: 2 });
-  ok(G(host).duel.join() === [pl[0], pl[1]].join(), 'Dégaine : premier duel, places 1 et 2');
+  pl = rot(host);
+  ok(G(host).duel.join() === [pl[0], pl[1]].join(), 'Dégaine : premier duel, les deux premiers joueurs de la partie');
   host.host('game', { id: 'duel', arg: { step: 99, winner: pl[0], ms: 200 } });
   await sleep(40);
   ok(G(host).phase === 'ready', 'résultat d’un ancien duel ignoré');
@@ -625,8 +646,9 @@ async function testArcade() {
   await until(() => devs.every((d) => d.S.status === 'lobby'), 2000, 'salon');
   // Bombe
   await start(host, devs, 'bombe', { sips: 3 });
+  pl = rot(host);
   await sync(host, devs);
-  ok(G(host).first === pl[0], 'Bombe : la place 1 allume la première mèche');
+  ok(G(host).first === pl[0], 'Bombe : le premier joueur de la partie allume la première mèche');
   host.host('game', { id: 'boom', arg: { step: 1, holder: pl[2], passes: 2 } });
   await until(() => G(host).phase === 'result', 2000, 'explosion');
   const p2 = e.S.pen.filter((x) => x.uid === pl[2]).pop();
@@ -639,6 +661,7 @@ async function testArcade() {
   await until(() => devs.every((d) => d.S.status === 'lobby'), 2000, 'salon');
   // Hors Service Ware
   await start(host, devs, 'ware', { lives: 3, sips: 1 });
+  pl = rot(host);
   await sync(host, devs);
   const before = e.S.pen.filter((x) => x.uid === pl[0]).length;
   host.host('game', { id: 'run', arg: { step: 1, score: 7, lost: ['tap', 'swipe', 'inconnu', 'hold'] } });
@@ -665,7 +688,7 @@ async function testJamais() {
 
   const { host, devs } = await party(3);
   const e = host.engine;
-  const pl = host.S.order.slice();
+  let pl = host.S.order.slice();
   await start(host, devs, 'jamais', { levels: ['soft', 'hard', 'cul'], sips: 2, cards: 20 });
   ok(G(host).lv.join() === 'soft' && G(host).dropped.join() === 'hard,cul' && G(host).card.lv === 'soft', 'HARD et Cul refusés tant que les paquets adultes sont désactivés');
   host.host('lobby');
@@ -673,8 +696,9 @@ async function testJamais() {
   await until(() => devs.every((d) => d.S && d.S.status === 'lobby' && d.S.cfg.adult === true), 2000, 'paquets adultes activés');
   await start(host, devs, 'jamais', { levels: ['soft', 'hard', 'cul'], sips: 2, cards: 0 });
   await sync(host, devs);
+  pl = rot(host);
   ok(G(host).lv.join() === 'soft,hard,cul' && !JSON.stringify(host.S).includes('"deck"'), 'trois niveaux cochés ensemble, le paquet reste chez l’hôte');
-  ok(G(host).reader === pl[0] && GAMES.jamais.tintOf(G(host)) === `jamais-${G(host).card.lv}`, 'la place 1 lit la première carte ; le décor prend la teinte du niveau');
+  ok(G(host).reader === pl[0] && GAMES.jamais.tintOf(G(host)) === `jamais-${G(host).card.lv}`, 'le premier joueur de la partie lit la première carte ; le décor prend la teinte du niveau');
   host.host('game', { id: 'who', arg: { step: G(host).n, uids: [pl[1]] } });
   await sleep(40);
   ok(G(host).phase === 'ask', 'chacun son téléphone : l’hôte ne répond pas à la place des autres');
@@ -684,7 +708,7 @@ async function testJamais() {
   ok(G(host).phase === 'ask' && G(host).yes === null, 'réponses secrètes : on attend que tout le monde ait répondu');
   devs[2].gameInput(req(devs[2]).k, true);
   await until(() => G(host).phase === 'reveal', 2000, 'révélation');
-  ok(G(host).yes.join() === [devs[0].uid, devs[2].uid].join(), 'ceux qui ont répondu oui sont révélés');
+  ok(G(host).yes.join() === G(host).pl.filter((u) => u === devs[0].uid || u === devs[2].uid).join(), 'ceux qui ont répondu oui sont révélés');
   const p0 = e.S.pen.filter((x) => x.uid === devs[0].uid).pop();
   const p2 = e.S.pen.filter((x) => x.uid === devs[2].uid).pop();
   ok(p0 && p0.n === 2 && !p0.sober && p2 && p2.sober && p2.def && !e.S.pen.some((x) => x.uid === devs[1].uid), 'buveur : 2 gorgées ; sans alcool : un gage ; « Moi non plus » : rien');
@@ -725,7 +749,7 @@ async function testJamais() {
   ok(G(L.host).phase === 'ask', 'une sélection pour une ancienne carte est ignorée');
   L.host.host('game', { id: 'who', arg: { step: G(L.host).n, uids: [lp[1], lp[0], 'intrus'] } });
   await until(() => G(L.host).phase === 'reveal', 2000, 'révélation');
-  ok(G(L.host).yes.join() === [lp[0], lp[1]].join() && L.host.engine.S.cnt[lp[0]].aveux === 1, 'avatars touchés révélés dans l’ordre des places ; les aveux comptent pour le récap');
+  ok(G(L.host).yes.join() === G(L.host).pl.filter((u) => u === lp[0] || u === lp[1]).join() && L.host.engine.S.cnt[lp[0]].aveux === 1, 'avatars touchés révélés dans l’ordre de la partie ; les aveux comptent pour le récap');
   while (G(L.host).n < 20) {
     const n = G(L.host).n;
     L.host.host('game', { id: G(L.host).phase === 'reveal' ? 'next' : 'skip' });
@@ -745,6 +769,8 @@ async function testJamais() {
 async function testStats() {
   console.log('Stats de soirée, titres du récap, gages maison');
   const { host, devs } = await party(3);
+  host.host('settings', { adult: true });
+  await until(() => host.S.cfg.adult === true, 2000, 'Version Adulte activée');
   const e = host.engine;
   const [a, b, c] = devs.map((d) => d.uid);
   e.pen(a, 6, 'test'); e.ackPen(a, e.S.pen.find((x) => x.uid === a).id, 'done');

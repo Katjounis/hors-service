@@ -72,7 +72,7 @@ function publishHands(c) {
 function deal(c) {
   const g = c.g;
   const P = c.priv;
-  const pl = c.S.order.filter((u) => c.roster[u] && c.online(u));
+  const pl = c.activeUids();
   g.pl = pl;
   g.decks = pl.length > 8 ? 2 : 1;
   g.round += 1;
@@ -477,7 +477,20 @@ function BigTotal({ S, last, clock }) {
   );
 }
 
+// aide-mémoire : la valeur de chaque carte
+function CardValues({ onClose }) {
+  const rows = [['AS', '1'], ['2H', '2 à 10 : leur valeur'], ['JC', '0'], ['QD', '−10'], ['KS', 'total à 70']];
+  return (
+    <div class="v96 paper tape" role="dialog" aria-label="Valeur des cartes">
+      <div class="gr-roles-h"><b>Valeur des cartes</b><button type="button" class="btn btn-small" onClick={onClose}>Fermer</button></div>
+      <ul>{rows.map(([k, l]) => <li key={k}><PlayingCard c={k} size="xs" /><span>{l}</span></li>)}</ul>
+      <p class="muted small">Jamais au-dessus de 96. Pile sur une dizaine : tu distribues le chiffre des dizaines.</p>
+    </div>
+  );
+}
+
 function Table({ S, g, uid, clock }) {
+  const [vals, setVals] = useState(false);
   const cur = g.pl[g.turn];
   if (g.phase === 'end') return <End S={S} g={g} uid={uid} />;
   const inBus = g.bus && (g.phase === 'bus' || g.phase === 'mate' || g.phase === 'busdone');
@@ -487,7 +500,9 @@ function Table({ S, g, uid, clock }) {
         <span class="chip">Partie {g.round}</span>
         <span class="chip">Pioche {g.deckN}</span>
         {g.decks > 1 ? <span class="chip">2 paquets</span> : null}
+        <button type="button" class="chip gr-roles-btn" aria-pressed={vals ? 'true' : 'false'} onClick={() => setVals(!vals)}>Valeur des cartes</button>
       </div>
+      {vals ? <CardValues onClose={() => setVals(false)} /> : null}
       {g.bus && !g.bus.last && (g.phase === 'mate' || g.phase === 'bus') ? <BusFlash id={`${g.round}-${g.bus.who}`} /> : null}
       {!inBus ? (
         <div class="g96-hidden paper tape" aria-label="Total caché">

@@ -1,6 +1,6 @@
 // Quiz sur les autres (version « réponses drôles ») : {A} = le joueur visé.
 // Niveau : 1 tranquille, 2 drôle, 3 piquant.
-export const QUESTIONS_AUTRES = [
+export const QUESTIONS_AUTRES = [...((globalThis.HS_PLUS || {}).autres || []), ...(globalThis.HS_X ? globalThis.HS_X('autres_cul') : []),
   [1, 'Le titre de l’autobiographie de {A} :'],
   [1, 'Le super-pouvoir complètement inutile de {A} :'],
   [1, 'Le métier secret de {A} le week-end :'],

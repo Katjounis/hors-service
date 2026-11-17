@@ -5,7 +5,7 @@
 // ni alcool au volant, ni drogue. HARD et Cul : paquets adultes, désactivés par défaut.
 
 // Soft : le classique de soirée, drôle sans être trash, pour tout le monde.
-export const SOFT = [
+export const SOFT = [...((globalThis.HS_PLUS || {}).jamais || []),
   "Je n’ai jamais fait semblant d’être au téléphone pour éviter quelqu’un.",
   "Je n’ai jamais envoyé un message à la mauvaise personne.",
   "Je n’ai jamais oublié le prénom de quelqu’un deux secondes après qu’il me l’a dit.",
@@ -101,7 +101,7 @@ export const SOFT = [
 ];
 
 // HARD (hors sexe) : gros délires, honte, alcool, illégal léger, trahisons entre potes, dégueu, très gênant.
-export const HARD = [
+export const HARD = [...(globalThis.HS_X ? globalThis.HS_X('jamais_hard') : []),
   "Je n’ai jamais vomi sur quelqu’un.",
   "Je n’ai jamais vomi dans un taxi ou un VTC.",
   "Je n’ai jamais oublié toute une soirée le lendemain.",
@@ -240,7 +240,7 @@ export const HARD = [
 ];
 
 // Cul : franchement cash, entre adultes consentants.
-export const CUL = [
+export const CUL = [...(globalThis.HS_X ? globalThis.HS_X('jamais_cul') : []),
   "Je n’ai jamais possédé de plug.",
   "Je n’ai jamais utilisé un vibro à deux.",
   "Je n’ai jamais fait sonner un sextoy au contrôle de l’aéroport.",

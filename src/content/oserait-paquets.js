@@ -3,7 +3,7 @@
 // need : niveau minimum de la table (1 tranquille, 2 drôle, 3 piquant). Cul et HARD exigent que
 // tout le monde ait réglé ses limites sur « Piquant » ET que l'hôte les ait activés (adult) dans les réglages.
 
-export const ALCOOL = [
+export const ALCOOL = [...(globalThis.HS_X ? globalThis.HS_X('oserait_alcool') : []),
   'finir la soirée en dormant dans la baignoire',
   'vomir avant minuit',
   'appeler son ex après trois verres',
@@ -54,7 +54,7 @@ export const ALCOOL = [
   'se battre avec une boîte de pizza qui refuse de s’ouvrir',
 ];
 
-export const CUL = [
+export const CUL = [...(globalThis.HS_X ? globalThis.HS_X('oserait_cul') : []),
   'envoyer une photo coquine au mauvais destinataire',
   'avoir déjà fait l’amour dans un lieu public',
   'coucher le premier soir',
@@ -138,7 +138,7 @@ export const CUL = [
   'avoir déjà couché avec deux personnes différentes le même jour',
 ];
 
-export const HARD = [
+export const HARD = [...(globalThis.HS_X ? globalThis.HS_X('oserait_hard') : []),
   'finir en garde à vue ce soir',
   'se faire refouler à la frontière',
   'se réveiller à côté d’un panneau de signalisation sans savoir d’où il vient',

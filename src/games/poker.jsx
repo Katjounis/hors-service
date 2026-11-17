@@ -1,7 +1,7 @@
 // Poker des gorgées (Texas hold'em sans limite) : chacun commence avec un tapis de gorgées (10 par défaut).
 // • Petite et grosse blinde, deux cartes cachées par joueur, flop, tournante, rivière, enchères à chaque tour.
 // • Se coucher, parler, suivre, relancer (au moins la dernière relance), tapis. Pots annexes quand quelqu'un est à tapis.
-// • Le tapis ne se regagne jamais : le gagnant du pot ne récupère pas les gorgées, il les DISTRIBUE à la table.
+// • Le gagnant du pot reprend sa propre mise et DISTRIBUE à la table les gorgées misées par les autres.
 //   Plus de gorgées dans le tapis : éliminé. La partie s'arrête quand il ne reste qu'un joueur (ou sur décision de l'hôte).
 import { useState } from 'preact/hooks';
 import { newDeck, order } from '../lib/cards.js';
@@ -57,8 +57,7 @@ export function buildPots(total, folded) {
     const elig = Object.keys(total).filter((u) => total[u] >= lv && !folded[u]);
     if (amount > 0) {
       // une tranche où personne n'est éligible (tous couchés) rejoint la précédente
-      if (!elig.length && pots.length) pots[pots.length - 1].amount += amount;
-      else pots.push({ amount, elig });
+      if (!elig.length && pots.length) { pots[pots.length - 1].amount += amount; pots[pots.length - 1].hi = lv; } else pots.push({ amount, elig, lo: prev, hi: lv });
     }
     prev = lv;
   }
@@ -103,6 +102,7 @@ function newHand(c) {
   for (const u of pl) { g.bet[u] = 0; g.total[u] = 0; }
   g.res = null;
   g.last = null;
+  g.shown = {};
   g.phase = 'bet';
   // blindes (à deux joueurs, le bouton paie la petite et parle en premier avant le flop)
   const sb = pl.length === 2 ? g.button : nextIn(pl, g.button, g.pl);
@@ -132,24 +132,37 @@ function nextStreet(c) {
   g.street += 1;
   if (g.street === 1) g.board.push(deck.pop(), deck.pop(), deck.pop());
   else if (g.street <= 3) g.board.push(deck.pop());
-  if (g.street > 3) { showdown(c); return; }
+  if (g.street > 3) { openCards(c, 'show'); return; }
   const ca = canAct(g);
   if (ca.length <= 1) { runOut(c); return; }
   g.cur = nextIn(ca, g.button, g.pl);
   g.mv += 1;
 }
 
-// plus personne ne peut miser : on tire le reste du tableau et on abat
-function runOut(c) {
+// abattage en direct : les cartes des joueurs encore en main se retournent pour tous,
+// puis (phase « run ») le reste du tableau sort carte par carte dans tick()
+function openCards(c, phase) {
   const g = c.g;
-  const deck = c.priv.deck;
-  while (g.board.length < 5) g.board.push(deck.pop());
-  g.street = 4;
-  showdown(c);
+  g.phase = phase;
+  g.cur = null;
+  g.shown = Object.fromEntries(inHand(g).map((u) => [u, c.priv.hole[u]]));
+  g.nextAt = c.now() + (phase === 'run' ? 1800 : 2400);
+  g.mv += 1;
 }
 
-function award(c, winners, amount, why) {
+// plus personne ne peut miser : on montre les cartes et on tire le reste du tableau
+function runOut(c) { openCards(c, 'run'); }
+
+// le gagnant reprend sa propre mise (dans la tranche du pot), et distribue les gorgées des autres
+function award(c, winners, amount, why, pot) {
   const g = c.g;
+  let back = 0;
+  for (const u of winners) {
+    const own = pot ? Math.max(0, Math.min(g.total[u] || 0, pot.hi) - pot.lo) : g.total[u] || 0;
+    g.stack[u] = (g.stack[u] || 0) + own;
+    back += own;
+  }
+  amount = Math.max(0, amount - back);
   const share = Math.floor(amount / winners.length);
   let rest = amount - share * winners.length;
   for (const u of winners) {
@@ -157,8 +170,9 @@ function award(c, winners, amount, why) {
     if (rest > 0) rest -= 1;
     g.gave[u] = (g.gave[u] || 0) + n;
     g.won[u] = (g.won[u] || 0) + 1;
-    c.gift(u, n, why);
+    if (n > 0) c.gift(u, n, why);
   }
+  return amount;
 }
 
 function showdown(c) {
@@ -173,8 +187,8 @@ function showdown(c) {
     if (!elig.length) continue;
     let top = [elig[0]];
     for (const u of elig.slice(1)) { const d = cmpHand(best[u], best[top[0]]); if (d > 0) top = [u]; else if (d === 0) top.push(u); }
-    award(c, top, p.amount, 'Poker : pot gagné, tu distribues');
-    res.push({ amount: p.amount, win: top, name: HAND_NAME[best[top[0]][0]] });
+    const give = award(c, top, p.amount, 'Poker : pot gagné, tu distribues', p);
+    res.push({ amount: p.amount, give, win: top, name: HAND_NAME[best[top[0]][0]] });
   }
   g.res = { show: true, pots: res, hands: Object.fromEntries(hold.map((u) => [u, { hole: c.priv.hole[u], name: HAND_NAME[best[u][0]] }])) };
   endHand(c);
@@ -188,7 +202,7 @@ function endHand(c) {
   for (const u of g.seat) if (g.stack[u] <= 0 && !g.out[u]) { g.out[u] = g.hand; c.ev(`Poker : ${c.name(u)} n’a plus de gorgées dans son tapis`, '*', 'game'); }
   for (const u of g.pl) c.setSecret(u, null);
   g.hist.push({ hand: g.hand, pot: potOf(g), res: g.res });
-  if (live(c, g).length < 2) finish(c);
+  // moins de deux joueurs : on laisse le gagnant distribuer, l'hôte lance ensuite le rapport d'incident
 }
 
 function act(c, u, v) {
@@ -213,8 +227,7 @@ function act(c, u, v) {
   g.mv += 1;
   const still = inHand(g);
   if (still.length === 1) {
-    award(c, still, potOf(g), 'Poker : tout le monde s’est couché, tu distribues le pot');
-    g.res = { show: false, pots: [{ amount: potOf(g), win: still, name: null }], hands: {} };
+    g.res = { show: false, pots: [{ amount: potOf(g), give: award(c, still, potOf(g), 'Poker : tout le monde s’est couché, tu distribues le pot'), win: still, name: null }], hands: {} };
     endHand(c);
     return true;
   }
@@ -258,7 +271,7 @@ function botAct(g, hole) {
 const POKER = {
   id: 'poker',
   name: 'Poker des gorgées',
-  tagline: 'Texas hold’em avec un tapis de gorgées. Celui qui rafle le pot ne garde rien : il distribue tout à la table.',
+  tagline: 'Texas hold’em avec un tapis de gorgées. Celui qui rafle le pot reprend sa mise et distribue le reste à la table.',
   min: 2,
   max: 8,
   local: true,
@@ -267,7 +280,7 @@ const POKER = {
     'Petite blinde et grosse blinde avant la donne, puis deux cartes cachées chacun. Quatre tours d’enchères : avant le flop, après le flop (3 cartes communes), la tournante (4e) et la rivière (5e).',
     'À ton tour : te coucher, parler (si personne n’a misé), suivre, relancer (au moins autant que la dernière relance) ou faire tapis.',
     'Abattage : la meilleure combinaison de 5 cartes parmi tes 2 cartes et les 5 du tableau gagne. Carte haute, paire, double paire, brelan, quinte, couleur, full, carré, quinte flush.',
-    'Le gagnant ne récupère pas les gorgées du pot : il les distribue à qui il veut. Égalité : le pot est partagé. Si quelqu’un est à tapis, il ne joue que la part du pot qu’il a pu suivre.',
+    'Le gagnant reprend sa propre mise et distribue à qui il veut les gorgées que les autres ont misées. Égalité : le pot est partagé. Si quelqu’un est à tapis, il ne joue que la part du pot qu’il a pu suivre.',
     'Tapis vide : tu es éliminé. La partie s’arrête quand il ne reste qu’un joueur, ou quand l’hôte le décide. Option : le dernier boit en plus.',
     'Sur un seul téléphone : on passe le téléphone à chaque tour, les autres ne regardent pas les cartes.',
   ],
@@ -302,15 +315,19 @@ const POKER = {
     return act(c, uid, v);
   },
 
-  actions({ g }) {
-    if (g.phase === 'result') return [{ id: 'next', label: 'Donne suivante', primary: true }, { id: 'end', label: 'Arrêter la partie', confirm: 'Arrêter et voir le classement ?' }];
-    if (g.phase === 'bet') return [{ id: 'end', label: 'Arrêter la partie', confirm: 'Arrêter et voir le classement ?' }];
+  actions({ S, g }) {
+    // tant qu'un gagnant n'a pas distribué ses gorgées, la donne suivante attend
+    const wait = S && (S.gifts || []).filter((x) => /^Poker/.test(x.why || ''));
+    const busy = wait && wait.length ? `${wait.map((x) => nickOf(S, x.uid)).join(' et ')} doit d’abord distribuer` : '';
+    if (g.phase === 'result' && g.pl.filter((u) => !g.out[u]).length < 2) return [{ id: 'end', label: busy || 'Rapport d’incident', primary: true, disabled: !!busy }];
+    if (g.phase === 'result') return [{ id: 'next', label: busy || 'Donne suivante', primary: true, disabled: !!busy }, { id: 'end', label: 'Arrêter la partie', confirm: 'Arrêter et voir le classement ?' }];
+    if (g.phase === 'bet' || g.phase === 'run' || g.phase === 'show') return [{ id: 'end', label: 'Arrêter la partie', confirm: 'Arrêter et voir le classement ?' }];
     return [];
   },
 
   act(c, id) {
     const g = c.g;
-    if (id === 'next' && g.phase === 'result') { newHand(c); return true; }
+    if (id === 'next' && g.phase === 'result' && !(c.S.gifts || []).some((x) => /^Poker/.test(x.why || ''))) { newHand(c); return true; }
     if (id === 'end' && g.phase !== 'end') { finish(c); return true; }
     return false;
   },
@@ -318,6 +335,21 @@ const POKER = {
   // le joueur qui doit parler a quitté la soirée : il se couche
   tick(c) {
     const g = c.g;
+    // abattage en direct : une carte du tableau toutes les deux secondes, puis le résultat
+    if (g.phase === 'run' || g.phase === 'show') {
+      if (c.now() < (g.nextAt || 0)) return false;
+      if (g.phase === 'run' && g.board.length < 5) {
+        const deck = c.priv.deck;
+        if (g.board.length) g.board.push(deck.pop()); else g.board.push(deck.pop(), deck.pop(), deck.pop());
+        g.street = g.board.length === 3 ? 1 : g.board.length === 4 ? 2 : 3;
+        g.nextAt = c.now() + (g.board.length < 5 ? 1900 : 2600);
+        g.mv += 1;
+        return true;
+      }
+      g.street = 4;
+      showdown(c);
+      return true;
+    }
     if (g.phase !== 'bet' || !g.cur || c.roster[g.cur]) return false;
     return act(c, g.cur, { a: 'fold' });
   },
@@ -353,9 +385,10 @@ const ACT_TXT = { fold: 'se couche', check: 'parle', call: 'suit', raise: 'relan
 const STREET = ['Avant le flop', 'Flop', 'Tournante', 'Rivière', 'Abattage'];
 
 function Board({ g }) {
+  const live = g.phase === 'run' || g.phase === 'show';
   return (
     <div class="pk-board">
-      {[0, 1, 2, 3, 4].map((i) => (g.board[i] ? <PlayingCard key={g.board[i]} c={g.board[i]} size="l" posee /> : <span key={i} class="pk-slot" />))}
+      {[0, 1, 2, 3, 4].map((i) => (g.board[i] ? <PlayingCard key={g.board[i]} c={g.board[i]} size="l" posee={!live} flip={live} /> : <span key={i} class="pk-slot" />))}
     </div>
   );
 }
@@ -374,14 +407,26 @@ function Table({ S, g, uid, secret }) {
       <div class="pk-felt">
         <span class="pk-print" aria-hidden="true">Le gagnant distribue · le tapis ne revient jamais</span>
         <Board g={g} />
-        <p class="pk-pot"><span class="pk-pot-l">Pot</span> <b>{pot}</b> <Shots n={pot} max={12} tone="pot" /></p>
-        {g.last && g.phase === 'bet' ? <p class="pk-last">{nickOf(S, g.last.u)} {ACT_TXT[g.last.a]}{g.last.a === 'raise' ? ` ${g.last.n}` : ''}</p> : null}
+        <p class="pk-pot"><span class="pk-pot-l">Pot</span> <b class="pk-n" key={`p${pot}`}>{pot}</b> <Shots n={pot} max={12} tone="pot" /></p>
+        {g.last && g.phase === 'bet' ? <p class="pk-last pk-pop" key={`a${g.mv}`}>{nickOf(S, g.last.u)} {ACT_TXT[g.last.a]}{g.last.a === 'raise' ? ` ${g.last.n}` : ''}</p>
+          : g.phase === 'run' ? <p class="pk-last pk-live">Tapis ! On retourne les cartes…</p>
+            : g.phase === 'show' ? <p class="pk-last pk-live">Abattage : cartes sur la table</p>
+              : g.phase === 'result' && g.res ? <p class="pk-last">{g.res.pots.map((p) => `${p.win.map((u) => nickOf(S, u)).join(' et ')} ${p.win.length > 1 ? 'se partagent' : 'rafle'} ${p.amount}`).join(' · ')}</p> : null}
       </div>
       <ul class="pk-seats">
         {g.pl.filter((u) => S.roster[u]).map((u) => {
           const inH = g.seat.includes(u);
+          const shown = g.shown && g.shown[u];
+          const won = g.phase === 'result' && g.res && g.res.pots.some((p) => p.win.includes(u));
+          const hand = g.phase === 'result' && g.res && g.res.hands && g.res.hands[u] ? g.res.hands[u].name : null;
           return (
-            <li key={u} class={`pk-seat${u === g.cur ? ' is-turn' : ''}${g.folded[u] ? ' is-fold' : ''}${g.out[u] ? ' is-out' : ''}`}>
+            <li key={u} class={`pk-seat${u === g.cur ? ' is-turn' : ''}${g.folded[u] ? ' is-fold' : ''}${g.out[u] ? ' is-out' : ''}${won ? ' is-win' : ''}`}>
+              {shown ? (
+                <span class="pk-seat-cards">
+                  {shown.map((x, k) => <span key={x} class="pk-jet" style={`--k:${k}`}><PlayingCard c={x} size="s" /></span>)}
+                  {hand ? <span class="pk-hand">{hand}</span> : null}
+                </span>
+              ) : null}
               <Av p={S.roster[u]} size="s" />
               <span class="pk-name">{nickOf(S, u)}
                 {u === g.button && inH ? <i class="pk-tag">D</i> : null}
@@ -411,10 +456,10 @@ function Result({ S, g, uid }) {
           <span class="ose-lead">{i === 0 ? (r.pots.length > 1 ? 'Pot principal' : 'Pot') : 'Pot annexe'} · {plural(p.amount, 'gorgée', 'gorgées')}</span>
           {p.win.map((u) => <Who key={u} S={S} uid={u} you={uid} />)}
           {p.name ? <> avec <b>{p.name}</b></> : <> : tout le monde s’est couché</>}
-          <Stamp tone="give">{p.win.length > 1 ? `Chacun distribue ${Math.floor(p.amount / p.win.length)}` : `Distribue ${p.amount}`}</Stamp>
+          <Stamp tone="give">{(p.give ?? p.amount) <= 0 ? 'Rien à distribuer' : p.win.length > 1 ? `Chacun distribue ${Math.floor((p.give ?? p.amount) / p.win.length)}` : `Distribue ${p.give ?? p.amount}`}</Stamp>
         </p>
       ))}
-      {r.show ? (
+      {false ? (
         <>
           <div class="pk-board pk-board-s">{g.board.map((x) => <PlayingCard key={x} c={x} size="s" />)}</div>
           <ul class="pk-show">
@@ -428,10 +473,28 @@ function Result({ S, g, uid }) {
   );
 }
 
+// fin de partie : les cartes de la dernière donne jetées sur le tapis (positions fixes pour une donne)
+function thrown(g) {
+  const L = [...(g.board || [])];
+  for (const h of Object.values(g.shown || {})) L.push(...h);
+  for (const k of ['AS', 'KH', 'QD', 'JC', 'TS', '9H', '8D', '7C', '5S']) if (L.length < 9 && !L.includes(k)) L.push(k);
+  const h = (g.hand || 1) * 7;
+  return L.map((c, i) => {
+    const a = Math.sin(h + i * 12.9898) * 43758.5453; const f = a - Math.floor(a);
+    const b = Math.sin(h + i * 78.233) * 12345.678; const q = b - Math.floor(b);
+    return { c, x: Math.round(6 + f * 72), y: Math.round(8 + q * 58), r: Math.round(f * 90 - 45), d: i * 110 };
+  });
+}
+
 function End({ S, g, uid }) {
   const s = g.summary || { rows: [], hands: 0 };
+  const J = thrown(g);
   return (
-    <div class="end">
+    <div class="end pk">
+      <div class="pk-felt pk-throw">
+        <span class="pk-print" aria-hidden="true">Table fermée · cartes jetées</span>
+        {J.map((o) => <span key={o.c} class="pk-thrown" style={`--x:${o.x}%;--y:${o.y}%;--r:${o.r}deg;--d:${o.d}ms`}><PlayingCard c={o.c} size="m" /></span>)}
+      </div>
       <h3 class="end-title">Fin du poker · {plural(s.hands, 'donne', 'donnes')}</h3>
       <div class="tbl-wrap"><table class="tbl">
         <thead><tr><th>Joueur</th><th>Tapis</th><th>Pots</th><th>Distribuées</th></tr></thead>

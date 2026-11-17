@@ -22,7 +22,7 @@ export const BREF = {
   paranoia: ['Tu reçois une question secrète « Qui ici… ? » et tu désignes quelqu’un.', 'Le désigné peut boire pour découvrir la question.', 'Ou rester dans le flou.'],
   actionverite: ['Choisis Action ou Vérité.', 'Réponds franchement ou fais l’action.', 'Refuser, c’est la sanction (cul sec par défaut).'],
   tupref: ['Deux options : chacun choisit en secret.', 'La minorité boit.', 'Seul contre tous : double peine.'],
-  poker: ['Tapis de 10 gorgées chacun, Texas hold’em classique.', 'Mise, suis, relance ou couche-toi ; la meilleure main remporte le pot.', 'Le gagnant ne garde rien : il distribue les gorgées du pot.'],
+  poker: ['Tapis de 10 gorgées chacun, Texas hold’em classique.', 'Mise, suis, relance ou couche-toi ; la meilleure main remporte le pot.', 'Le gagnant reprend sa mise et distribue les gorgées des autres.'],
   blackjack: ['Mise 1 à 5 gorgées contre la banque.', 'Tire, reste ou double pour t’approcher de 21 sans dépasser.', 'Gagné : tu distribues ta mise. Perdu : tu la bois.'],
   roulette: ['Six verres, un seul piégé. Personne ne sait lequel.', 'Chacun son tour choisit un verre : propre, ouf ; piégé, cul sec.', 'Se dégonfler coûte des gorgées, et tout le monde le voit.'],
   ring: ['Deux joueurs tirés au sort montent sur le ring, les autres parient.', 'Pierre, feuille, ciseaux en secret, ou un défi en vrai tranché par la table.', 'Le perdant boit, les mauvais parieurs aussi.'],

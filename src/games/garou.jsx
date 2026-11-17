@@ -7,7 +7,7 @@
 // Tout se joue en secret : chacun voit son rôle sur son téléphone ; l'appareil en mode Écran fait le narrateur.
 // Un seul téléphone : on se le passe à chaque étape de la nuit (tout le monde fait semblant à chaque appel).
 
-import { useState } from 'preact/hooks';
+import { useState, useRef, useEffect } from 'preact/hooks';
 import { Who, nickOf, PlayerGrid, Waiting, Av, Stamp, useTicker } from '../ui/common.jsx';
 import { plural } from '../lib/util.js';
 
@@ -171,7 +171,10 @@ function kill(c, u, how, out) {
   if (!u || g.dead[u]) return;
   g.dead[u] = { how, role: c.priv.roles[u], n: g.night };
   out.push(u);
-  c.penCS(u, `GlouGlou Garou : ${how}`);
+  // victime des loups : 2 gorgées ; villageois éliminé autrement : 1 ; loup démasqué : cul sec
+  if (how === 'dévoré par les loups') c.pen(u, 2, `GlouGlou Garou : ${how}`);
+  else if (c.priv.roles[u] !== 'loup') c.pen(u, 1, `GlouGlou Garou : ${how}`);
+  else c.penCS(u, `GlouGlou Garou : ${how}`);
   // amoureux : l'autre meurt de chagrin
   const L = c.priv.lovers;
   if (L && L.includes(u)) {
@@ -292,14 +295,14 @@ function applyVerdict(c) {
 const GAROU = {
   id: 'garou',
   name: 'GlouGlou Garou',
-  tagline: 'Le loup-garou version soirée : la nuit les loups dévorent, le jour le village vote. Chaque mort prend un cul sec.',
+  tagline: 'Le loup-garou version soirée : la nuit les loups dévorent, le jour le village vote. Chaque mort boit.',
   min: 5,
   local: true,
   rules: [
     'Chacun découvre son rôle en secret. Les Loups-Garous se connaissent entre eux.',
     'La nuit, chaque rôle se réveille à son tour sur son téléphone (Cupidon la première nuit, la Voyante, la Sorcière… et les loups qui choisissent une victime).',
     'Au matin, on découvre les morts. Le village débat, puis chacun vote en secret pour éliminer un suspect. Égalité : personne ne sort.',
-    'Alcool : chaque mort prend un cul sec. Condamner un innocent coûte 2 gorgées à chaque juge ; condamner un loup permet à chaque juge de distribuer 1 gorgée.',
+    'Alcool : une victime des loups boit 2 gorgées, un villageois éliminé autrement (vote, poison, tir) en boit 1, un loup démasqué prend un cul sec. Condamner un innocent coûte 2 gorgées à chaque juge ; condamner un loup permet à chaque juge de distribuer 1 gorgée.',
     'Les villageois gagnent quand tous les loups sont morts ; les loups gagnent quand ils sont aussi nombreux que les autres. Les amoureux d’équipes différentes gagnent s’ils restent seuls. L’équipe perdante boit.',
     'Version remasterisée : Voyante pompette (une vision sur trois est fausse), Mixologue, Barman (protège en faisant boire), Pilier de bar (survit à une attaque), Dernier verre, Videur (annule un vote). Les loups trinquent chaque nuit.',
     'En mode Écran, la télé fait le narrateur. Sur un seul téléphone, on se le passe à chaque étape : tout le monde fait semblant à chaque appel.',
@@ -315,7 +318,8 @@ const GAROU = {
     const roles = deal(pl.length, version);
     const g = {
       gid: c.rid(5), pl, version, phase: 'roles', seen: {}, night: 0, step: null, steps: [], si: -1, dead: {}, log: [],
-      votes: {}, vres: null, verdict: null, shooter: null, lastDeaths: [], dealt: [...new Set(roles)], local: !!c.isLocal,
+      votes: {}, vres: null, verdict: null, shooter: null, lastDeaths: [], dealt: [...new Set(roles)],
+      compo: roles.reduce((o, r) => { o[r] = (o[r] || 0) + 1; return o; }, {}), local: !!c.isLocal,
     };
     c.g = g;
     c.S.game.g = g;
@@ -566,7 +570,129 @@ function Graveyard({ S, g, uid }) {
   );
 }
 
+// rôles distribués ce soir (nombre et morts), sans dire qui les a
+function RolesInPlay({ g, onClose }) {
+  const C = g.compo || Object.fromEntries((g.dealt || []).map((x) => [x, 1]));
+  const M = {};
+  for (const d of Object.values(g.dead || {})) if (d && d.role) M[d.role] = (M[d.role] || 0) + 1;
+  const keys = Object.keys(C).sort((a, b) => (a === 'loup' ? -1 : b === 'loup' ? 1 : 0));
+  return (
+    <div class="gr-roles paper tape" role="dialog" aria-label="Rôles en jeu">
+      <div class="gr-roles-h"><b>Rôles en jeu</b><button type="button" class="btn btn-small" onClick={onClose}>Fermer</button></div>
+      <ul>
+        {keys.map((k) => {
+          const R = ROLES[k] || { name: k, desc: '' };
+          const m = M[k] || 0;
+          return (
+            <li key={k} class={`gr-r${R.team === 'loups' ? ' is-loup' : ''}`}>
+              <span class="gr-n">{C[k]} × <b>{R.name}</b>{m ? <span class="gr-dead"> · {m} mort{m > 1 ? 's' : ''}</span> : null}</span>
+              <span class="gr-d">{R.desc}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <p class="muted small">Les rôles distribués ce soir, sans dire qui les a.</p>
+    </div>
+  );
+}
+
+// la nuit, ceux qui n'agissent pas ont de quoi s'occuper : même écran chargé pour tous, personne ne se trahit
+const NUIT_Q = ['Qui est ton amoureux secret ici ?', 'Qui finit sous la table ce soir ?', 'Qui a le pire historique de recherche ?', 'Avec qui tu partirais en road trip ?', 'Qui ment le mieux ici ?', 'Qui te doit de l’argent ?', 'Qui ronfle le plus fort, à ton avis ?', 'Qui serait le pire coloc ?', 'Qui envoie des vocaux de 5 minutes ?', 'Qui pleure devant les dessins animés ?', 'Qui a le plus de chances de finir célèbre ?', 'Qui danse le plus mal ?', 'Qui stalke encore son ex ?', 'Qui survit le plus longtemps dans un film d’horreur ?', 'Qui a le pire goût musical ?', 'Qui oublie toujours son portefeuille ?', 'Qui raconte les pires blagues ?', 'Qui appellerais-tu pour cacher un corps ?', 'Qui est le plus jaloux ici ?', 'Qui a déjà vomi en soirée ?', 'Qui serait le pire président ?', 'Qui triche aux jeux de société ?', 'Qui se perd même avec un GPS ?', 'Qui a le plus beau sourire ici ?'];
+function NightQuestion({ S, g, uid }) {
+  const [k, setK] = useState(() => Math.floor(Math.random() * NUIT_Q.length));
+  const [pick, setPick] = useState(null);
+  const others = alive(g).filter((x) => x !== uid);
+  return (
+    <div class="hs-nq">
+      <p class="hs-nq-q">{NUIT_Q[k % NUIT_Q.length]}</p>
+      {pick ? (
+        <div class="hs-nq-ok">
+          <span>Noté : <b>{nickOf(S, pick)}</b>. Personne ne le saura.</span>
+          <button type="button" class="btn btn-small" onClick={() => { setPick(null); setK(k + 1 + Math.floor(Math.random() * 5)); }}>Autre question</button>
+        </div>
+      ) : <PlayerGrid S={S} uids={others} onPick={(x) => setPick(x)} />}
+    </div>
+  );
+}
+
+// mini-jeu de nuit : la pinte saute les bouteilles (record gardé sur le téléphone)
+function NightRunner() {
+  const ref = useRef(null);
+  const [best, setBest] = useState(() => { try { return +localStorage.getItem('hs:nuit') || 0; } catch (e) { return 0; } });
+  useEffect(() => {
+    const cv = ref.current;
+    if (!cv) return undefined;
+    const d = Math.min(2, window.devicePixelRatio || 1);
+    const W = cv.clientWidth;
+    const H = cv.clientHeight;
+    cv.width = W * d; cv.height = H * d;
+    const x = cv.getContext('2d');
+    x.scale(d, d);
+    const G = H - 18;
+    const S = { y: 0, vy: 0, ob: [], t: 0, sp: 4, mort: false, sc: 0, next: 60, raf: 0, best };
+    const jump = () => {
+      if (S.mort) { S.y = 0; S.vy = 0; S.ob = []; S.t = 0; S.sp = 4; S.sc = 0; S.next = 60; S.mort = false; return; }
+      if (S.y === 0) S.vy = 10.5;
+    };
+    const down = (e) => { e.preventDefault(); jump(); };
+    cv.addEventListener('pointerdown', down);
+    const step = () => {
+      if (!S.mort) {
+        S.t += 1; S.sc = Math.floor(S.t / 6); S.sp = 4 + S.t / 700;
+        S.vy -= 0.62; S.y = Math.max(0, S.y + S.vy); if (S.y === 0) S.vy = 0;
+        if (--S.next <= 0) { S.ob.push({ x: W + 10, h: 14 + Math.random() * 16, w: 10 + Math.random() * 8 }); S.next = 48 + Math.random() * 60 - Math.min(30, S.t / 80); }
+        for (const o of S.ob) o.x -= S.sp;
+        S.ob = S.ob.filter((o) => o.x > -30);
+        for (const o of S.ob) {
+          if (o.x < 54 && o.x + o.w > 30 && S.y < o.h - 2) {
+            S.mort = true;
+            if (S.sc > S.best) { S.best = S.sc; try { localStorage.setItem('hs:nuit', String(S.sc)); } catch (e) { /* stockage bloqué */ } setBest(S.sc); }
+          }
+        }
+      }
+      x.clearRect(0, 0, W, H);
+      x.fillStyle = 'rgba(246,239,223,.25)'; x.fillRect(0, G, W, 2);
+      for (let k = 0; k < 6; k++) { const sx = (k * 97 - ((S.t * 0.4) % 97) + W) % W; x.fillRect(sx, 12 + ((k * 7) % 30), 2, 2); }
+      const py = G - S.y;
+      x.fillStyle = '#F2C230'; x.fillRect(30, py - 24, 20, 24);
+      x.fillStyle = '#F6EFDF'; x.fillRect(28, py - 29, 24, 7);
+      x.strokeStyle = '#F2C230'; x.lineWidth = 3; x.strokeRect(50, py - 19, 6, 10);
+      x.fillStyle = '#C83A2E';
+      for (const o of S.ob) { x.fillRect(o.x, G - o.h, o.w, o.h); x.fillRect(o.x + o.w / 2 - 2, G - o.h - 6, 4, 6); }
+      x.fillStyle = '#F6EFDF'; x.font = '600 13px system-ui, sans-serif'; x.textAlign = 'right';
+      x.fillText(`${S.sc}  ·  record ${S.best}`, W - 8, 16);
+      if (S.mort) { x.textAlign = 'center'; x.font = '700 15px system-ui, sans-serif'; x.fillText('Renversé ! Touche pour rejouer', W / 2, H / 2 - 6); }
+      if (S.t === 0 && !S.mort) { x.textAlign = 'center'; x.font = '600 13px system-ui, sans-serif'; x.fillText('Touche pour sauter', W / 2, H / 2 - 6); }
+      S.raf = requestAnimationFrame(step);
+    };
+    S.raf = requestAnimationFrame(step);
+    return () => { cancelAnimationFrame(S.raf); cv.removeEventListener('pointerdown', down); };
+  }, []);
+  return (
+    <div class="hs-nuit">
+      <p class="hs-nuit-t">Et en attendant, saute les bouteilles.</p>
+      <canvas ref={ref} class="hs-nuit-c" aria-label="Mini-jeu : la pinte saute les bouteilles" />
+    </div>
+  );
+}
+
+// tir du chasseur (ou dernier verre) : on choisit, puis on confirme
+function Shoot({ S, uids, last, onFire, disabled }) {
+  const [pick, setPick] = useState(null);
+  return (
+    <div class="act">
+      <h3>{last ? 'Ton dernier verre : qui emportes-tu ?' : 'Dernier tir : qui emportes-tu ?'}</h3>
+      <p class="hint">Touche un joueur, puis confirme. Prends ton temps, personne ne sort sans ta confirmation.</p>
+      <PlayerGrid S={S} uids={uids} picked={pick} onPick={(u) => setPick(pick === u ? null : u)} disabled={disabled} />
+      <button type="button" class="btn btn-main btn-big btn-wide" disabled={disabled || !pick} onClick={() => pick && onFire(pick)}>
+        {pick ? (last ? `Emporter ${nickOf(S, pick)}` : `Tirer sur ${nickOf(S, pick)}`) : 'Choisis ta cible'}
+      </button>
+    </div>
+  );
+}
+
 function Table({ S, g, uid, clock, screen }) {
+  const [rolesOpen, setRolesOpen] = useState(false);
   if (g.phase === 'end') return <End S={S} g={g} uid={uid} />;
   const night = g.phase === 'night';
   return (
@@ -575,8 +701,16 @@ function Table({ S, g, uid, clock, screen }) {
         <span class="chip">{g.version === 'remaster' ? 'Remasterisée' : 'Classique + alcool'}</span>
         <span class="chip">{g.night ? `Nuit ${g.night}` : 'Distribution'}</span>
         <span class="chip">{plural(alive(g).length, 'survivant', 'survivants')}</span>
+        <button type="button" class="chip gr-roles-btn" aria-pressed={rolesOpen ? 'true' : 'false'} onClick={() => setRolesOpen(!rolesOpen)}>Rôles en jeu</button>
       </div>
+      {rolesOpen ? <RolesInPlay g={g} onClose={() => setRolesOpen(false)} /> : null}
       <Narration S={S} g={g} clock={clock} />
+      {night && uid && !screen && !g.local ? (
+        <div class="hs-nuit-wrap">
+          <NightQuestion key={`q${g.night}${g.step}`} S={S} g={g} uid={uid} />
+          <NightRunner key={`n${g.night}`} />
+        </div>
+      ) : null}
       <Graveyard S={S} g={g} uid={uid} />
       {g.vres && (g.phase === 'verdict') ? <VoteLog S={S} g={g} /> : null}
     </div>
@@ -592,7 +726,7 @@ function Narration({ S, g, clock }) {
   else if (g.phase === 'day') {
     const d = g.lastDeaths || [];
     big = d.length ? `Le village se réveille : ${d.map((u) => nickOf(S, u)).join(' et ')} ${d.length > 1 ? 'sont morts' : 'est mort'}` : 'Le village se réveille : personne n’est mort cette nuit';
-    small = d.length ? `${d.map((u) => `${nickOf(S, u)} était ${ROLES[g.dead[u].role].name}`).join(', ')}. Cul sec pour les morts. Débattez, puis votez.` : 'Débattez, puis votez.';
+    small = d.length ? `${d.map((u) => `${nickOf(S, u)} était ${ROLES[g.dead[u].role].name}`).join(', ')}. Les morts boivent : 2 gorgées pour une victime des loups, 1 pour un villageois, cul sec pour un loup. Débattez, puis votez.` : 'Débattez, puis votez.';
   } else if (g.phase === 'vote') { big = 'Le village vote'; small = `${Object.keys(g.votes).length} / ${alive(g).length} votes. Vote secret.`; }
   else if (g.phase === 'videur') { big = 'Le verdict tombe…'; small = 'Quelqu’un réfléchit encore.'; }
   else if (g.phase === 'verdict') {
@@ -733,14 +867,7 @@ function Act({ S, g, uid, req, send, sent, secret }) {
       </div>
     );
   }
-  if (req.kind === 'shoot') {
-    return (
-      <div class="act">
-        <h3>{secret.role === 'dernier' ? 'Ton dernier verre : qui emportes-tu ?' : 'Dernier tir : qui emportes-tu ?'}</h3>
-        <PlayerGrid S={S} uids={others} onPick={(u) => send(req.k, u)} disabled={sent} />
-      </div>
-    );
-  }
+  if (req.kind === 'shoot') return <Shoot key={req.k} S={S} uids={others} last={secret.role === 'dernier'} onFire={(u) => send(req.k, u)} disabled={sent} />;
   if (req.kind === 'videur') {
     return (
       <div class="act">

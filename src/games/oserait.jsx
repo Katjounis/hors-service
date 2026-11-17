@@ -82,11 +82,11 @@ const OSERAIT = {
     'Quand tout le monde a voté, les résultats s’affichent.',
     'Le ou les joueurs les plus désignés prennent autant de gorgées que de votes reçus (ou un gage, ou des points, pour qui joue sans alcool).',
     'De temps en temps, un « tour double » double les gorgées.',
-    'Avant de lancer, l’hôte choisit le paquet de questions : Classique, Alcool, Cul ou HARD. Cul et HARD sont désactivés par défaut : l’hôte les active avec l’interrupteur « Mode Cul et HARD » du salon, et ils ne s’ouvrent que si tout le monde a réglé ses limites sur « Piquant ».',
+    'Avant de lancer, l’hôte choisit le paquet de questions : Classique, Alcool, Cul ou HARD. Cul et HARD sont désactivés par défaut : l’hôte les active avec l’interrupteur « Version Adulte » du salon, et ils ne s’ouvrent que si tout le monde a réglé ses limites sur « Piquant ».',
     'Avec l’option « votes révélés », on voit qui a voté pour qui.',
   ],
   options: [
-    { id: 'pack', label: 'Paquet de questions', choices: [['classique', 'Classique'], ['alcool', 'Alcool', 2], ['cul', 'Cul', 3, 'adult'], ['hard', 'HARD', 3, 'adult']], def: 'classique' },
+    { id: 'pack', label: 'Paquet de questions', choices: [['classique', 'Classique'], ['alcool', 'Alcool', 2, 'adult'], ['cul', 'Cul', 3, 'adult'], ['hard', 'HARD', 3, 'adult']], def: 'classique' },
     { id: 'rounds', label: 'Nombre de questions', choices: [[10, '10'], [15, '15'], [25, '25']], def: 10 },
     { id: 'reveal', label: 'Votes', choices: [['anon', 'Anonymes'], ['open', 'Révélés']], def: 'anon' },
   ],

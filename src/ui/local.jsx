@@ -159,7 +159,7 @@ export function LocalSetup({ onStart, onBack }) {
             <span class="field-l">Joueurs habituels</span>
             <div class="chips">
               {habitues.map((p) => (
-                <button type="button" key={p.nick} class="chip-btn" onClick={() => setPlayers([...players, { nick: p.nick, av: p.av, drink: p.drink !== false, sob: p.sob === 'points' ? 'points' : 'gage', lim: p.lim || 3 }])}>
+                <button type="button" key={p.nick} class="chip-btn" onClick={() => setPlayers([...players, { nick: p.nick, av: p.av, drink: p.drink !== false, sob: p.sob === 'points' ? 'points' : 'gage', lim: p.lim || 3, gn: p.gn }])}>
                   <Av p={p} size="s" /> {p.nick}
                 </button>
               ))}

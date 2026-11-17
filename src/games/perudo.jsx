@@ -22,6 +22,8 @@ export function minFor(f, prev) {
 export const higher = (b, prev) => (!prev ? b.f !== 1 : b.q >= minFor(b.f, prev) && !(b.q === prev.q && b.f === prev.f));
 // annonce sur les Pintes : on ne compte que les 1 ; sinon les 1 comptent pour la face annoncée
 export const countFace = (all, f) => all.reduce((n, d) => n + (d === f || (f !== 1 && d === 1) ? 1 : 0), 0);
+// manche palifico : la face est bloquée, on ne monte que la quantité
+const higherPf = (b, prev) => (prev ? b.f === prev.f && b.q > prev.q : true);
 
 function roll(c) {
   const g = c.g;
@@ -33,6 +35,10 @@ function roll(c) {
     c.setSecret(u, n ? { dice: P.dice[u] } : null);
   }
   g.r += 1;
+  // palifico : le joueur tombé à un dé ouvre cette manche
+  g.pf = !!g.pal;
+  g.pfBy = g.pal || null;
+  g.pal = null;
   g.bid = null;
   g.bids = [];
   g.res = null;
@@ -51,15 +57,18 @@ function nextAlive(c, from) {
 function challenge(c, caller) {
   const g = c.g;
   const all = Object.values(c.priv.dice).flat();
-  const n = countFace(all, g.bid.f);
+  const n = g.pf ? all.filter((d) => d === g.bid.f).length : countFace(all, g.bid.f);
   const bidder = g.bid.by;
   const loser = n >= g.bid.q ? caller : bidder;
   g.dice[loser] -= 1;
   const out = g.dice[loser] <= 0;
+  // tombé à un seul dé (une fois par joueur, s'il reste au moins trois joueurs) : palifico à la manche suivante
+  g.pal = !out && g.dice[loser] === 1 && !(g.pali || {})[loser] && alive(c, g).length > 2 ? loser : null;
+  if (g.pal) g.pali = { ...(g.pali || {}), [loser]: 1 };
   const sips = c.opts.sips || 2;
   if (out) { c.penCS(loser, 'Menteur : plus de dés'); if (c.count) c.count(loser, 'elimine'); }
   else c.pen(loser, sips, n >= g.bid.q ? 'Menteur : accusation ratée' : 'Menteur : pris à mentir');
-  g.res = { caller, bidder, n, bid: g.bid, loser, out, dice: { ...c.priv.dice } };
+  g.res = { pf: !!g.pf, caller, bidder, n, bid: g.bid, loser, out, dice: { ...c.priv.dice } };
   g.phase = 'reveal';
   g.revAt = c.now();
   for (const u of g.pl) c.setSecret(u, null);
@@ -102,6 +111,7 @@ const PERUDO = {
     'On peut annoncer des Pintes (sauf pour ouvrir une manche) : au moins la moitié de l’annonce précédente, arrondie au-dessus (5 × 4 → 3 Pintes). Pour revenir à une face après des Pintes : au moins le double plus un (3 Pintes → 7 × une face). Sur une annonce de Pintes, on ne compte que les Pintes.',
     'À son tour : surenchérir (plus de dés, ou même nombre sur une face plus haute) ou crier « Menteur ! ».',
     'Menteur : on soulève tous les dés. Il y en a au moins autant qu’annoncé ? L’accusateur perd. Sinon, c’est l’annonceur.',
+    'Palifico : quand un joueur tombe à un seul dé (une fois par joueur, et s’il reste au moins trois joueurs), il ouvre la manche suivante avec la face qu’il veut, Pintes comprises. Pendant cette manche, tout le monde garde cette face et ne peut monter que la quantité, et les Pintes ne sont plus des jokers.',
     'Le perdant boit et perd un dé, puis il relance la manche suivante. Plus de dés : cul sec et éliminé. Le dernier avec des dés gagne.',
     'Sur un seul téléphone : on passe le téléphone à chaque tour, les autres ne regardent pas les dés.',
   ],
@@ -112,7 +122,7 @@ const PERUDO = {
 
   start(c) {
     const pl = c.activeUids().slice(0, 8);
-    const g = { pl, dice: Object.fromEntries(pl.map((u) => [u, c.opts.dice || 4])), r: 0, mv: 0, cur: pl[0], bid: null, bids: [], res: null, phase: 'bid', win: null };
+    const g = { pl, dice: Object.fromEntries(pl.map((u) => [u, c.opts.dice || 4])), r: 0, mv: 0, cur: pl[0], bid: null, bids: [], res: null, phase: 'bid', win: null, pali: {}, pal: null, pf: false, pfBy: null };
     c.g = g;
     c.S.game.g = g;
     roll(c);
@@ -137,7 +147,7 @@ const PERUDO = {
     const f = Math.floor(Number(v.f));
     if (!(q >= 1 && q <= total(g) && f >= 1 && f <= 6)) return false;
     const b = { q, f, by: uid };
-    if (!higher(b, g.bid)) return false;
+    if (!(g.pf ? higherPf(b, g.bid) : higher(b, g.bid))) return false;
     g.bid = b;
     g.bids.push(b);
     g.mv += 1;
@@ -205,15 +215,25 @@ export function Die({ v, size = 'm', hi = false }) {
 }
 const bidTxt = (b) => (b.f === 1 ? `${b.q} Pinte${b.q > 1 ? 's' : ''}` : `${b.q} × ${b.f}`);
 
-function Table({ S, g, uid }) {
+function Table({ S, g, uid, secret }) {
   if (g.phase === 'end') return <End S={S} g={g} uid={uid} />;
   const r = g.res;
+  // tes dés restent visibles (grisés hors de ton tour), et se dévoilent avec les autres au « Menteur ! »
+  const mine = uid && g.pl.includes(uid) ? (g.phase === 'reveal' && g.res && g.res.dice ? g.res.dice[uid] || [] : (secret && secret.dice) || []) : null;
+  const myTurn = mine && g.phase === 'bid' && g.cur === uid;
   return (
     <div class="pe">
       <div class="ose-top">
         <span class="chip">Manche {g.r}</span>
         <span class="chip">{plural(total(g), 'dé', 'dés')} en jeu</span>
+        {g.pf && g.phase !== 'end' ? <span class="chip pe-pali">Palifico · {g.pfBy ? nickOf(S, g.pfBy) : ''}{g.bid ? ` · que des ${g.bid.f === 1 ? 'Pintes' : g.bid.f}` : ' choisit la face'}</span> : null}
       </div>
+      {mine ? (
+        <div class={`pe-perma${myTurn ? ' is-on' : ''}`}>
+          <span class="pe-perma-l">{g.dice[uid] > 0 || (g.phase === 'reveal' && mine.length) ? (myTurn ? 'Tes dés · à toi' : 'Tes dés') : mine.length ? 'Distribution…' : 'Plus de dés : tu regardes'}</span>
+          {mine.length ? <div class="pe-mine">{mine.map((v, i) => <Die key={i} v={v} size="m" />)}</div> : null}
+        </div>
+      ) : null}
       <ul class="pr-seats">
         {g.pl.filter((u) => S.roster[u]).map((u) => (
           <li key={u} class={`pr-seat${u === g.cur && g.phase === 'bid' ? ' is-turn' : ''}${!g.dice[u] ? ' is-out' : ''}`}>
@@ -237,10 +257,10 @@ function Table({ S, g, uid }) {
       {g.phase === 'reveal' && r ? (
         <div class="verdict paper tape">
           <span class="ose-lead">{nickOf(S, r.caller)} crie « Menteur ! » sur {bidTxt(r.bid)}</span>
-          <p class="center">Il y en a <b class="pe-big">{r.n}</b> (avec les Pintes).</p>
+          <p class="center">Il y en a <b class="pe-big">{r.n}</b>{r.pf ? ' (palifico : sans les Pintes).' : r.bid.f === 1 ? '.' : ' (avec les Pintes).'}</p>
           <div class="pe-all">
             {Object.entries(r.dice).filter(([, d]) => d.length).map(([u, d]) => (
-              <div key={u} class="pe-row"><span class="pr-name">{nickOf(S, u)}</span>{d.map((v, i) => <Die key={i} v={v} size="s" hi={v === r.bid.f || (r.bid.f !== 1 && v === 1)} />)}</div>
+              <div key={u} class="pe-row"><span class="pr-name">{nickOf(S, u)}</span>{d.map((v, i) => <Die key={i} v={v} size="s" hi={v === r.bid.f || (!r.pf && r.bid.f !== 1 && v === 1)} />)}</div>
             ))}
           </div>
           <div class="verdict-who"><Who S={S} uid={r.loser} size="l" you={uid} /></div>
@@ -268,21 +288,22 @@ function End({ S, g, uid }) {
 
 function Act({ g, secret, req, send, sent }) {
   const T = total(g);
-  const min = (f) => minFor(f, g.bid);
-  const [f, setF] = useState(g.bid ? g.bid.f : 2);
+  const min = (x) => (g.pf ? (g.bid ? g.bid.q + 1 : 1) : minFor(x, g.bid));
+  let [f, setF] = useState(g.bid ? g.bid.f : 2);
   const [q, setQ] = useState(min(g.bid ? g.bid.f : 2));
   if (req.kind !== 'bid') return null;
+  if (g.pf && g.bid) f = g.bid.f;
   const dice = (secret && secret.dice) || [];
   const qq = Math.max(q, min(f));
-  const ok = qq <= T && higher({ q: qq, f }, g.bid);
+  const ok = qq <= T && (g.pf ? higherPf : higher)({ q: qq, f }, g.bid);
   return (
     <div class="act">
       <h3>Tes dés</h3>
       <div class="pe-mine">{dice.map((v, i) => <Die key={i} v={v} size="l" />)}</div>
-      <p class="muted small">Les Pintes (la face 1) comptent pour toutes les faces.</p>
-      {g.bid ? <p class="muted small">Annoncer des Pintes : au moins la moitié de l’annonce (arrondie au-dessus). Revenir des Pintes à une face : au moins le double plus un.</p> : null}
+      <p class="muted small">{g.pf ? (g.bid ? 'Palifico : face bloquée, tu ne peux monter que la quantité. Les Pintes ne sont pas des jokers.' : 'Palifico : choisis n’importe quelle face, Pintes comprises. Les autres devront garder ta face.') : 'Les Pintes (la face 1) comptent pour toutes les faces.'}</p>
+      {g.bid && !g.pf ? <p class="muted small">Annoncer des Pintes : au moins la moitié de l’annonce (arrondie au-dessus). Revenir des Pintes à une face : au moins le double plus un.</p> : null}
       <div class={`pe-pick${g.bid ? ' is-six' : ''}`} role="group" aria-label="Face">
-        {(g.bid ? [1, 2, 3, 4, 5, 6] : [2, 3, 4, 5, 6]).map((x) => (
+        {(g.pf ? (g.bid ? [g.bid.f] : [1, 2, 3, 4, 5, 6]) : g.bid ? [1, 2, 3, 4, 5, 6] : [2, 3, 4, 5, 6]).map((x) => (
           <button type="button" key={x} class={`pe-face${f === x ? ' is-picked' : ''}`} aria-pressed={f === x ? 'true' : 'false'} disabled={sent} onClick={() => setF(x)}><Die v={x} size="m" /></button>
         ))}
       </div>

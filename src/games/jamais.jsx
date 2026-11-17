@@ -101,7 +101,7 @@ const JAMAIS = {
     '« Je pourrais… » ou « Je l’ai déjà fait pour… » : ceux pour qui c’est vrai répondent « Moi aussi ! » et prennent la pénalité.',
     'Chacun son téléphone : chacun répond en secret, puis les noms s’affichent. Sur un seul téléphone : on touche les avatars de ceux qui ont répondu oui.',
     'Avant de lancer, on coche un ou plusieurs niveaux : Soft, HARD (hors sexe) et Cul. Les cartes des niveaux cochés se mélangent, et chaque carte affiche son niveau.',
-    'HARD et Cul sont désactivés par défaut : l’hôte les active avec l’interrupteur « Mode Cul et HARD » du salon, et ils ne s’ouvrent que si tout le monde a réglé ses limites sur « Piquant ».',
+    'HARD et Cul sont désactivés par défaut : l’hôte les active avec l’interrupteur « Version Adulte » du salon, et ils ne s’ouvrent que si tout le monde a réglé ses limites sur « Piquant ».',
     'Qui joue sans alcool prend un gage ou des points à la place. Une carte gênante ? L’hôte peut la passer, et chacun peut toujours passer son tour.',
   ],
   options: [

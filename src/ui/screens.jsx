@@ -64,7 +64,7 @@ const MAKER_TABS = [
   ['tete', 'Tête', ['head']],
   ['tenue', 'Tenue', ['color', 'extra']],
 ];
-export function AvatarMaker({ value, onChange, idp }) {
+export function AvatarMaker({ value, onChange, idp, gn }) {
   const parts = parseAv(value);
   const [mood, setMood] = useState(null);
   const [tab, setTab] = useState('perso');
@@ -111,7 +111,7 @@ export function AvatarMaker({ value, onChange, idp }) {
                 p[i] = x;
                 const on = parts[i] === x;
                 return (
-                  <button type="button" key={x} role="radio" aria-checked={on ? 'true' : 'false'} aria-label={name} title={name}
+                  <button type="button" key={x} role="radio" aria-checked={on ? 'true' : 'false'} aria-label={globalThis.HS_GENRE_NOM ? globalThis.HS_GENRE_NOM(name, gn) : name} title={globalThis.HS_GENRE_NOM ? globalThis.HS_GENRE_NOM(name, gn) : name}
                     class={`maker-opt${on ? ' is-on' : ''}${sw ? ' is-color' : ''}`} onClick={() => set(i, x)}>
                     {sw ? <span class="swatch" style={{ background: sw[x] }} /> : <Character av={makeAv(p)} size={52} bg={false} />}
                   </button>
@@ -136,16 +136,16 @@ export function ProfileFields({ value, onChange, idp = 'p' }) {
           placeholder="Ex. Julie" onInput={(e) => set('nick', e.currentTarget.value)} />
         {(v.nick || "").trim() || idp === 'local' ? null : <span class="field-h nick-h" id={`${idp}-nick-h`}>Obligatoire pour entrer dans la soirée.</span>}
       </label>
-      <AvatarMaker value={avatarId(v.av)} onChange={(a) => set('av', a)} idp={idp} />
+      <AvatarMaker value={avatarId(v.av)} onChange={(a) => set('av', a)} idp={idp} gn={v.gn} />
       <div class="field">
         <span class="field-l">Ce soir</span>
         <Seg name="Alcool" value={v.drink} onChange={(x) => set('drink', x)}
-          options={[[true, 'Je bois de l’alcool'], [false, 'Sans alcool']]} />
+          options={[[false, 'Sans alcool'], [true, 'Gorgées (Version Adulte)']]} />
         {!v.drink ? (
           <Seg name="À la place des gorgées" value={v.sob === 'points' ? 'points' : 'gage'} onChange={(x) => set('sob', x)}
             options={[['gage', 'Des gages'], ['points', 'Des points']]} />
         ) : null}
-        <span class="field-h">{v.drink ? 'Les pénalités sont des gorgées. Tu peux toujours prendre un gage à la place, ou passer.'
+        <span class="field-h">{v.drink ? 'Gorgées seulement si l’hôte active la Version Adulte (18 ans et plus). Sinon, gages. Tu peux toujours prendre un gage à la place, ou passer.'
           : v.sob === 'points' ? 'Sans alcool : chaque gorgée devient un point de pénalité, dans tous les jeux. Tu peux toujours passer.'
             : 'Sans alcool : chaque pénalité devient un gage, dans tous les jeux. Tu peux toujours passer.'}</span>
       </div>
@@ -154,6 +154,12 @@ export function ProfileFields({ value, onChange, idp = 'p' }) {
         <Seg name="Limites" value={v.lim} onChange={(x) => set('lim', x)}
           options={[[1, LEVELS[1]], [2, LEVELS[2]], [3, LEVELS[3]]]} />
         <span class="field-h">Le contenu ne dépasse jamais la limite la plus basse de la table. {LEVEL_HELP[v.lim]}</span>
+      </div>
+      <div class="field">
+        <span class="field-l">Accord des textes</span>
+        <Seg name="Accord des textes" value={v.gn === 'm' || v.gn === 'f' ? v.gn : 'x'} onChange={(x) => set('gn', x)}
+          options={[['x', 'Ne pas préciser'], ['m', 'Masculin'], ['f', 'Féminin']]} />
+        <span class="field-h">Les cartes s’accordent avec toi : « surpris », « surprise » ou « surpris(e) ».</span>
       </div>
     </div>
   );
@@ -184,14 +190,16 @@ export function PartyFields({ level, cap, cs, onChange }) {
 export const defaultProfile = (p) => ({
   nick: (p && p.nick) || '',
   av: p && p.av ? avatarId(p.av) : randomAv(),
-  drink: p ? !!p.drink : true,
+  drink: p ? p.drink !== false : true,
   sob: p && p.sob === 'points' ? 'points' : 'gage',
   lim: (p && p.lim) || 3,
+  gn: p && (p.gn === 'm' || p.gn === 'f') ? p.gn : 'x',
 });
 
 // ------------------------------------------------------------------ accès 18 ans et plus
 const AGE_KEY = 'hs:age';
-export function ageOk() { try { return localStorage.getItem(AGE_KEY) === '1'; } catch (e) { return false; } }
+// version store : plus d'écran 18+ à l'ouverture, la confirmation se fait à l'activation de la Version Adulte
+export function ageOk() { return true; }
 export function AgeGate({ onOk }) {
   return (
     <div class="screen age">
@@ -215,16 +223,17 @@ export function AdultPacks({ on, onChange }) {
   const [ask, setAsk] = useState(false);
   return (
     <div class="field adult-packs">
-      <span class="field-l">Paquets « Cul » et « HARD » (Qui oserait… ?)</span>
-      <Seg name="Paquets Cul et HARD" value={on} onChange={(v) => { if (v && !on) setAsk(true); else { setAsk(false); onChange(v); } }}
+      <span class="field-l">Version Adulte (gorgées, questions coquines et autres)</span>
+      <Seg name="Version Adulte" value={on} onChange={(v) => { if (v && !on) setAsk(true); else { setAsk(false); onChange(v); } }}
         options={[[false, 'Désactivés'], [true, 'Activés']]} />
       <span class="field-h">{on ? 'Activés : l’hôte peut les choisir, si les limites de chacun le permettent.' : 'Désactivés par défaut : questions sexuelles et humour sur des situations limites.'}</span>
       {ask ? (
-        <div class="quit paper tape pose" role="alertdialog" aria-label="Activer les paquets Cul et HARD ?">
-          <p><b>Activer les paquets Cul et HARD ?</b> Questions sexuelles et humour sur des situations limites, entre adultes. Tout le monde à la table est d’accord ?</p>
+        <div class="quit paper tape pose" role="alertdialog" aria-label="Activer la Version Adulte ?">
+          <p><b>Activer la Version Adulte ?</b> Réservée aux plus de 18 ans : gorgées pour ceux qui boivent, questions sexuelles et humour sur des situations limites. Tout le monde à la table a 18 ans ou plus et est d’accord ?</p>
+          <p class="muted small">L’abus d’alcool est dangereux pour la santé. Après avoir bu, on ne prend pas le volant.</p>
           <div class="bus-btns two">
             <button type="button" class="btn" onClick={() => setAsk(false)}>Annuler</button>
-            <button type="button" class="btn btn-main" onClick={() => { setAsk(false); onChange(true); }}>Oui, activer</button>
+            <button type="button" class="btn btn-main" onClick={() => { setAsk(false); onChange(true); }}>Oui, tous majeurs</button>
           </div>
         </div>
       ) : null}

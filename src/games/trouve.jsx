@@ -75,24 +75,32 @@ function nextRound(c) {
   const guessers = here.filter((u) => u !== g.dealer);
   if (!guessers.length) { g.phase = 'wait'; return; }
   g.guesser = after(c, g, guessers, g.guesser && guessers.includes(g.guesser) ? g.guesser : g.dealer);
+  // nouveau croupier : l'ancien joueur ne rejoue pas tout de suite s'il y a quelqu'un d'autre
+  if (g.prevG && g.guesser === g.prevG && guessers.length > 1) g.guesser = after(c, g, guessers, g.guesser);
+  g.prevG = null;
   g.step += 1;
   g.phase = 'guess1';
   g.g1 = null;
   g.g2 = null;
   g.hint = null;
+  g.hd = null;
+  g.big = false;
+  g.vs = false;
   g.res = null;
   g.nextAt = 0;
   c.priv.card = drawCard(c);
   g.deckN = c.priv.deck.length;
   stat(g, g.dealer).dealt += 1;
-  // le croupier voit sa carte sur son téléphone (en mode un seul téléphone, l'appli la garde cachée)
-  for (const u of g.pl) c.setSecret(u, u === g.dealer && !c.isLocal ? { game: 'tc', step: g.step, card: c.priv.card } : null);
+  // le croupier voit sa carte (sur un seul téléphone, il la regarde en se faisant passer le téléphone)
+  for (const u of g.pl) c.setSecret(u, u === g.dealer ? { game: 'tc', step: g.step, card: c.priv.card } : null);
 }
 
 function resolve(c) {
   const g = c.g;
   const card = c.priv.card;
   const r = judgeTrouve(card, g.g1, g.g2);
+  // coup spécial raté : le joueur boit 5
+  if (g.vs && !r.found) { r.sips = 5; r.drinker = 'guesser'; }
   const sg = stat(g, g.guesser);
   const sd = stat(g, g.dealer);
   sg.guessed += 1;
@@ -120,6 +128,7 @@ function passDealer(c) {
   const here = present(c, g);
   const next = after(c, g, here.filter((u) => u !== g.dealer), g.dealer);
   if (next) {
+    g.prevG = g.guesser;
     g.dealer = next;
     g.guesser = null;
     g.passes += 1;
@@ -144,7 +153,8 @@ const TROUVE = {
   rules: [
     'Le croupier affronte un seul joueur à la fois. Il tire une carte au hasard, le joueur a deux essais pour trouver sa valeur.',
     'Puis c’est au joueur suivant, avec une nouvelle carte : on tourne dans le sens des aiguilles d’une montre (ordre des places).',
-    '1er essai : tu annonces une valeur. Le croupier répond « plus » ou « moins ». L’As est la plus forte carte.',
+    'Coup spécial : si le croupier tire un 2 ou un Valet, il peut faire le V avec la main avant le premier essai. Le joueur choisit alors entre 2 et Valet : bon, le croupier boit 5 gorgées ; raté, le joueur en boit 5.',
+    '1er essai : tu annonces une valeur. Le croupier choisit sa réponse : « c’est plus » ou « c’est beaucoup plus » (ou moins, ou beaucoup moins). Le sens est toujours vrai, le « beaucoup » c’est lui qui décide. L’As est la plus forte carte.',
     '2e essai : tu annonces une autre valeur.',
     'Trouvé du premier coup : le croupier boit 5 gorgées. Trouvé au deuxième essai : il boit 3 gorgées.',
     'Raté : tu bois l’écart entre la carte du croupier et ta deuxième annonce. Exemple : le croupier a un Roi, tu dis Valet, tu bois 2 gorgées.',
@@ -166,8 +176,11 @@ const TROUVE = {
     return g;
   },
 
-  request({ g, uid }) {
+  request({ g, uid, secret, local }) {
+    // le croupier a un 2 ou un Valet : il peut faire le V avant le premier essai
+    if (g.phase === 'guess1' && !g.g1 && !g.vs && !local && g.dealer === uid && secret && secret.game === 'tc' && secret.step === g.step && (secret.card[0] === '2' || secret.card[0] === 'J')) return { k: `v${g.step}`, kind: 'special', live: true, optional: true };
     if (g.phase === 'guess1' && g.guesser === uid) return { k: `a${g.step}`, kind: 'guess', n: 1 };
+    if (g.phase === 'hint' && g.dealer === uid) return { k: `h${g.step}`, kind: 'hint', dir: g.hd, g1: g.g1, secret: true };
     if (g.phase === 'guess2' && g.guesser === uid) return { k: `b${g.step}`, kind: 'guess', n: 2 };
     if (g.phase === 'result' && g.dealer === uid && g.wins >= PASS_AFTER_WINS) return { k: `d${g.step}`, kind: 'dealer' };
     return null;
@@ -175,12 +188,29 @@ const TROUVE = {
 
   input(c, uid, k, v) {
     const g = c.g;
+    if (g.phase === 'guess1' && k === `v${g.step}` && uid === g.dealer && v === 'v' && !g.g1 && !g.vs) {
+      const rk = rankOf(c.priv.card);
+      if (rk !== '2' && rk !== 'J') return false;
+      g.vs = true;
+      c.ev(`${c.name(uid)} fait le V : 2 ou Valet ?`, '*', 'game');
+      return true;
+    }
     if (g.phase === 'guess1' && k === `a${g.step}` && uid === g.guesser) {
-      if (!RANKS_TC.includes(v)) return false;
+      if (!RANKS_TC.includes(v) || (g.vs && v !== '2' && v !== 'J')) return false;
       g.g1 = v;
+      if (g.vs) { if (rankOf(c.priv.card) !== v) g.g2 = v; resolve(c); return true; }
       const r = judgeTrouve(c.priv.card, v, null);
       if (r.found === 1) { resolve(c); return true; }
-      g.hint = r.hint;
+      // le croupier choisit sa réponse : « plus » ou « beaucoup plus »
+      g.hd = r.hint;
+      g.big = false;
+      g.phase = 'hint';
+      return true;
+    }
+    if (g.phase === 'hint' && k === `h${g.step}` && uid === g.dealer) {
+      if (v !== '1' && v !== '0') return false;
+      g.hint = g.hd;
+      g.big = v === '1';
       g.phase = 'guess2';
       return true;
     }
@@ -219,6 +249,8 @@ const TROUVE = {
 
   tick(c) {
     const g = c.g;
+    // croupier parti pendant qu'il choisit sa réponse : simple « plus » ou « moins »
+    if (g.phase === 'hint' && !c.online(g.dealer)) { g.hint = g.hd; g.big = false; g.phase = 'guess2'; return true; }
     if (g.phase === 'result' && g.nextAt && c.now() >= g.nextAt) { nextRound(c); return true; }
     if (g.phase === 'wait' && present(c, g).length >= 2) { nextRound(c); return true; }
     return false;
@@ -227,6 +259,7 @@ const TROUVE = {
   cleanup(c) { for (const u of (c.g && c.g.pl) || []) c.setSecret(u, null); },
 
   turnOf(g) {
+    if (g.phase === 'hint') return g.dealer;
     if (g.phase === 'guess1' || g.phase === 'guess2') return g.guesser;
     return null;
   },
@@ -240,6 +273,8 @@ const TROUVE = {
       return opts.length ? opts[Math.floor(opts.length / 2)] : rnd(RANKS_TC);
     }
     if (req.kind === 'dealer') return Math.random() < 0.5 ? 'passe' : 'garde';
+    if (req.kind === 'hint') return Math.random() < 0.5 ? '1' : '0';
+    if (req.kind === 'special') return Math.random() < 0.3 ? 'v' : undefined;
     return undefined;
   },
 
@@ -251,7 +286,38 @@ export default TROUVE;
 
 // ---------------------------------------------------------------- affichage
 
-function Table({ S, g, uid, clock, secret, local }) {
+// un seul téléphone : le croupier se fait passer le téléphone pour voir sa carte (et faire le V)
+function DealerPeek({ S, g, secretOf, sendAs }) {
+  const [step, setStep] = useState(0);
+  if (!secretOf || !['guess1', 'hint', 'guess2'].includes(g.phase)) return null;
+  const s = secretOf(g.dealer);
+  const card = s && s.game === 'tc' && s.step === g.step ? s.card : null;
+  if (!card) return null;
+  const nick = nickOf(S, g.dealer);
+  return (
+    <div class="spy">
+      {step === 0 ? <button type="button" class="btn spy-btn" onClick={() => setStep(1)}>Croupier ({nick}) : voir ma carte</button>
+        : step === 1 ? (
+          <div class="spy-ask">
+            <p>Passe le téléphone à <b>{nick}</b>. Les autres ne regardent pas.</p>
+            <div class="spy-row">
+              <button type="button" class="btn" onClick={() => setStep(0)}>Annuler</button>
+              <button type="button" class="btn btn-main" onClick={() => setStep(2)}>C’est moi, {nick}</button>
+            </div>
+          </div>
+        ) : (
+          <div class="spy-ask tc-peek">
+            <PlayingCard c={card} size="l" />
+            {g.phase === 'guess1' && !g.g1 && !g.vs && sendAs && (card[0] === '2' || card[0] === 'J')
+              ? <button type="button" class="btn btn-main" onClick={() => { sendAs(g.dealer, `v${g.step}`, 'v'); setStep(0); }}>Coup spécial : faire le V</button> : null}
+            <button type="button" class="btn" onClick={() => setStep(0)}>Cacher</button>
+          </div>
+        )}
+    </div>
+  );
+}
+
+function Table({ S, g, uid, clock, secret, local, secretOf, sendAs }) {
   const res = g.res;
   const fresh = !!(res && clock && clock() - res.t < 2500);
   useTicker(fresh, 500);
@@ -269,6 +335,8 @@ function Table({ S, g, uid, clock, secret, local }) {
         <span class="chip">{plural(g.wins, 'victoire', 'victoires')} d’affilée</span>
         <span class="chip">Pioche {g.deckN}</span>
       </div>
+      {local ? <DealerPeek S={S} g={g} secretOf={secretOf} sendAs={sendAs} /> : null}
+      {g.vs && g.phase !== 'result' ? <div class="tc-v" role="img" aria-label="Coup spécial : la main fait un V"><span class="tc-v-main">✌️</span><span>Coup spécial : <b>2 ou Valet</b> ?</span></div> : null}
       <div class="tc-table paper kraft tape">
         <div class="tc-card">
           {g.phase === 'result' && res ? <PlayingCard c={res.card} size="l" flip key={`r${g.step}`} />
@@ -276,7 +344,8 @@ function Table({ S, g, uid, clock, secret, local }) {
             : <PlayingCard c="2S" back size="l" />}
         </div>
         <div class="tc-guesses">
-          <p class="tc-g"><span class="muted">1er essai</span> <b>{g.g1 ? rankName(g.g1) : '…'}</b>{g.hint ? <span class="tc-hint">{g.hint === 'plus' ? 'C’est plus' : 'C’est moins'}</span> : null}</p>
+          <p class="tc-g"><span class="muted">1er essai</span> <b>{g.g1 ? rankName(g.g1) : '…'}</b>{g.hint ? <span key={`${g.step}${g.hint}${g.big}`} class={`tc-hint${g.big ? ' is-big' : ''}`}>{`C’est ${g.big ? 'beaucoup ' : ''}${g.hint}`}</span>
+            : g.phase === 'hint' ? <span class="tc-hint tc-wait">le croupier réfléchit…</span> : null}</p>
           <p class="tc-g"><span class="muted">2e essai</span> <b>{g.g2 ? rankName(g.g2) : res && res.found === 1 ? '–' : '…'}</b></p>
         </div>
       </div>
@@ -316,7 +385,30 @@ function End({ S, g, uid }) {
   );
 }
 
-function Act({ g, req, send, sent }) {
+function Act({ g, req, send, sent, secret }) {
+  if (req.kind === 'special') {
+    return (
+      <div class="act tc-sp-act">
+        <h3>Tu as un 2 ou un Valet</h3>
+        <p class="muted small">Coup spécial : tu fais le V avec la main, il doit choisir entre 2 et Valet. Bon : tu bois 5. Raté : il boit 5.</p>
+        <button type="button" class="btn btn-main btn-big" disabled={sent} onClick={() => send(req.k, 'v')}>✌️ Coup spécial</button>
+      </div>
+    );
+  }
+  if (req.kind === 'hint') {
+    const d = req.dir === 'plus' ? 'plus' : 'moins';
+    return (
+      <div class="act tc-hint-act">
+        <h3>Raté : {req.g1 ? rankName(req.g1) : ''}. Tu lui dis quoi ?</h3>
+        {secret && secret.game === 'tc' && secret.card ? <div class="tc-mine"><PlayingCard c={secret.card} size="m" /></div> : null}
+        <p class="muted small">{`Ta carte est ${d} forte. À toi de choisir si tu l’aides un peu ou beaucoup.`}</p>
+        <div class="bus-btns two">
+          <button type="button" class="btn btn-big" disabled={sent} onClick={() => send(req.k, '0')}>{`C’est ${d}`}</button>
+          <button type="button" class="btn btn-big btn-main" disabled={sent} onClick={() => send(req.k, '1')}>{`C’est beaucoup ${d}`}</button>
+        </div>
+      </div>
+    );
+  }
   if (req.kind === 'dealer') {
     return (
       <div class="act">
@@ -336,12 +428,13 @@ function Guess({ g, req, send, sent }) {
   const [pick, setPick] = useState(null);
   const v1 = req.n === 2 && g.g1 ? valTC(g.g1) : null;
   const unlikely = (r) => v1 != null && (g.hint === 'plus' ? valTC(r) <= v1 : valTC(r) >= v1);
+  const vs = g.vs && req.n === 1;
   return (
     <div class="act act-tc">
-      <h3>{req.n === 1 ? 'Premier essai' : `Deuxième essai : c’est ${g.hint === 'plus' ? 'plus' : 'moins'} que ${rankName(g.g1)}`}</h3>
-      <p class="hint">{req.n === 1 ? 'Trouvé du premier coup : le croupier boit 5 gorgées.' : 'Trouvé : le croupier boit 3 gorgées. Raté : tu bois l’écart.'}</p>
+      <h3>{vs ? '✌️ Coup spécial : 2 ou Valet ?' : req.n === 1 ? 'Premier essai' : `Deuxième essai : c’est ${g.big ? 'beaucoup ' : ''}${g.hint === 'plus' ? 'plus' : 'moins'} que ${rankName(g.g1)}`}</h3>
+      <p class="hint">{vs ? 'Bon : le croupier boit 5 gorgées. Raté : tu en bois 5.' : req.n === 1 ? 'Trouvé du premier coup : le croupier boit 5 gorgées.' : 'Trouvé : le croupier boit 3 gorgées. Raté : tu bois l’écart.'}</p>
       <div class="rank-grid">
-        {RANKS_TC.map((r) => (
+        {(vs ? ['2', 'J'] : RANKS_TC).map((r) => (
           <button type="button" key={r} class={`key${pick === r ? ' is-on' : ''}${unlikely(r) ? ' is-dim' : ''}`} disabled={sent} aria-pressed={pick === r ? 'true' : 'false'} onClick={() => setPick(r)}>{rankName(r)}</button>
         ))}
       </div>

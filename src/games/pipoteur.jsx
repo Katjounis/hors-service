@@ -91,6 +91,18 @@ function resolveVote(c) {
   g.phase = 'elim';
 }
 
+// un joueur éliminé (sauf le Blanc-Bec avant sa tentative) peut voir les mots de tous ceux encore en jeu
+function hsSpy(c, u) {
+  try {
+    const g = c.g;
+    const R = c.priv.roles;
+    const W = c.priv.words;
+    const roles = {};
+    for (const x of g.pl) roles[x] = R[x];
+    c.setSecret(u, { game: 'pipo', gid: g.gid, bb: R[u] === 'bb', word: R[u] === 'bb' ? null : R[u] === 'pipo' ? W.pipo : W.civil, spy: { civil: W.civil, pipo: W.pipo, roles } });
+  } catch (e) { /* secret introuvable : rien à montrer */ }
+}
+
 function eliminate(c, u) {
   const g = c.g;
   const role = c.priv.roles[u];
@@ -98,6 +110,7 @@ function eliminate(c, u) {
   g.out.push({ uid: u, role, r: g.r });
   g.last = { uid: u, role };
   c.ev(`Hors service : ${c.name(u)} (${ROLE[role]})`, '*', 'game');
+  if (role !== 'bb') hsSpy(c, u);
   if (role === 'bb') { g.phase = 'guess'; return; }
   if (!checkEnd(c)) g.phase = 'elim';
 }
@@ -233,6 +246,7 @@ const PIPOTEUR = {
       if (typeof v !== 'string') return false;
       const ok = norm(v) !== '' && norm(v) === norm(c.priv.words.civil);
       g.guess = { uid, txt: v.slice(0, 40), ok };
+      hsSpy(c, uid);
       if (ok) { c.ev(`${c.name(uid)} a deviné le mot : le Blanc-Bec gagne.`, '*', 'game'); finish(c, 'bb'); } else if (!checkEnd(c)) g.phase = 'elim';
       return true;
     }
@@ -260,7 +274,7 @@ const PIPOTEUR = {
     if (id === 'vote' && g.phase === 'clues') { openVote(c, g.alive.slice()); return true; }
     if (id === 'resolve' && g.phase === 'vote' && Object.keys(g.voted).length) { resolveVote(c); return true; }
     if (id === 'next' && g.phase === 'elim') { startClues(c); return true; }
-    if (id === 'skipguess' && g.phase === 'guess') { g.guess = { uid: g.last.uid, txt: '', ok: false }; if (!checkEnd(c)) g.phase = 'elim'; return true; }
+    if (id === 'skipguess' && g.phase === 'guess') { g.guess = { uid: g.last.uid, txt: '', ok: false }; hsSpy(c, g.last.uid); if (!checkEnd(c)) g.phase = 'elim'; return true; }
     return false;
   },
 
@@ -300,16 +314,78 @@ export default PIPOTEUR;
 
 // ---------------------------------------------------------------- affichage
 
-function MyWord({ secret, g, uid }) {
+function SpyList({ spy, g, S, onHide }) {
+  return (
+    <div class="spy-list">
+      <p class="spy-w">Civils : <b>{spy.civil}</b></p>
+      <p class="spy-w">Pipoteurs : <b>{spy.pipo}</b></p>
+      <ul>
+        {g.alive.map((x) => {
+          const r = spy.roles[x];
+          return <li key={x}><span>{S && S.roster && S.roster[x] ? S.roster[x].nick : '?'}</span><b>{r === 'bb' ? 'Blanc-Bec (aucun mot)' : r === 'pipo' ? `${spy.pipo} (pipoteur)` : spy.civil}</b></li>;
+        })}
+      </ul>
+      <button type="button" class="btn" onClick={onHide}>Cacher</button>
+    </div>
+  );
+}
+
+// un seul téléphone : un éliminé choisit son nom, on lui passe le téléphone, il voit les mots
+function SpyLocal({ S, g, secretOf }) {
+  const [who, setWho] = useState(null);
+  const [step, setStep] = useState(0);
+  if (!secretOf || g.phase === 'end') return null;
+  const outs = (g.out || []).map((o) => o.uid).filter((x) => { const s = secretOf(x); return s && s.spy; });
+  if (!outs.length) return null;
+  const nick = (x) => (S && S.roster && S.roster[x] ? S.roster[x].nick : '?');
+  const reset = () => { setWho(null); setStep(0); };
+  if (who && !outs.includes(who)) { reset(); return null; }
+  return (
+    <div class="spy">
+      {who == null ? (
+        <div class="spy-ask">
+          <p class="spy-w">Éliminés : voir les mots des autres</p>
+          <div class="spy-row spy-wrap">{outs.map((x) => <button type="button" key={x} class="btn" onClick={() => { setWho(x); setStep(1); }}>{nick(x)}</button>)}</div>
+        </div>
+      ) : step === 1 ? (
+        <div class="spy-ask">
+          <p>Passe le téléphone à <b>{nick(who)}</b>. Tu vas voir le mot de chaque joueur encore en jeu : les autres ne regardent pas, et tu ne dis rien.</p>
+          <div class="spy-row">
+            <button type="button" class="btn" onClick={reset}>Annuler</button>
+            <button type="button" class="btn btn-main" onClick={() => setStep(2)}>C’est moi, {nick(who)}</button>
+          </div>
+        </div>
+      ) : <SpyList spy={secretOf(who).spy} g={g} S={S} onHide={reset} />}
+    </div>
+  );
+}
+
+function MyWord({ secret, g, uid, S }) {
   const [show, setShow] = useState(false);
+  const [step, setStep] = useState(0);
   if (!secret || secret.game !== 'pipo' || secret.gid !== g.gid) return null;
   const out = !g.alive.includes(uid);
-  return (
+  const spy = out && secret.spy ? (
+    <div class="spy">
+      {step === 0 ? <button type="button" class="btn spy-btn" onClick={() => setStep(1)}>Voir les mots des autres</button>
+        : step === 1 ? (
+          <div class="spy-ask">
+            <p>Tu es bien éliminé ? Tu vas voir le mot de chaque joueur encore en jeu. Ne dis rien aux autres.</p>
+            <div class="spy-row">
+              <button type="button" class="btn" onClick={() => setStep(0)}>Annuler</button>
+              <button type="button" class="btn btn-main" onClick={() => setStep(2)}>Oui, je regarde</button>
+            </div>
+          </div>
+        ) : <SpyList spy={secret.spy} g={g} S={S} onHide={() => setStep(0)} />}
+    </div>
+  ) : null;
+  const btn = (
     <button type="button" class={`myword${show ? ' is-open' : ''}`} onClick={() => setShow(!show)} aria-pressed={show ? 'true' : 'false'}>
       <span class="myword-l">{out ? 'Tu es hors service' : 'Ton mot'}</span>
       <span class="myword-w">{show ? (secret.bb ? 'Aucun : tu es le Blanc-Bec' : secret.word) : <Icon name="eye" size={26} label="Touche pour voir" />}</span>
     </button>
   );
+  return spy ? <div class="myword-wrap">{btn}{spy}</div> : btn;
 }
 
 function VoteResult({ S, g, uid }) {
@@ -325,7 +401,7 @@ function VoteResult({ S, g, uid }) {
   );
 }
 
-function Table({ S, g, uid, secret }) {
+function Table({ S, g, uid, secret, secretOf }) {
   if (g.phase === 'end') return <End S={S} g={g} uid={uid} />;
   return (
     <div class="pipo">
@@ -338,7 +414,7 @@ function Table({ S, g, uid, secret }) {
       {g.dropped && g.dropped.length && g.r <= 1 ? (
         <p class="muted small">{g.dropped.map((l) => NIVEAUX_MOTS[l].label).join(' et ')} : pas disponible avec les réglages ou les limites de la table.</p>
       ) : null}
-      {uid ? <MyWord secret={secret} g={g} uid={uid} /> : null}
+      {uid ? <MyWord secret={secret} g={g} uid={uid} S={S} /> : <SpyLocal S={S} g={g} secretOf={secretOf} />}
 
       {g.phase === 'words' ? <Waiting>Chacun découvre son mot en secret ({Object.keys(g.seen).length}/{g.pl.length})</Waiting> : null}
 

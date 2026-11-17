@@ -45,7 +45,7 @@ const PARANOIA = {
     'Il ne la lit pas : il désigne quelqu’un de la table, et tout le monde voit le prénom.',
     'Le désigné choisit : boire pour que la question s’affiche pour tout le monde, ou rester dans le flou.',
     'Sur un seul téléphone : on passe le téléphone au joueur du tour, les autres ne regardent pas.',
-    'Questions Soft ou Cul. Le paquet Cul s’active avec l’interrupteur « Mode Cul et HARD » du salon, si toute la table est en « Piquant ».',
+    'Questions Soft ou Cul. Le paquet Cul s’active avec l’interrupteur « Version Adulte » du salon, si toute la table est en « Piquant ».',
   ],
   options: [
     { id: 'levels', label: 'Questions (une ou plusieurs)', multi: true, choices: [['soft', 'Soft'], ['cul', 'Cul', 3, 'adult']], def: ['soft'] },
@@ -172,7 +172,7 @@ function End({ S, g, uid }) {
       </table></div>
       {g.hist.length ? (
         <details class="log"><summary>Toutes les questions (même les secrètes)</summary>
-          <ol>{g.hist.map((h, i) => <li key={i}>{h.q} <b>{nickOf(S, h.by)} : {nickOf(S, h.to)}</b></li>)}</ol>
+          <ol>{g.hist.map((h, i) => <li key={i}>{globalThis.HS_GENRE_CARTE ? globalThis.HS_GENRE_CARTE(h.q, h.by) : h.q} <b>{nickOf(S, h.by)} : {nickOf(S, h.to)}</b></li>)}</ol>
         </details>
       ) : null}
     </div>

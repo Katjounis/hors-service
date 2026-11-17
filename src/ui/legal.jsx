@@ -39,9 +39,9 @@ export function Confidentialite() {
   return (
     <div class="legal">
       <h3>L’essentiel</h3>
-      <p>Pas de compte, pas de publicité, pas de mesure d’audience, pas de traceur. Tout ce que l’appli garde reste sur ce téléphone, sauf les échanges temporaires d’une partie en salon.</p>
+      <p>Pas de compte, pas de publicité, pas de traceur publicitaire. Tout ce que l’appli garde reste sur ce téléphone, sauf les échanges temporaires d’une partie en salon.</p>
       <h3>Sur ce téléphone</h3>
-      <p>Dans la mémoire du navigateur (localStorage) : ton profil (pseudo, avatar, avec ou sans alcool, limites de contenu), la confirmation 18 ans et plus, la partie en cours sur un seul téléphone, l’historique et les stats des soirées, les gages maison, et un identifiant technique pour revenir dans un salon après une coupure. Rien de tout cela n’est envoyé.</p>
+      <p>Dans la mémoire du navigateur (localStorage) : ton profil (pseudo, avatar, avec ou sans alcool, limites de contenu), la confirmation 18 ans et plus, la partie en cours sur un seul téléphone, l’historique et les stats des soirées, les gages maison, et un identifiant technique pour revenir dans un salon après une coupure. Rien de tout cela n’est envoyé, sauf un identifiant tiré au hasard, transmis au plus une fois par jour au serveur de salons pour compter les téléphones actifs : le serveur n’en garde qu’une empreinte, effacée au bout de deux mois.</p>
       <h3>Dans un salon (« Chacun son téléphone »)</h3>
       <p>Le temps de la partie, le serveur de salons ({HEBERGEUR_SALONS.nom}) relaie entre les téléphones : les pseudos, les avatars (avec le choix avec ou sans alcool et les limites de contenu), les actions de jeu (votes, réponses, touches) et l’état de la partie. Les infos secrètes (ton mot, par exemple) ne vont qu’à ton téléphone. Rien n’est gardé après la partie : un salon s’efface automatiquement après {SALON_EFFACE_APRES} d’inactivité.</p>
       <h3>Capteurs, partage, liens</h3>

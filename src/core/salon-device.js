@@ -118,7 +118,7 @@ export class SalonDevice extends Device {
     for (const p of list || []) {
       if (!p || !p.pid || p.role === 'screen') continue;
       const a = p.avatar && typeof p.avatar === 'object' ? p.avatar : {};
-      map[p.pid] = { nick: p.name, av: a.av, drink: a.drink !== false, sob: a.sob, lim: a.lim || 3, online: p.online !== false && p.connected !== false };
+      map[p.pid] = { nick: p.name, av: a.av, drink: a.drink !== false, sob: a.sob, lim: a.lim || 3, gn: a.gn === 'm' || a.gn === 'f' ? a.gn : 'x', online: p.online !== false && p.connected !== false };
     }
     this.screens = (list || []).filter((p) => p && p.role === 'screen');
     this.meta = { ...(this.meta || {}), host: host || null };

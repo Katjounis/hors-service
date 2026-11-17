@@ -8,7 +8,7 @@ import { plural } from '../lib/util.js';
 import { PIQUE, pickLine } from '../content/chambre.js';
 import { son } from './sons.js';
 import { surnoms } from '../lib/surnoms.js';
-import { Av, Who, nickOf, Sheet, ErrorBoundary, Waiting, useTicker, Stamp, Ribbon, Turn, Rules, MoodCtx } from './common.jsx';
+import { Av, Who, nickOf, Sheet, ErrorBoundary, Waiting, useTicker, Stamp, Ribbon, Turn, Rules, MoodCtx, PlayingCard } from './common.jsx';
 import { Icon } from './icons.jsx';
 import { buzz, confetti, useOnce, Ambiance, Cochon, Chambre } from './fx.jsx';
 import { saveEvening, summarize } from '../lib/stats.js';
@@ -292,7 +292,7 @@ function useRail() {
 
 const CAT_KEY = 'hs:cat';
 // ordre de base : les gros jeux d'abord, puis ceux qu'on lance le plus sur ce téléphone remontent
-const ORDER = ['jamais', 'poker', 'blackjack', 'actionverite', 'tournee', 'toutankhamon', 'roulette', '96', 'garou', 'ring', 'president', 'tupref', 'cercle', 'perudo', 'purple', 'paranoia', 'oserait', 'pipoteur', 'coinche', 'bombe', 'ware', 'degaine', 'buzzer', 'dessin', 'autres', 'trouve', 'hippodrome'];
+const ORDER = ['96', 'pipoteur', 'oserait', 'jamais', 'poker', 'blackjack', 'actionverite', 'tournee', 'toutankhamon', 'roulette', 'garou', 'ring', 'president', 'tupref', 'cercle', 'perudo', 'purple', 'paranoia', 'coinche', 'bombe', 'ware', 'degaine', 'buzzer', 'dessin', 'autres', 'trouve', 'hippodrome'];
 const PLAYS_KEY = 'hs:plays';
 function loadPlays() { try { return JSON.parse(localStorage.getItem(PLAYS_KEY) || '{}') || {}; } catch (e) { return {}; } }
 function countPlay(id, tag) {
@@ -308,19 +308,24 @@ function sortGames(list, plays, banOf) {
   return list.map((G, i) => ({ G, i, r: rank(G), b: banOf(G) ? 1 : 0 }))
     .sort((a, b) => a.b - b.b || a.r - b.r || a.i - b.i).map((x) => x.G);
 }
-function loadCat() { try { const c = localStorage.getItem(CAT_KEY); return CATS.some(([id]) => id === c) ? c : 'tous'; } catch (e) { return 'tous'; } }
+function loadCat() { try { const c = localStorage.getItem(CAT_KEY); return CATS.some(([id]) => id === c) ? c : 'phares'; } catch (e) { return 'tous'; } }
+// jeux mis de côté : le code reste, ils ne sont plus affichés
+const HS_MASQUES = new Set(['degaine', 'ware', 'dessin', 'cercle', 'ring', 'tournee']);
+const HS_VISIBLES = GAME_LIST.filter((G) => !HS_MASQUES.has(G.id));
+// la Roulette russe n'apparaît qu'en Version Adulte
+const HS_VIS = (S) => HS_VISIBLES.filter((G) => G.id !== 'roulette' || (S && S.cfg && S.cfg.adult));
 function Lobby({ dev, S, local }) {
   const rail = useRail();
   const [cat, setCatState] = useState(loadCat);
   const setCat = (v) => { setCatState(v); try { localStorage.setItem(CAT_KEY, v); } catch (e) { /* stockage bloqué */ } if (rail.ref.current) rail.ref.current.scrollLeft = 0; };
-  const tabs = [['tous', 'Tous'], ...CATS.filter(([id]) => id !== 'coquin' || S.cfg.adult)];
-  const cur = tabs.some(([id]) => id === cat) ? cat : 'tous';
+  const tabs = [...CATS.filter(([id]) => id !== 'coquin' || S.cfg.adult), ['tous', 'Tous']];
+  const cur = tabs.some(([id]) => id === cat) ? cat : 'phares';
   const [sheet, setSheet] = useState(null);
   const list = seats(S);
   const active = list.filter((u) => isOnline(dev, u, local)).length;
   const banOf = (G) => local && G.local === false ? 'Un téléphone par joueur' : !local && G.solo ? 'Sur un seul téléphone' : active < G.min ? `Il faut ${G.min} joueurs` : null;
   const plays = useMemo(loadPlays, []);
-  const shown = sortGames(cur === 'tous' ? GAME_LIST : GAME_LIST.filter((G) => catsOf(G).includes(cur)), plays, banOf);
+  const shown = sortGames(cur === 'tous' ? HS_VIS(S) : HS_VIS(S).filter((G) => catsOf(G).includes(cur)), plays, banOf);
   return (
     <div class="lobby stack">
       <h1>Soirée en service</h1>
@@ -339,7 +344,7 @@ function Lobby({ dev, S, local }) {
         </div>
         <div class="cat-tabs" role="group" aria-label="Catégorie">
           {tabs.map(([id, label]) => {
-            const n = id === 'tous' ? GAME_LIST.length : GAME_LIST.filter((G) => catsOf(G).includes(id)).length;
+            const n = id === 'tous' ? HS_VIS(S).length : HS_VIS(S).filter((G) => catsOf(G).includes(id)).length;
             return (
               <button type="button" key={id} class={`cat-tab${cur === id ? ' is-on' : ''}${id === 'coquin' ? ' is-hot' : ''}`} aria-pressed={cur === id ? 'true' : 'false'} onClick={() => setCat(id)}>
                 {label}<span class="cat-n">{n}</span>
@@ -375,7 +380,7 @@ function Lobby({ dev, S, local }) {
   );
 }
 
-// Interrupteur « Mode Cul et HARD », en vue dans le salon (plus besoin d'aller dans le menu).
+// Interrupteur « Version Adulte », en vue dans le salon (plus besoin d'aller dans le menu).
 // L'activer passe aussi l'ambiance de la soirée en « Piquant » ; chacun garde ses propres limites.
 function SpicySwitch({ dev, S, local }) {
   const [ask, setAsk] = useState(false);
@@ -387,17 +392,18 @@ function SpicySwitch({ dev, S, local }) {
     <div class={`spicy${on ? ' is-on' : ''}`}>
       <button type="button" class="spicy-btn" role="switch" aria-checked={on ? 'true' : 'false'} disabled={!host} onClick={flip}>
         <span class="spicy-knob" aria-hidden="true" />
-        <span class="spicy-t">Mode Cul et HARD</span>
-        <span class="spicy-s">{on ? 'Activé' : 'Désactivé'}</span>
+        <span class="spicy-t">Version Adulte</span>
+        <span class="spicy-s">{on ? 'Activée' : 'Gorgées, questions coquines et autres'}</span>
       </button>
       {on && low.length ? <p class="small spicy-h">Limites plus basses pour {low.map((u) => S.roster[u].nick).join(', ')} : ces paquets restent fermés tant qu’ils n’ont pas mis « Piquant ».</p> : null}
       {!host && !on ? <p class="small spicy-h">Seul l’hôte peut l’activer.</p> : null}
       {ask ? (
-        <div class="quit paper tape pose" role="alertdialog" aria-label="Activer le mode Cul et HARD ?">
-          <p><b>Activer le mode Cul et HARD ?</b> Questions sexuelles et humour sur des situations limites, entre adultes. Tout le monde à la table est d’accord ?</p>
+        <div class="quit paper tape pose" role="alertdialog" aria-label="Activer la Version Adulte ?">
+          <p><b>Activer la Version Adulte ?</b> Réservée aux plus de 18 ans : gorgées pour ceux qui boivent, questions sexuelles et humour sur des situations limites. Tout le monde à la table a 18 ans ou plus et est d’accord ?</p>
+          <p class="muted small">L’abus d’alcool est dangereux pour la santé. Après avoir bu, on ne prend pas le volant.</p>
           <div class="bus-btns two">
             <button type="button" class="btn" onClick={() => setAsk(false)}>Annuler</button>
-            <button type="button" class="btn btn-main" onClick={() => { setAsk(false); dev.host('settings', { adult: true, level: 3 }); }}>Oui, activer</button>
+            <button type="button" class="btn btn-main" onClick={() => { setAsk(false); dev.host('settings', { adult: true, level: 3 }); }}>Oui, tous majeurs</button>
           </div>
         </div>
       ) : null}
@@ -454,7 +460,7 @@ function GameSheet({ dev, S, G, local, onClose }) {
                   </div>
                 ) : <Seg name={o.label} value={opts[o.id]} onChange={(v) => setOpts({ ...opts, [o.id]: v })} options={o.choices} off={off} />}
                 {o.multi && !opts[o.id].some((v) => !off(v)) ? <span class="field-h">Coche au moins un niveau.</span> : null}
-                {adultLocked ? <span class="field-h">Cul et HARD sont désactivés : l’hôte les active avec l’interrupteur « Mode Cul et HARD » du salon.</span> : null}
+                {adultLocked ? <span class="field-h">Cul et HARD sont désactivés : l’hôte les active avec l’interrupteur « Version Adulte » du salon.</span> : null}
                 {locked && !adultLocked ? <span class="field-h">Certains paquets demandent que tout le monde ait réglé ses limites sur « Piquant », et une ambiance « Piquant » pour la soirée.</span> : null}
               </div>
             );
@@ -478,6 +484,18 @@ export function tintKey(S) {
 }
 
 // ------------------------------------------------------------------ jeu en cours
+// tes cartes restent visibles en haut de l'écran pendant tout le jeu (96, Président, Coinche…)
+function MyHand({ secret }) {
+  const hand = secret && secret.game !== 'tomb' && Array.isArray(secret.hand) ? secret.hand.filter((c) => typeof c === 'string' && /^[2-9TJQKA][SHDC]$/.test(c)) : null;
+  if (!hand || !hand.length) return null;
+  return (
+    <div class="hs-main">
+      <span class="hs-main-l">Tes cartes</span>
+      <div class="hs-main-c">{hand.map((c) => <PlayingCard key={c} c={c} size="s" />)}</div>
+    </div>
+  );
+}
+
 function GameScreen({ dev, S, G, local }) {
   const g = S.game ? S.game.g : null; // l'état peut changer pendant un rendu (retour au salon)
   const [rules, setRules] = useState(false);
@@ -493,7 +511,8 @@ function GameScreen({ dev, S, G, local }) {
   const sendAs = local ? (u, k, v) => { const d = local.deviceOf(u); if (d) d.gameInput(k, v); } : null;
   const turn = G.turnOf ? G.turnOf(g) : null;
   const ended = g.phase === 'end';
-  const table = <G.Table S={S} g={g} uid={uid} clock={clock} secret={local ? null : dev.secret} local={!!local} sendAs={sendAs} dev={dev} />;
+  const table = <G.Table S={S} g={g} uid={uid} clock={clock} secret={local ? null : dev.secret} local={!!local} sendAs={sendAs} dev={dev}
+    secretOf={local ? (u) => { const d = local.deviceOf(u); return d ? d.secret : null; } : null} />;
   return (
     <div class={`game${manette ? ' manette' : ''}`}>
       <div class="game-head">
@@ -517,6 +536,7 @@ function GameScreen({ dev, S, G, local }) {
       ) : null}
       <Ribbon key={S.game.seq} />
       {turn && !ended && S.roster[turn] ? <Turn S={S} uid={turn} me={uid} {...(G.turnText ? G.turnText(g) : {})} /> : null}
+      {!local && !ended && dev.role !== 'screen' ? <MyHand secret={dev.secret} /> : null}
       {manette ? (
         !req ? <div class="manette-wait paper"><b>{ended ? 'Bilan sur l’écran' : 'Regarde l’écran'}</b><span>{ended ? 'L’hôte choisit la suite.' : 'Ton téléphone vibre quand c’est à toi de jouer.'}</span></div> : null
       ) : (
@@ -577,7 +597,10 @@ function Retry({ dev, k }) {
 // Commandes de l'hôte. Un seul bouton jaune par écran : si l'hôte doit aussi jouer, ses commandes passent en secondaire.
 function HostBar({ dev, S, G, g, local, quiet }) {
   const [confirm, setConfirm] = useState(null);
-  const actions = G.actions({ S, g, online: (u) => isOnline(dev, u, local) }) || [];
+  // quelqu'un doit encore distribuer des gorgées : la suite attend
+  const waitGift = (S.gifts || []).filter((x) => S.roster[x.uid] && isOnline(dev, x.uid, local));
+  const waitTxt = waitGift.length ? `${[...new Set(waitGift.map((x) => nickOf(S, x.uid)))].join(' et ')} doit d’abord distribuer` : '';
+  const actions = (G.actions({ S, g, online: (u) => isOnline(dev, u, local) }) || []).map((a) => (a.id === 'next' && !a.disabled && waitTxt ? { ...a, disabled: true, label: waitTxt } : a));
   const run = (a) => {
     if (a.confirm && confirm !== a.id) { setConfirm(a.id); return; }
     setConfirm(null);
@@ -868,7 +891,7 @@ function MenuSheet({ dev, S, local, onClose }) {
   if (tab === 'settings') {
     return (
       <Sheet title="Réglages de la soirée" onClose={onClose}>
-        <p class="muted small">Réglages par défaut : ambiance « Piquant », cul sec à 10 gorgées, pas de plafond, paquets Cul et HARD désactivés. Les limites de chaque joueur restent toujours respectées.</p>
+        <p class="muted small">Réglages par défaut : ambiance « Piquant », cul sec à 10 gorgées, pas de plafond, Version Adulte désactivée. Les limites de chaque joueur restent toujours respectées.</p>
         <PartyFields level={S.cfg.level} cap={S.cfg.cap} cs={csValue(S)} onChange={(x) => dev.host('settings', x)} />
         <AdultPacks on={!!S.cfg.adult} onChange={(v) => dev.host('settings', { adult: v })} />
       </Sheet>

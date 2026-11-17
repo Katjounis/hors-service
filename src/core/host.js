@@ -89,7 +89,7 @@ export class HostEngine {
     for (const [uid, p] of Object.entries(this.d.players || {})) {
       if (!p || !p.nick) continue;
       if (S.ban && S.ban.includes(uid)) continue; // retiré par l'hôte : il ne revient pas tout seul
-      const prof = { nick: p.nick, av: avatarId(p.av), drink: !!p.drink, sob: p.sob === 'points' ? 'points' : 'gage', lim: p.lim || 3 };
+      const prof = { nick: p.nick, av: avatarId(p.av), drink: !!p.drink, sob: p.sob === 'points' ? 'points' : 'gage', lim: p.lim || 3, gn: p.gn === 'm' || p.gn === 'f' ? p.gn : 'x' };
       if (!S.roster[uid]) {
         S.roster[uid] = prof;
         if (!S.order.includes(uid)) S.order.push(uid);
@@ -98,7 +98,7 @@ export class HostEngine {
         changed = true;
       } else {
         const r = S.roster[uid];
-        if (r.nick !== prof.nick || r.av !== prof.av || r.drink !== prof.drink || r.sob !== prof.sob || r.lim !== prof.lim) {
+        if (r.nick !== prof.nick || r.av !== prof.av || r.drink !== prof.drink || r.sob !== prof.sob || r.lim !== prof.lim || r.gn !== prof.gn) {
           S.roster[uid] = prof;
           changed = true;
         }
@@ -165,11 +165,11 @@ export class HostEngine {
     if (S.cfg.cap > 0) n = Math.min(n, S.cfg.cap);
     const lvl = Math.min(this.S.cfg.level, p.lim || 3);
     // sans alcool : un gage, ou des points de pénalité (une gorgée = un point), au choix du joueur
-    const pts = !p.drink && p.sob === 'points';
-    const item = { id: rid(6), uid, n, why: why || '', sober: !p.drink && !pts };
+    const pts = !(p.drink && S.cfg.adult) && p.sob === 'points';
+    const item = { id: rid(6), uid, n, why: why || '', sober: !(p.drink && S.cfg.adult) && !pts };
     if (from && S.roster[from]) item.from = from; // gorgées reçues d'un autre joueur (distribution)
     if (pts) item.pts = n;
-    if (item.sober) item.def = pick(this.gagePool(lvl))[1];
+    if (item.sober) item.def = (globalThis.HS_TIRE || pick)(this.gagePool(lvl))[1];
     S.pen.push(item);
     // pas plus de 6 cartes en attente par joueur : on regroupe les plus anciennes
     const mine = S.pen.filter((x) => x.uid === uid);
@@ -188,10 +188,10 @@ export class HostEngine {
     if (!p) return;
     if (S.cfg.cap > 0) { this.pen(uid, S.cfg.cap, `${why} (cul sec plafonné)`); return; }
     const lvl = Math.min(S.cfg.level, p.lim || 3);
-    const pts = !p.drink && p.sob === 'points';
-    const item = { id: rid(6), uid, n: 0, cs: true, why: why || '', sober: !p.drink && !pts };
+    const pts = !(p.drink && S.cfg.adult) && p.sob === 'points';
+    const item = { id: rid(6), uid, n: 0, cs: true, why: why || '', sober: !(p.drink && S.cfg.adult) && !pts };
     if (pts) item.pts = csValue(S); // un cul sec vaut autant de points que sa valeur en gorgées
-    if (item.sober) item.def = pick(this.gagePool(lvl))[1];
+    if (item.sober) item.def = (globalThis.HS_TIRE || pick)(this.gagePool(lvl))[1];
     S.pen.push(item);
   }
 
@@ -346,7 +346,8 @@ export class HostEngine {
       isLocal: self.d.mode === 'local',
       host: self.d.uid,
       online: (u) => self.online(u),
-      activeUids: () => self.activeUids(),
+      // l'ordre des joueurs tourne d'une partie à l'autre : ce n'est pas toujours le même qui commence
+      activeUids: () => { const L = self.activeUids(); const k = S.game && L.length ? S.game.seq % L.length : 0; return L.slice(k).concat(L.slice(0, k)); },
       level: () => self.level(),
       name: (u) => self.name(u),
       roster: S.roster,
@@ -360,7 +361,9 @@ export class HostEngine {
       ev: (txt, to, k) => self.ev(txt, to, k),
       setSecret: (u, obj) => { if (obj == null) delete self.secrets[u]; else self.secrets[u] = obj; },
       getSecret: (u) => self.secrets[u] || null,
-      shuffle, rid,
+      // contenus.js : tirage sans répétition d'une partie à l'autre (sauf mélange avec graine)
+      shuffle: (arr, rnd) => (rnd || !globalThis.HS_MELANGE ? shuffle(arr, rnd) : globalThis.HS_MELANGE((S.game && S.game.id) || 'jeu', arr, shuffle)),
+      rid,
     };
   }
 

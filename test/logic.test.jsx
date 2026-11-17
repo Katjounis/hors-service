@@ -69,7 +69,9 @@ async function testPlatform() {
   devs[3].backend.simulateReconnect();
   await until(() => host.players[devs[3].uid] && host.players[devs[3].uid].online === true, 2000, 'joueur reconnecté');
   ok(host.engine.activeUids().length === 4, 'reconnexion : le joueur redevient actif');
-  // pénalité + « un défi à la place » + « je passe »
+  // pénalité + « un défi à la place » + « je passe » (gorgées : Version Adulte)
+  host.host('settings', { adult: true });
+  await until(() => host.S.cfg.adult === true, 2000, 'Version Adulte activée');
   host.engine.pen(devs[1].uid, 3, 'test');
   host.engine.commit();
   await until(() => devs[1].S.pen.some((p) => p.uid === devs[1].uid), 2000, 'pénalité reçue');

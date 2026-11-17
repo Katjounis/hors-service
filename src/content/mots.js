@@ -4,7 +4,7 @@
 // (n'importe lequel des deux peut être le mot des civils). Entre adultes consentants uniquement, ni drogue
 // ni alcool au volant. HARD et Cul : paquets adultes, désactivés par défaut.
 
-const SOFT = [
+const SOFT = [...(globalThis.HS_X ? globalThis.HS_X('pipo_soft') : []),
   ['Océan', [['Mer', 1], ['Lagon', 1], ['Lac', 2], ['Étang', 2], ['Piscine', 2]]],
   ['Rivière', [['Fleuve', 1], ['Ruisseau', 1], ['Torrent', 1], ['Canal', 2], ['Cascade', 2]]],
   ['Montagne', [['Colline', 1], ['Volcan', 1], ['Falaise', 2], ['Glacier', 2], ['Dune', 2]]],
@@ -81,7 +81,7 @@ const SOFT = [
   ['PowerPoint', [['Excel', 1], ['Word', 1], ['Canva', 1], ['Google Slides', 1], ['Paint', 2]]],
 ];
 
-const HARD = [
+const HARD = [...(globalThis.HS_X ? globalThis.HS_X('pipo_hard') : []),
   ['Gueule de bois', [['Black-out', 1], ['Nausée', 1], ['Lendemain de cuite', 1], ['Migraine', 2], ['Coup de barre', 2]]],
   ['Vomir', [['Recracher', 1], ['Avoir un haut-le-cœur', 1], ['Roter', 2], ['Cracher', 1], ['Baver', 2]]],
   ['Cul sec', [['Chouille', 2], ['Shot', 1], ['Bière-pong', 1], ['Entonnoir', 1], ['Chug', 1]]],
@@ -124,7 +124,7 @@ const HARD = [
   ['Pyjama de la veille', [['Jogging troué', 1], ['Tee-shirt taché', 1], ['Culotte de la veille', 1], ['Chaussettes dépareillées', 2], ['Peignoir', 2]]],
 ];
 
-const CUL = [
+const CUL = [...(globalThis.HS_X ? globalThis.HS_X('pipo_cul') : []),
   ['Menottes', [['Bandeau', 1], ['Fouet', 1], ['Cravache', 1], ['Corde', 1], ['Baillon', 1]]],
   ['Levrette', [['Missionnaire', 1], ['Andromaque', 1], ['Cuillère', 1], ['69', 1], ['Brouette', 2]]],
   ['Capote', [['Lubrifiant', 1], ['Pilule', 1], ['Digue dentaire', 2], ['Pilule du lendemain', 1], ['Stérilet', 2]]],

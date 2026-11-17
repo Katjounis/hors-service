@@ -39,7 +39,9 @@ const common = {
   minify: process.env.HS_NOMIN ? false : true,
   format: 'iife',
   jsx: 'automatic',
-  jsxImportSource: 'preact',
+  // fabrique JSX avec les crochets de textes.js et genre.js (src/lib/jsx-runtime.js)
+  jsxImportSource: 'hs-jsx',
+  alias: { 'hs-jsx/jsx-runtime': './src/lib/jsx-runtime.js' },
   target: ['es2020', 'safari14'],
   legalComments: 'none',
   logLevel: 'warning',
@@ -75,6 +77,9 @@ if (target === 'preview') {
   const { createHash } = await import('node:crypto');
   const { copyFileSync, readdirSync } = await import('node:fs');
   const OUT = 'dist/pages';
+  // ordre de chargement : textes.js avant l'app, puis contenus.js, cartes.js (après contenus.js), genre.js ; anim.js en defer ; install.js en fin de page
+  const STATIC_JS = ['install.js', 'anim.js', 'textes.js', 'contenus.js', 'cartes.js', 'genre.js'];
+  const HEAD_JS = ['textes.js', 'contenus.js', 'cartes.js', 'genre.js'].map((f) => `<script src="${f}"></script>`).join('\n') + '\n<script src="anim.js" defer></script>';
   rmSync(OUT, { recursive: true, force: true });
   mkdirSync(`${OUT}/assets/icons`, { recursive: true });
   const js = await bundle('src/main-pages.jsx');
@@ -94,6 +99,7 @@ if (target === 'preview') {
   // Hébergeur affiché dans les mentions légales : "github" (GitHub Pages) ou "hostinger".
   var HEBERGEUR = "github";
 </script>
+${HEAD_JS}
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${TITLE}</title>
 <meta name="description" content="Jeux de soirée sur téléphone : chacun le sien, les secrets restent secrets.">
@@ -113,9 +119,14 @@ if (target === 'preview') {
 <div id="app"></div>
 <noscript><p style="padding:24px;color:#F2EADB;background:#1C1A17;font-family:system-ui,sans-serif">Hors Service a besoin de JavaScript pour fonctionner.</p></noscript>
 <script>${safeScript(js)}</script>
+<script src="install.js" defer></script>
 </body>
 </html>`;
   writeFileSync(`${OUT}/index.html`, html);
+  // scripts à part, non compilés (src/pages/js) : textes tout public, cartes en plus, accords, animations, invitation à installer
+  for (const f of STATIC_JS) copyFileSync(`src/pages/js/${f}`, `${OUT}/${f}`);
+  mkdirSync(`${OUT}/briefs`, { recursive: true });
+  for (const f of readdirSync('src/pages/briefs')) copyFileSync(`src/pages/briefs/${f}`, `${OUT}/briefs/${f}`);
   const manifest = {
     name: 'Hors Service', short_name: 'Hors Service',
     description: 'Jeux de soirée sur téléphone, avec ou sans alcool.',
@@ -134,8 +145,9 @@ if (target === 'preview') {
   for (const f of icons) h.update(readFileSync(`src/icons/${f}`));
   const jeux = readdirSync('src/jeux').filter((x) => x.endsWith('.webp'));
   for (const f of jeux) h.update(readFileSync(`src/jeux/${f}`));
+  for (const f of STATIC_JS) h.update(readFileSync(`src/pages/js/${f}`));
   const version = h.digest('hex').slice(0, 10);
-  const files = ['./', './index.html', './manifest.webmanifest', ...icons.map((f) => `./assets/icons/${f}`), ...jeux.map((f) => `./jeux/${f}`)];
+  const files = ['./', './index.html', './manifest.webmanifest', ...STATIC_JS.map((f) => `./${f}`), ...icons.map((f) => `./assets/icons/${f}`), ...jeux.map((f) => `./jeux/${f}`)];
   writeFileSync(`${OUT}/sw.js`, readFileSync('src/pages/sw.js', 'utf8').replace('__VERSION__', version).replace('__FILES__', JSON.stringify(files)));
   writeFileSync(`${OUT}/.nojekyll`, '');
   copyFileSync('src/pages/README.md', `${OUT}/README.md`);

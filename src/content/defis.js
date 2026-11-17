@@ -1,6 +1,6 @@
 // Défis proposés à la place des gorgées (mode sans alcool, ou « Un défi à la place »).
 // Niveau : 1 tranquille, 2 drôle, 3 piquant. Chaque défi peut être refusé sans pénalité.
-export const DEFIS = [
+export const DEFIS = [...((globalThis.HS_PLUS || {}).gages || []),
   [1, 'Fais un compliment sincère à la personne à ta gauche.'],
   [1, 'Imite un animal choisi par la table pendant 10 secondes.'],
   [1, 'Présente la météo de demain comme à la télé.'],

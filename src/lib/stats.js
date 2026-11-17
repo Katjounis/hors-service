@@ -20,7 +20,7 @@ export function summarize(S) {
     const t = (S.tally && S.tally[u]) || {};
     const r = S.roster[u];
     return {
-      uid: u, nick: r.nick, av: r.av, drink: r.drink !== false, sob: r.sob, lim: r.lim,
+      uid: u, nick: r.nick, av: r.av, drink: r.drink !== false, sob: r.sob, lim: r.lim, gn: r.gn,
       sips: sipsOf(S, u), given: t.g || 0, gages: t.c || 0, points: t.p || 0, passes: t.x || 0,
       cnt: (S.cnt && S.cnt[u]) || {}, best: (S.prec && S.prec[u]) || {},
     };
@@ -53,7 +53,7 @@ export function profiles(st = loadStats()) {
     for (const p of s.players) {
       const k = keyOf(p.nick);
       const o = out[k] || (out[k] = { nick: p.nick, soirees: 0, sips: 0, given: 0, gages: 0, points: 0, best: {} });
-      Object.assign(o, { nick: p.nick, av: p.av, drink: p.drink, sob: p.sob, lim: p.lim, last: s.date });
+      Object.assign(o, { nick: p.nick, av: p.av, drink: p.drink, sob: p.sob, lim: p.lim, gn: p.gn, last: s.date });
       o.soirees += 1; o.sips += p.sips; o.given += p.given; o.gages += p.gages; o.points += p.points;
       for (const [rk, v] of Object.entries(p.best || {})) {
         const low = rk === 'degaine';

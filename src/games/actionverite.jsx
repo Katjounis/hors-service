@@ -67,7 +67,7 @@ const AVG = {
     'Refuser, c’est la sanction réglée avant de lancer (cul sec par défaut).',
     'Pas plus de deux vérités d’affilée : la troisième fois, c’est action obligatoire.',
     'Toute action qui implique quelqu’un d’autre demande son accord. Il peut dire non, sans sanction pour personne.',
-    'Niveaux Soft, HARD et Cul à mélanger. HARD et Cul s’activent avec l’interrupteur « Mode Cul et HARD » du salon, si toute la table est en « Piquant ».',
+    'Niveaux Soft, HARD et Cul à mélanger. HARD et Cul s’activent avec l’interrupteur « Version Adulte » du salon, si toute la table est en « Piquant ».',
   ],
   options: [
     { id: 'levels', label: 'Niveaux (un ou plusieurs)', multi: true, choices: [['soft', 'Soft'], ['hard', 'HARD', 3, 'adult'], ['cul', 'Cul', 3, 'adult']], def: ['soft'] },

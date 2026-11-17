@@ -40,15 +40,15 @@ const ICONS = { oserait: 'g-oserait', '96': 'g-96', pipoteur: 'g-pipo', purple: 
 // catégories pour filtrer la liste des jeux dans le salon (un jeu peut être dans plusieurs)
 // filtres du salon : peu de familles, une seule ligne d'onglets (« Cul et hard » seulement si le mode est actif)
 export const CATS = [
-  ['cartes', 'Cartes'],
-  ['questions', 'Questions'],
-  ['bluff', 'Bluff'],
-  ['vite', 'Réflexes'],
-  ['coquin', 'Cul et hard'],
+  ['phares', 'Nos jeux phares'],
+  ['soiree', 'Pour lancer la soirée'],
+  ['cartes', 'Cartes et bluff'],
+  ['vite', 'Réflexes et chaos'],
+  ['coquin', 'Version Adulte'],
 ];
-const CAT_OF = { cartes: ['cartes'], questions: ['ambiance', 'culture'], bluff: ['bluff'], vite: ['reflexe'], coquin: ['coquin'] };
+const CAT_OF = { phares: ['phare'], soiree: ['ambiance', 'culture'], cartes: ['cartes', 'bluff'], vite: ['reflexe'], coquin: ['coquin'] };
 const GAME_CATS = {
-  oserait: ['alcool', 'ambiance', 'coquin'], '96': ['cartes', 'alcool'], pipoteur: ['bluff', 'ambiance', 'coquin'], purple: ['cartes', 'alcool'],
+  oserait: ['phare', 'alcool', 'ambiance', 'coquin'], '96': ['phare', 'cartes', 'alcool'], pipoteur: ['phare', 'bluff', 'ambiance', 'coquin'], purple: ['cartes', 'alcool'],
   hippodrome: ['cartes', 'alcool'], toutankhamon: ['cartes', 'bluff', 'alcool'], autres: ['ambiance'], trouve: ['cartes', 'alcool'],
   degaine: ['reflexe'], bombe: ['reflexe', 'alcool'], ware: ['reflexe'], jamais: ['alcool', 'ambiance', 'coquin'],
   garou: ['bluff', 'alcool', 'ecran'], coinche: ['cartes', 'equipe', 'ecran'], buzzer: ['culture', 'reflexe', 'ecran'], dessin: ['ambiance', 'ecran'],

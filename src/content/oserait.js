@@ -1,6 +1,6 @@
 // « Qui oserait… ? » — niveau : 1 tranquille, 2 drôle, 3 piquant.
 // Chaque phrase complète « Qui est le plus susceptible de… ».
-export const QUESTIONS = [
+export const QUESTIONS = [...((globalThis.HS_PLUS || {}).oserait || []),
   [1, 'devenir célèbre'],
   [1, 'adopter dix chats'],
   [1, 'survivre le plus longtemps sur une île déserte'],

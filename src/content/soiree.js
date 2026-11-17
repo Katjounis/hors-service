@@ -3,7 +3,7 @@
 
 // ---------------------------------------------------------------- Tu préfères… [option A, option B]
 export const TP = {
-  soft: [
+  soft: [...(globalThis.HS_X ? globalThis.HS_X('tupref_soft') : []),
     ['ne plus jamais boire de café', 'ne plus jamais manger de fromage'], ['avoir le hoquet toute ta vie', 'éternuer toutes les cinq minutes'],
     ['vivre sans internet', 'vivre sans eau chaude'], ['parler toutes les langues', 'parler aux animaux'],
     ['être invisible', 'pouvoir voler'], ['avoir toujours trop chaud', 'avoir toujours trop froid'],
@@ -25,7 +25,7 @@ export const TP = {
     ['ne jamais avoir faim', 'ne jamais être fatigué'], ['marcher pieds nus sur des Lego', 'sur des braises'],
     ['avoir un pote qui ronfle dans ta chambre', 'un voisin qui fait la fête tous les soirs'], ['gagner au loto', 'trouver l’amour de ta vie demain'],
   ],
-  hard: [
+  hard: [...(globalThis.HS_X ? globalThis.HS_X('tupref_hard') : []),
     ['vomir sur ton crush', 'que ton crush vomisse sur toi'], ['lire tes messages à voix haute devant tout le monde', 'montrer ta galerie photo'],
     ['que ta mère lise ton historique', 'que ton patron lise tes messages'], ['te réveiller à côté de ton ex', 'à côté de ton boss'],
     ['avoir une gueule de bois chaque matin', 'ne plus jamais boire'], ['tromper', 'être trompé'],
@@ -42,7 +42,7 @@ export const TP = {
     ['manger un kebab froid de la veille', 'une pizza ramassée dans la poubelle'], ['être grillé en train de stalker ton ex', 'en train de stalker ton crush'],
     ['que ton crush voie tes recherches internet', 'qu’il voie tes messages à ton meilleur pote'], ['finir en garde à vue en pyjama', 'en costume de mascotte'],
   ],
-  cul: [
+  cul: [...(globalThis.HS_X ? globalThis.HS_X('tupref_cul') : []),
     ['coucher avec quelqu’un de cette table', 'ne plus jamais coucher avec personne de cette table'], ['un plan à trois', 'un plan cul régulier'],
     ['te faire surprendre par tes parents', 'surprendre tes parents'], ['faire l’amour dans un avion', 'dans un ascenseur'],
     ['un partenaire bon au lit mais chiant', 'drôle mais nul au lit'], ['le faire toute la nuit une fois', 'cinq minutes tous les jours'],
@@ -64,7 +64,7 @@ export const TP = {
 // ---------------------------------------------------------------- Action ou vérité
 export const AV = {
   verite: {
-    soft: [
+    soft: [...(globalThis.HS_X ? globalThis.HS_X('av_verite_soft') : []),
       'Quelle est ta plus grosse honte de l’année ?', 'Quel est le dernier mensonge que tu as dit ?', 'Qui ici ferait le pire coloc ?',
       'Quel est ton plaisir coupable musical ?', 'Quelle est la chose la plus bête que tu aies faite pour impressionner quelqu’un ?',
       'Tu as déjà fait semblant d’être malade ? Pour quoi ?', 'Quel est le pire cadeau que tu aies reçu ?', 'Qui ici t’a le plus énervé cette année ?',
@@ -76,7 +76,7 @@ export const AV = {
       'Quel âge tu avais à ton premier bisou ?', 'Tu as déjà pleuré devant un film ? Lequel ?', 'Qui ici tu appellerais en cas de galère à 3 h du matin ?',
       'Quel est ton plus gros fail au boulot ou en cours ?', 'Quel talent inutile tu as ?', 'Quelle est ta pire dépense ?', 'Quelle rumeur sur toi était vraie ?',
     ],
-    hard: [
+    hard: [...(globalThis.HS_X ? globalThis.HS_X('av_verite_hard') : []),
       'Qui ici tu n’inviterais jamais à ton mariage ?', 'Quel est le pire truc que tu aies fait bourré ?', 'Tu as déjà trompé quelqu’un ?',
       'Quel secret tu n’as jamais dit à ton meilleur pote ?', 'Qui ici t’a déjà déçu ?', 'Quel est ton plus gros mensonge à tes parents ?',
       'Tu as déjà lu les messages de quelqu’un en cachette ?', 'Quelle est la chose la plus illégale (mais légère) que tu aies faite ?',
@@ -87,7 +87,7 @@ export const AV = {
       'Quel est le pire endroit où tu as dormi après une soirée ?', 'Quelle est la pire chose que tu aies faite à un pote ?',
       'Quelle personne ici tu bloquerais si tu pouvais ?', 'Tu as déjà fait pipi quelque part d’interdit ? Où ?', 'Quel message tu regrettes le plus ?',
     ],
-    cul: [
+    cul: [...(globalThis.HS_X ? globalThis.HS_X('av_verite_cul') : []),
       'Ton plus gros fantasme ?', 'Le lieu le plus fou où tu l’as fait ?', 'Qui ici tu trouves le plus attirant ?', 'Ton nombre de partenaires ?',
       'Ta pire expérience au lit ?', 'Tu as déjà simulé ? Avec qui ?', 'Ton premier fois : où et quand ?', 'Tu as déjà envoyé un nude ? À qui ?',
       'Ta position préférée ?', 'Tu as déjà fait un plan à trois ?', 'Ton sextoy préféré ?', 'Tu as déjà été surpris en pleine action ?',
@@ -98,7 +98,7 @@ export const AV = {
     ],
   },
   action: {
-    soft: [
+    soft: [...(globalThis.HS_X ? globalThis.HS_X('av_action_soft') : []),
       'Imite quelqu’un de la table jusqu’à ce qu’on devine qui.', 'Parle avec un accent pendant trois tours.', 'Fais dix pompes (ou essaie).',
       'Chante le refrain d’une chanson choisie par ta gauche.', 'Fais une déclaration d’amour à ton verre.', 'Danse sans musique pendant 30 secondes.',
       'Laisse ta droite écrire un statut sur tes réseaux (sans abuser).', 'Raconte une blague nulle : si personne ne rit, bois.',
@@ -110,7 +110,7 @@ export const AV = {
       'Fais un rap sur la personne en face de toi.', 'Garde les yeux fermés jusqu’à ton prochain tour.', 'Raconte ta journée façon documentaire animalier.',
       'Fais trois tours sur toi-même et marche droit.', 'Mange une cuillère d’un condiment choisi par la table.', 'Fais un câlin à la personne la plus proche.', 'Parle à la troisième personne pendant trois tours.',
     ],
-    hard: [
+    hard: [...(globalThis.HS_X ? globalThis.HS_X('av_action_hard') : []),
       'Envoie « tu me manques » à un ex, ou cul sec.', 'Laisse la table lire tes cinq derniers messages.', 'Bois un mélange préparé par ta gauche.',
       'Poste une photo choisie par la table en story (24 h).', 'Appelle ta mère et dis-lui que tu l’aimes, en haut-parleur.', 'Laisse ta droite envoyer un message à la personne de son choix dans tes contacts.',
       'Mets ton haut à l’envers jusqu’à la fin de la soirée.', 'Lèche le coude de la personne à ta gauche.', 'Laisse quelqu’un fouiller ta galerie 15 secondes.',
@@ -120,7 +120,7 @@ export const AV = {
       'Imite la personne ici qui t’énerve le plus.', 'Mange un truc dégueu choisi dans le frigo.', 'Cul sec, sans les mains.',
       'Appelle un pote et fais-lui croire que tu es en garde à vue (puis dis-lui la vérité).', 'Enlève un vêtement jusqu’au prochain tour.', 'Fais un vocal où tu chantes à ton dernier contact.', 'Laisse la table t’écrire un mot sur le front.',
     ],
-    cul: [
+    cul: [...(globalThis.HS_X ? globalThis.HS_X('av_action_cul') : []),
       'Embrasse dans le cou la personne de ton choix, si elle est d’accord.', 'Fais un lap dance de 20 secondes à quelqu’un d’accord.', 'Montre ton dernier sexto (ou cul sec).',
       'Décris ton fantasme le plus fou en détail.', 'Enlève deux vêtements jusqu’au prochain tour.', 'Embrasse quelqu’un de ton choix, s’il est d’accord.',
       'Mime ta position préférée (habillé).', 'Murmure une phrase coquine à l’oreille de ta gauche.', 'Fais un suçon à quelqu’un d’accord, ou cul sec.',
@@ -135,7 +135,7 @@ export const AV = {
 
 // ---------------------------------------------------------------- Paranoïa : questions dont la réponse est un joueur
 export const PARANO = {
-  soft: [
+  soft: [...(globalThis.HS_X ? globalThis.HS_X('paranoia_soft') : []),
     'Qui ici est le plus susceptible de finir en prison ?',
     'Qui ici a le plus de chance de te trahir ?',
     'Avec qui ici partirais-tu sur une île déserte ?',
@@ -180,7 +180,7 @@ export const PARANO = {
     'Qui ici est le plus fayot ?',
     'Qui ici a le pire historique internet ?',
   ],
-  cul: [
+  cul: [...(globalThis.HS_X ? globalThis.HS_X('paranoia_cul') : []),
     'Avec qui ici coucherais-tu si tu devais choisir ?',
     'Qui ici est le plus nul au lit, à ton avis ?',
     'Qui ici a les fantasmes les plus bizarres ?',

@@ -19,7 +19,14 @@ export class Device {
     this.ready = false;
     this.conn = true;
     this.sync = true;
-    this.profile = store.get('profile', null);
+    // une fois : les profils existants repassent en « gorgées » (elles ne comptent qu'en Version Adulte)
+    this.profile = ((p) => {
+      try {
+        if (p && !store.get('drinkv2', false)) { p = { ...p, drink: true }; store.set('profile', p); }
+        store.set('drinkv2', true);
+      } catch (e) { /* stockage bloqué */ }
+      return p;
+    })(store.get('profile', null));
     this.code = null;
     this.meta = null;
     this.S = null;
@@ -47,7 +54,14 @@ export class Device {
   changed() {
     if (this._q) return;
     this._q = true;
-    queueMicrotask(() => { this._q = false; this.subs.emit(); });
+    queueMicrotask(() => {
+      this._q = false;
+      // textes.js (version tout public) a besoin de savoir si la Version Adulte est active
+      try { globalThis.HS_ADULTE = !!(this.S && this.S.cfg && this.S.cfg.adult); } catch (e) { /* hors navigateur */ }
+      // genre.js : accord des cartes avec les joueurs de la table
+      try { if (globalThis.HS_GENRE_MAJ) globalThis.HS_GENRE_MAJ(this); } catch (e) { /* hors navigateur */ }
+      this.subs.emit();
+    });
   }
 
   async boot() {
@@ -77,6 +91,8 @@ export class Device {
       // sans alcool : « gage » (un gage par pénalité) ou « points » (une gorgée = un point de pénalité)
       sob: p.sob === 'points' ? 'points' : 'gage',
       lim: [1, 2, 3].includes(p.lim) ? p.lim : 3,
+      // accord des textes : « m », « f » ou « x » (ne pas préciser)
+      gn: p.gn === 'm' || p.gn === 'f' ? p.gn : 'x',
     };
     this.profile = prof;
     this.store.set('profile', prof);

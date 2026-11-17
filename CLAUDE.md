@@ -30,6 +30,8 @@ node build.mjs preview   # dist/preview.html pour tester en local
 
 Pousser le site : vider le clone de `main`, copier `dist/pages/.` dedans, `touch .nojekyll`, commit, push.
 
+**Jamais de modif seulement dans le site compilé.** Tout passe par `sources`, puis on recompile. Le 17/11, vingt modifs faites directement dans `main` ont dû être reportées à la main dans `src/`. Le Claude de Bit n'a que le fichier compilé (copie Drive) : ses rendus arrivent avec une liste « Modifications de index.html.md » (avant/après exacts) à reporter dans `src/` avant de recompiler. Le guide commun est « 00 À LIRE EN PREMIER (Claude) » à la racine du Drive « Studio Samuel x Bit ».
+
 Commits en français, courts, qui disent ce qui change pour le joueur (ex. « Personnages : atelier en onglets, chapka, kippa »).
 
 ## Architecture
@@ -58,6 +60,14 @@ Objet exporté par défaut, puis à déclarer dans `src/games/index.js` (import,
 - Vues : `Table` (écran commun) et `Act` (zone du joueur).
 - Contexte `c` : `pen(uid, n, why)` (faire boire), `penCS` (cul sec), `gift(uid, n, why)` (distribuer), `setSecret`, `priv`, `shuffle`, `roster`, `online(uid)`, `isLocal`, `opts`, `ev`, `name`, `activeUids`. Les pénalités passent toujours par `pen`/`gift` (stats et bilan).
 - Toute chaîne affichée doit avoir sa traduction dans `src/i18n/`.
+
+### Fichiers à part (non compilés)
+
+`src/pages/js/` : `textes.js` (version tout public, `HS_TXT`, `HS_ADULTE`), `contenus.js` (`HS_MELANGE`, `HS_TIRE`, `HS_PLUS`), `cartes.js` (`HS_X(clé)`), `genre.js` (accord masculin/féminin), `anim.js`, `install.js`. `build.mjs` les recopie dans `dist/pages`, ajoute les balises `<script>` et les met dans le précache du service worker. Ils se branchent sur l'appli par `src/lib/jsx-runtime.js` (`HS_GENRE_TXT` puis `HS_TXT` sur chaque texte affiché, via l'alias `hs-jsx` de `build.mjs`) et par des appels `globalThis.HS_…` dans `src/` (toujours `globalThis`, jamais `window`, sinon les tests logique plantent). `src/pages/briefs/` est recopié dans `dist/pages/briefs/`.
+
+### Version store (16/11)
+
+Plus d'écran 18+ à l'ouverture (`ageOk()` renvoie `true`), la confirmation se fait à l'activation de la « Version Adulte » (ex « Mode Cul et HARD »). Les gorgées n'existent qu'avec `cfg.adult`, sinon gage ou points. Jeux masqués (code gardé) : `HS_MASQUES` dans `party.jsx`, Roulette seulement en Version Adulte. L'ordre des joueurs tourne d'une partie à l'autre (`activeUids` dans `host.js`).
 
 ## Direction artistique
 
@@ -127,6 +137,8 @@ for t in ui ui-local jamais pages salons bloc1 bloc2 bloc3 bloc5 bloc6; do node 
 `ui` et `logic` dépendent du hasard et du minutage : un échec isolé se relance une fois avant de chercher un bug. Les tests repèrent les jeux par « Jeu NN, Nom » : `m.no` est l'identité du jeu, il ne change pas avec l'ordre d'affichage.
 
 ## Pièges connus
+
+- Les tests navigateur (`ui`, `ui-local`, `jamais`, `pages`, `salons`, `bloc*`) décrivent encore l'appli d'avant le 16/11 (écran 18+, jeux masqués, « Mode Cul et HARD ») : ils échouent dès l'entrée et sont à mettre à jour. Les tests logique (`vague2`, `games`, `logic`, `newgames`, `mort`, `pipoteur`) passent.
 
 - Un contenu CSS `::before` fuit dans le nom accessible et casse les tests : écrire `content: 'X' / ''`.
 - Tout nouveau fichier statique (image, police) doit être ajouté au précache du service worker (`build.mjs`, `src/pages/sw.js`), sinon le test `pages` échoue.
