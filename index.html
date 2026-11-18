@@ -2380,7 +2380,12 @@ body:has(.pe-perma) .act > h3:first-child, body:has(.pe-perma) .act .pe-mine { d
 @media (prefers-reduced-motion: reduce) { .hot-stamp { display: none; } .feutre-prev { display: none; } }
 
 /* filtres des jeux : une rangée d'onglets façon étiquettes de boîte de jeu, le choix en cours en carte crème */
-.cat-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 4px -16px 12px; padding: 2px 16px; }
+.cat-tabs {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 4px 0 12px; padding: 4px 32px 4px 16px; scroll-padding-inline: 16px;
+  /* les onglets restent dans le panneau, alignés sur le titre ; le fondu à droite montre qu'on peut faire défiler */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 36px), transparent);
+}
 .cat-tabs::-webkit-scrollbar { display: none; }
 .cat-tab {
   flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px;
