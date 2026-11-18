@@ -4,6 +4,7 @@
 // « couleur.expression.tête.visage.plus.coiffure.peau.cheveux » (ex. « 3.1.5.0.2.4.1.0 »).
 // Les anciens codes à 5 parties restent valides : coiffure, peau et cheveux sont alors tirés du code.
 // Le personnage réagit : grand sourire quand le joueur distribue, mine inquiète quand il doit boire.
+import { h as hsH } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { AV_COUNTS, avatarId } from '../lib/util.js';
 
@@ -15,17 +16,22 @@ const BLUE = '#2F55A4';
 
 export const AV_COLORS = ['#F2C230', '#EE8A3A', '#D9412B', '#EFA0B4', '#8F72CC', '#4F82E0', '#5CBF9C', '#97B84E', '#CDB48C', '#A9A39A'];
 export const AV_SKINS = ['#F7DCC6', '#ECC09C', '#D29C70', '#A8704A', '#6B432B'];
-export const AV_HAIRS = ['#2A231F', '#5A3824', '#94643A', '#E2BC6E', '#C1532A', '#E58AAE'];
+// le dernier (arc-en-ciel) est un dégradé : pastille en CSS, dessin avec le dégradé #hs-arc de Character
+export const AV_HAIRS = ['#2A231F', '#5A3824', '#94643A', '#E2BC6E', '#C1532A', '#E58AAE', '#9A9A98', '#ECE8DF', '#4F82E0', '#8F72CC', '#5CBF9C', 'linear-gradient(90deg,#E8573A,#F2C230,#5CBF9C,#4F82E0,#8F72CC)'];
+const HAIR_ARC = 11;
 export const AV_NAMES = {
   color: ['Jaune', 'Orange', 'Rouge', 'Rose', 'Violet', 'Bleu', 'Menthe', 'Vert', 'Kraft', 'Gris'],
   expr: ['Content', 'Blasé', 'Surpris', 'Bourré', 'Diabolique', 'Amoureux', 'Endormi', 'Clin d’œil'],
   head: ['Rien', 'Casquette', 'Couronne', 'Chapeau de fête', 'Bandeau', 'Casque de chantier', 'Auréole', 'Cornes', 'Bonnet', 'Fleur', 'Casque audio', 'Chapka', 'Kippa', 'Bob', 'Casquette à l’envers', 'Bandeau éponge', 'Couronne de fleurs'],
   face: ['Rien', 'Lunettes de soleil', 'Lunettes rondes', 'Moustache', 'Nez de clown', 'Monocle', 'Masque de ski', 'Cache-œil', 'Lunettes cœur', 'Moustache guidon'],
   extra: ['Rien', 'Verre à la main', 'Nœud papillon', 'Cravate', 'Micro', 'Tatouages'],
-  hair: ['Rasé', 'Court', 'Mèche', 'Bouclé', 'Long', 'Chignon', 'Crête', 'Carré'],
+  hair: ['Rasé', 'Court', 'Mèche', 'Bouclé', 'Long', 'Chignon', 'Crête', 'Carré', 'Queue-de-cheval', 'Couettes', 'Tresses', 'Tresse sur le côté', 'Frange', 'Long ondulé', 'Afro', 'Macarons', 'Dreadlocks', 'Nattes collées', 'Dégradé', 'Mulet', 'Coupe au bol', 'Crâne dégarni'],
   skin: ['Très claire', 'Claire', 'Mate', 'Foncée', 'Très foncée'],
-  hairCol: ['Noirs', 'Bruns', 'Châtains', 'Blonds', 'Roux', 'Roses'],
+  hairCol: ['Noirs', 'Bruns', 'Châtains', 'Blonds', 'Roux', 'Roses', 'Gris', 'Blancs', 'Bleus', 'Violets', 'Verts', 'Arc-en-ciel'],
   kind: ['Humain', 'Alien', 'Cubique', 'Glitché', 'Robot', 'Zombie', 'Fantôme', 'Squelette', 'Big'],
+  detail: ['Rien', 'Rouge à lèvres', 'Cils et eye-liner', 'Paillettes sur les joues', 'Taches de rousseur', 'Joues roses', 'Barbe courte', 'Barbe longue', 'Bouc', 'Piercing au nez', 'Grain de beauté', 'Cernes de lendemain de soirée', 'Pansement sur le nez'],
+  tenue: ['Tee-shirt', 'Débardeur', 'Chemise', 'Chemise hawaïenne', 'Sweat à capuche', 'Robe', 'Robe de soirée à paillettes', 'Haut à bretelles', 'Salopette', 'Veste en cuir', 'Costume'],
+  bijou: ['Rien', 'Créoles', 'Boucles d’oreilles pendantes', 'Collier de perles', 'Chaîne en or', 'Collier de fleurs', 'Ras-du-cou'],
 };
 // teintes de peau propres à chaque espèce
 export const KIND_SKINS = [
@@ -43,8 +49,8 @@ function AV_SKINS_H() { return ['#F7DCC6', '#ECC09C', '#D29C70', '#A8704A', '#6B
 // coiffures seulement pour les espèces qui ont des cheveux
 export const KIND_HAIR = [true, false, true, true, false, true, false, false, true];
 // ordre de stockage (ne pas changer) et ordre d'affichage dans l'atelier
-export const AV_PARTS = ['color', 'expr', 'head', 'face', 'extra', 'hair', 'skin', 'hairCol', 'kind'];
-export const AV_EDIT = ['kind', 'skin', 'hair', 'hairCol', 'expr', 'color', 'head', 'face', 'extra'];
+export const AV_PARTS = ['color', 'expr', 'head', 'face', 'extra', 'hair', 'skin', 'hairCol', 'kind', 'detail', 'tenue', 'bijou'];
+export const AV_EDIT = ['kind', 'skin', 'hair', 'hairCol', 'expr', 'detail', 'color', 'tenue', 'bijou', 'head', 'face', 'extra'];
 export const AV_SWATCH = { color: AV_COLORS, skin: AV_SKINS, hairCol: AV_HAIRS };
 
 export function parseAv(av) {
@@ -55,12 +61,13 @@ export function makeAv(parts) {
 }
 export function randomAv() {
   const r = (n) => Math.floor(Math.random() * n);
-  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(13) : 0, Math.random() < 0.35 ? r(8) : 0, Math.random() < 0.3 ? r(6) : 0, r(8), r(5), r(6), r(9)]);
+  const N = AV_COUNTS;
+  return makeAv([r(10), r(8), Math.random() < 0.5 ? r(N[2]) : 0, Math.random() < 0.35 ? r(N[3]) : 0, Math.random() < 0.3 ? r(N[4]) : 0, r(N[5]), r(5), r(N[7]), r(9), Math.random() < 0.25 ? r(N[9]) : 0, Math.random() < 0.4 ? r(N[10]) : 0, Math.random() < 0.2 ? r(N[11]) : 0]);
 }
 export function describeAv(av) {
   const p = parseAv(av);
   return AV_EDIT.map((k) => [k, AV_NAMES[k][p[AV_PARTS.indexOf(k)]]])
-    .filter(([k, x]) => x !== 'Rien' && !(k === 'kind' && x === 'Humain'))
+    .filter(([k, x]) => x !== 'Rien' && !(k === 'kind' && x === 'Humain') && !(k === 'tenue' && x === 'Tee-shirt'))
     .map(([k, x]) => (k === 'skin' ? `peau ${x.toLowerCase()}` : k === 'hairCol' ? `cheveux ${x.toLowerCase()}` : k === 'color' ? `tee-shirt ${x.toLowerCase()}` : x))
     .join(', ');
 }
@@ -110,7 +117,13 @@ const EAR_R = 'M46.8 27.1 C50.3 25.9 51.6 29.1 50.7 31.9 C49.9 34.3 48 35.5 46.3
 const NECK = 'M27.3 42.6 L26.7 58 L37.3 58 L36.7 42.6 Z';
 const SHIRT = 'M5 66 C5.8 57.4 12.5 52.6 22.4 51 C25.4 54.4 28.8 55.4 32 55.4 C35.2 55.4 38.8 54.4 41.7 51 C51.5 52.6 58.2 57.4 59 66 Z';
 
+// nouveaux skins (src/pages/js/skins.js, window.HS_SKIN) : l'appli lui prête ses outils de dessin au feutre.
+// Sans skins.js, les choix ajoutés ne dessinent rien et les anciens avatars restent identiques.
+function HsSkin(quoi, k, o) {
+  return globalThis.HS_SKIN ? globalThis.HS_SKIN(quoi, k, o, { n: hsH, R: F, O: L, Ae: Dot, we: shade }) : null;
+}
 function shade(hex, k) {
+  if (hex[0] !== '#') return k < 1 ? '#5B4A7A' : '#D7C8F0';
   const n = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
   return '#' + n.map((v) => Math.max(0, Math.min(255, Math.round(v * k))).toString(16).padStart(2, '0')).join('');
 }
@@ -119,7 +132,7 @@ function shade(hex, k) {
 function HairBack({ k, c }) {
   if (k === 4) return <F d="M16 30 C14.6 16.6 22.4 10.8 32 10.8 C41.6 10.8 49.4 16.6 48 30 C47.8 38.4 49.6 45.4 52.2 51.4 C47.8 53.4 43.4 52.8 40.6 50.6 L23.4 50.6 C20.6 52.8 16.2 53.4 11.8 51.4 C14.4 45.4 16.2 38.4 16 30 Z" fill={c} />;
   if (k === 7) return <F d="M16 30.5 C14.6 16.8 22.4 10.8 32 10.8 C41.6 10.8 49.4 16.8 48 30.5 C48.2 35.6 49 39.6 50.2 43.4 C46.4 45.2 42.6 44.6 40.8 42.6 L23.2 42.6 C21.4 44.6 17.6 45.2 13.8 43.4 C15 39.6 15.8 35.6 16 30.5 Z" fill={c} />;
-  return null;
+  return HsSkin('cheveuxDos', k, { c });
 }
 // cheveux sur le front et le haut du crâne
 function Strands({ k, c }) {
@@ -157,7 +170,7 @@ function HairFront0({ k, c, hat }) {
       </g>
     );
     case 7: return <F d="M17 29.6 C16.2 18.2 23 12.4 32 12.4 C41 12.4 47.8 18.2 47 29.6 C46.4 26.8 45.6 25 44.4 23.6 L19.6 23.6 C18.4 25 17.6 26.8 17 29.6 Z" fill={c} />;
-    default: return null;
+    default: return HsSkin('cheveux', k, { c, hat });
   }
 }
 
@@ -606,10 +619,10 @@ let clipN = 0;
 // une espèce dessinée (sans le sous-bock) ; « glitch » réutilise la base humaine
 function Body({ p, mood }) {
   const cid = useMemo(() => `avh${(clipN += 1)}`, []);
-  const [color, expr, head, face, extra, hair, skin, hairCol, kind] = p;
+  const [color, expr, head, face, extra, hair, skin, hairCol, kind, detail, tenue, bijou] = p;
   const shirt = AV_COLORS[color] || AV_COLORS[0];
   const sk = (KIND_SKINS[kind] || KIND_SKINS[0])[skin] || AV_SKINS[1];
-  const hc = AV_HAIRS[hairCol] || AV_HAIRS[0];
+  const hc = hairCol === HAIR_ARC ? 'url(#hs-arc)' : AV_HAIRS[hairCol] || AV_HAIRS[0];
   const hatHidesTop = head === 1 || head === 5 || head === 8;
   const acc = (
     <g>
@@ -624,6 +637,7 @@ function Body({ p, mood }) {
       <path d="M28.2 45.6 C30.6 48 33.4 48 35.8 45.6 L36 49.6 C33.4 51.4 30.6 51.4 28 49.6 Z" fill={shade(sk, 0.8)} />
       <F d={SHIRT} fill={shirt} />
       <L d="M22.4 51 C25.4 56 38.6 56 41.7 51" w={1.5} />
+      {HsSkin('tenue', tenue, { c: shirt, sk })}
       {head === 0 ? <g><L d="M25 10.6 C23.6 7 21.2 4.6 18.4 3.6 M39 10.6 C40.4 7 42.8 4.6 45.6 3.6" w={1.6} /><F d="M16.2 3.6 C16.2 2.2 17.2 1.4 18.4 1.4 C19.6 1.4 20.6 2.4 20.4 3.6 C20.2 4.8 19.4 5.6 18.2 5.6 C17 5.6 16.2 4.8 16.2 3.6 Z M43.6 3.6 C43.6 2.4 44.6 1.4 45.8 1.4 C47 1.4 47.8 2.2 47.8 3.6 C47.8 4.8 47 5.6 45.8 5.6 C44.6 5.6 43.6 4.8 43.6 3.6 Z" fill={sk} w={1.3} sketch={false} /></g> : null}
       <F d={ALIEN_HEAD} fill={sk} />
       <path d="M22 16 C25 13.6 29 12.8 32 12.8" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" opacity=".45" />
@@ -678,6 +692,7 @@ function Body({ p, mood }) {
       <F d="M29 53.6 C31.2 52.8 32.8 52.8 35 53.6 L35 58 L29 58 Z" fill={sk} w={1.7} />
       <F d={SHIRT} fill={shirt} />
       <L d="M22.4 51 C25.4 56 38.6 56 41.7 51" w={1.5} />
+      {HsSkin('tenue', tenue, { c: shirt, sk })}
       <F d={SKULL} fill={sk} />
       <SkullFace expr={expr} mood={mood} />
       {acc}
@@ -695,6 +710,7 @@ function Body({ p, mood }) {
       <path d="M8.4 64 C9.4 59 12.6 55.6 17.6 53.6 C16.4 57 16 60.6 16.4 64 Z M55.6 64 C54.6 59 51.4 55.6 46.4 53.6 C47.6 57 48 60.6 47.6 64 Z" fill={shade(shirt, 0.84)} />
       {zombie ? <path d="M12 60 L15 57 L17 61 L20 58 M47 59 L50 56 L52 60" fill="none" stroke={INK} stroke-width="1.2" /> : null}
       <L d="M22.4 51 C25.4 56 38.6 56 41.7 51" w={1.5} />
+      {HsSkin('tenue', tenue, { c: shirt, sk })}
       <F d={EAR_L} fill={sk} w={2} />
       <F d={EAR_R} fill={sk} w={2} />
       <F d={HEAD} fill={sk} />
@@ -704,8 +720,11 @@ function Body({ p, mood }) {
       <L d="M32.6 30.6 C31.8 33.4 30.6 35.6 31.4 36.4 C32 36.9 33 36.8 33.8 36.4" w={1.5} />
       <HairFront k={hair} c={hc} hat={hatHidesTop} />
       {zombie ? <L d="M36.4 18.4 L43.4 22.4 M37.4 17.6 L36.6 19.6 M39.6 18.8 L38.8 20.8 M41.8 20.2 L41 22.2" w={1.2} /> : null}
+      {HsSkin('dessous', detail, { sk, hc })}
       <Eyes expr={expr} mood={mood} />
       {zombie ? <path d="M33.6 42 L34.8 44.6 L36 42.2 Z" fill="#FFFDF6" stroke={INK} stroke-width=".8" /> : null}
+      {HsSkin('detail', detail, { sk, hc })}
+      {HsSkin('bijou', bijou, {})}
       {acc}
     </g>
   );
@@ -721,6 +740,7 @@ export function Character({ av, mood = null, bg = true, size = 64, label = null 
     <svg class={`bouille${kind === 3 ? ' is-glitch' : ''}`} viewBox="0 0 64 64" width={size} height={size} role={label ? 'img' : undefined} aria-label={label || undefined} aria-hidden={label ? undefined : 'true'} focusable="false" overflow="visible">
       <defs>
         <clipPath id={id}><path d="M32 2 C49.4 2 62.4 14.8 62.4 33 C62.4 51 49.4 64.4 32 64.4 C14.6 64.4 1.6 51 1.6 33 C1.6 14.8 14.6 2 32 2 Z" /></clipPath>
+        <linearGradient id="hs-arc" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E8573A" /><stop offset=".25" stop-color="#F2C230" /><stop offset=".5" stop-color="#5CBF9C" /><stop offset=".75" stop-color="#4F82E0" /><stop offset="1" stop-color="#8F72CC" /></linearGradient>
         {kind === 3 ? (
           <>
             <filter id={`${id}m`}><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 .18  0 0 0 0 .55  0 0 0 .8 0" /></filter>

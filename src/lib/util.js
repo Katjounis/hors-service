@@ -72,8 +72,9 @@ export function emitter() {
 // Avatar : le portrait au feutre (voir ui/avatar.jsx),
 // codé « couleur.expression.tête.visage.plus.coiffure.peau.cheveux.espèce ».
 // Nombre de choix pour chaque partie :
-export const AV_COUNTS = [10, 8, 17, 10, 6, 8, 5, 6, 9];
-const AV_RE = /^\d{1,2}(\.\d{1,2}){4,8}$/;
+// 12 réglages : les 3 derniers (détail du visage, tenue, bijou) valent 0 dans un ancien code
+export const AV_COUNTS = [10, 8, 17, 10, 6, 22, 5, 12, 9, 13, 11, 7];
+const AV_RE = /^\d{1,2}(\.\d{1,2}){4,11}$/;
 
 function avHash(s) {
   let h = 7;
@@ -88,12 +89,12 @@ export function avatarId(av) {
       if (p.length === AV_COUNTS.length) return av;
       const h = avHash(av);
       const fill = [(h >>> 3) % 8, (h >>> 7) % 5, (h >>> 11) % 6, 0];
-      while (p.length < AV_COUNTS.length) p.push(p.length >= 5 ? fill[p.length - 5] : 0);
+      while (p.length < AV_COUNTS.length) p.push(p.length >= 5 && p.length < 9 ? fill[p.length - 5] : 0);
       return p.join('.');
     }
   }
   const h = avHash(av);
-  return [h % 10, (h >>> 4) % 8, (h >>> 8) % 11, 0, 0, (h >>> 3) % 8, (h >>> 7) % 5, (h >>> 11) % 6, 0].join('.');
+  return [h % 10, (h >>> 4) % 8, (h >>> 8) % 11, 0, 0, (h >>> 3) % 8, (h >>> 7) % 5, (h >>> 11) % 6, 0, 0, 0, 0].join('.');
 }
 
 export function sanitizeNick(s) {

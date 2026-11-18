@@ -77,9 +77,9 @@ if (target === 'preview') {
   const { createHash } = await import('node:crypto');
   const { copyFileSync, readdirSync } = await import('node:fs');
   const OUT = 'dist/pages';
-  // ordre de chargement : textes.js avant l'app, puis contenus.js, cartes.js (après contenus.js), genre.js ; anim.js en defer ; install.js en fin de page
-  const STATIC_JS = ['install.js', 'anim.js', 'textes.js', 'contenus.js', 'cartes.js', 'genre.js'];
-  const HEAD_JS = ['textes.js', 'contenus.js', 'cartes.js', 'genre.js'].map((f) => `<script src="${f}"></script>`).join('\n') + '\n<script src="anim.js" defer></script>';
+  // ordre de chargement : textes.js avant l'app, puis contenus.js, cartes.js (après contenus.js), genre.js, skins.js ; anim.js en defer ; install.js en fin de page
+  const STATIC_JS = ['install.js', 'anim.js', 'textes.js', 'contenus.js', 'cartes.js', 'genre.js', 'skins.js'];
+  const HEAD_JS = ['textes.js', 'contenus.js', 'cartes.js', 'genre.js', 'skins.js'].map((f) => `<script src="${f}"></script>`).join('\n') + '\n<script src="anim.js" defer></script>';
   rmSync(OUT, { recursive: true, force: true });
   mkdirSync(`${OUT}/assets/icons`, { recursive: true });
   const js = await bundle('src/main-pages.jsx');

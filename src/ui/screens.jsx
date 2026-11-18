@@ -55,14 +55,17 @@ export function Crans({ value, onChange, name, options }) {
 export const LEVEL_OPTS = [1, 2, 3].map((l) => [l, LEVELS[l], LEVEL_HELP[l]]);
 
 // Atelier du personnage : aperçu en grand, puis couleur, expression et accessoires.
-const PART_LABEL = { kind: 'Personnage', skin: 'Peau', hair: 'Coiffure', hairCol: 'Cheveux', expr: 'Expression', color: 'Tee-shirt', head: 'Sur la tête', face: 'Sur le visage', extra: 'En plus' };
+const PART_LABEL = { kind: 'Personnage', skin: 'Peau', hair: 'Coiffure', hairCol: 'Cheveux', expr: 'Expression', color: 'Couleur de la tenue', head: 'Sur la tête', face: 'Sur le visage', extra: 'En plus', detail: 'Détail du visage', tenue: 'Tenue', bijou: 'Bijou' };
+// détail du visage et bijou : humain, glitché, zombie ; tenue : les mêmes, plus l'alien et le squelette
+const KIND_FACEWEAR = [0, 3, 5];
+const KIND_OUTFIT = [0, 1, 3, 5, 7];
 // cinq onglets courts : on ne voit qu'une ou deux familles de choix à la fois
 const MAKER_TABS = [
   ['perso', 'Perso', ['kind', 'skin']],
-  ['visage', 'Visage', ['expr', 'face']],
+  ['visage', 'Visage', ['expr', 'face', 'detail']],
   ['cheveux', 'Cheveux', ['hair', 'hairCol']],
   ['tete', 'Tête', ['head']],
-  ['tenue', 'Tenue', ['color', 'extra']],
+  ['tenue', 'Tenue', ['tenue', 'color', 'bijou', 'extra']],
 ];
 export function AvatarMaker({ value, onChange, idp, gn }) {
   const parts = parseAv(value);
@@ -99,7 +102,7 @@ export function AvatarMaker({ value, onChange, idp, gn }) {
           <button type="button" key={id} role="tab" aria-selected={tab === id ? 'true' : 'false'} class={`cat-tab${tab === id ? ' is-on' : ''}`} onClick={() => setTab(id)}>{lab}</button>
         ))}
       </div>
-      {(MAKER_TABS.find(([id]) => id === tab) || MAKER_TABS[0])[2].filter((k) => (k !== 'hair' && k !== 'hairCol') || KIND_HAIR[parts[8]]).map((k) => {
+      {(MAKER_TABS.find(([id]) => id === tab) || MAKER_TABS[0])[2].filter((k) => ((k !== 'hair' && k !== 'hairCol') || KIND_HAIR[parts[8]]) && ((k !== 'detail' && k !== 'bijou') || KIND_FACEWEAR.includes(parts[8])) && (k !== 'tenue' || KIND_OUTFIT.includes(parts[8]))).map((k) => {
         const i = AV_PARTS.indexOf(k);
         const sw = k === 'skin' ? KIND_SKINS[parts[8]] : AV_SWATCH[k];
         return (
