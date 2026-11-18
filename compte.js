@@ -1,7 +1,7 @@
 // Hors Service : « Mon compte ».
 // Fichier autonome, chargé après l'appli (defer). Sans compte, rien ne change dans l'appli. Il ajoute :
 // - « Mon compte » dans le menu de droite (pendant une soirée), sur l'accueil et sur l'écran « Rejoindre » ;
-// - la connexion par un code à 6 chiffres reçu par e-mail (pas de mot de passe) ;
+// - la connexion par identifiant et mot de passe (sans e-mail) ;
 // - le perso gardé sur le compte et repris sur un autre téléphone (donc aussi en rejoignant par QR code) ;
 // - les cartes débloquées en jouant, la collection par rareté et le choix des cartes en jeu
 //   (le dessin des cartes est dans cartes-skins.js, chargé seulement quand on en a besoin).
@@ -19,7 +19,17 @@
     compte: ["Mon compte", "My account"],
     fermer: ["Fermer", "Close"],
     retour: ["Retour", "Back"],
-    intro: ["Connecte-toi avec ton adresse e-mail pour retrouver ton perso et tes cartes sur n’importe quel téléphone. Pas de mot de passe : tu reçois un code.", "Sign in with your e-mail address to get your character and your cards back on any phone. No password: you get a code."],
+    intro: ["Crée ton compte avec un identifiant et un mot de passe pour retrouver ton perso et tes cartes sur n’importe quel téléphone.", "Create an account with a username and a password to get your character and your cards back on any phone."],
+    identifiant: ["Identifiant", "Username"],
+    identifiantEx: ["ex. sam_du_96", "e.g. sam_the_king"],
+    identifiantFaux: ["Identifiant : 3 à 24 caractères, lettres sans accent, chiffres, point ou tiret.", "Username: 3 to 24 characters, letters without accents, digits, dot or dash."],
+    mdp: ["Mot de passe", "Password"],
+    mdpFaux: ["Mot de passe : 6 caractères au moins.", "Password: at least 6 characters."],
+    mdpConseil: ["Note-le bien : sans e-mail, il ne peut pas être récupéré.", "Keep it safe: without an e-mail, it cannot be recovered."],
+    creerCompte: ["Créer mon compte", "Create my account"],
+    dejaCompte: ["J’ai déjà un compte", "I already have an account"],
+    pasCompte: ["Pas encore de compte ? En créer un", "No account yet? Create one"],
+    creation: ["Création…", "Creating…"],
     email: ["Adresse e-mail", "E-mail address"],
     emailEx: ["toi@exemple.fr", "you@example.com"],
     emailFaux: ["Vérifie l’adresse e-mail.", "Check the e-mail address."],
@@ -221,7 +231,19 @@
   }
 
   // --- connexion ---
-  var etat = { vue: "compte", etape: "email", email: "", code: "", essai: null, erreur: "", message: "", occupe: false, filtre: "tout", detail: null, recto: null, confirmer: false };
+  var etat = { vue: "compte", etape: "email", email: "", code: "", essai: null, mode: "creer", identifiant: "", mdp: "", erreur: "", message: "", occupe: false, filtre: "tout", detail: null, recto: null, confirmer: false };
+  function entrer() {
+    var id = (etat.identifiant || "").trim().toLowerCase(), mdp = etat.mdp || "", creer = etat.mode === "creer";
+    if (!/^[a-z0-9._-]{3,24}$/.test(id)) { etat.erreur = t("identifiantFaux"); rendre(); focaliser("#hsc-id"); return; }
+    if (mdp.length < 6) { etat.erreur = t("mdpFaux"); rendre(); focaliser("#hsc-mdp"); return; }
+    etat.occupe = true; etat.erreur = ""; rendre();
+    appel("POST", "/connexion", { identifiant: id, mdp: mdp, creer: creer }).then(function (r) {
+      etat.occupe = false;
+      if (!r.ok) { etat.erreur = r.j.erreur || t("serveur"); rendre(); focaliser(r.j.cle === "mauvais" || r.j.cle === "mdp" ? "#hsc-mdp" : "#hsc-id"); return; }
+      etat.mdp = "";
+      apresConnexion(r);
+    });
+  }
   function demanderCode() {
     var email = (etat.email || "").trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { etat.erreur = t("emailFaux"); rendre(); return; }
@@ -240,6 +262,10 @@
     appel("POST", "/connexion", { email: etat.email.trim(), code: code }).then(function (r) {
       etat.occupe = false;
       if (!r.ok) { etat.erreur = r.j.erreur || t("serveur"); rendre(); focaliser("#hsc-code"); return; }
+      apresConnexion(r);
+    });
+  }
+  function apresConnexion(r) {
       session = { jeton: r.j.jeton, email: r.j.compte.email }; ecrire(CLE.compte, session);
       etat.etape = "email"; etat.code = ""; etat.essai = null; etat.message = "";
       if (compte && compte.skin && possede(compte.skin)) ecrire(CLE.skin, compte.skin);
@@ -248,7 +274,6 @@
       if (aUnNom(duCompte) && !aUnNom(local)) { reprendrePerso(duCompte); return; }
       if (!aUnNom(duCompte) && aUnNom(local)) appel("PUT", "/compte/perso", { perso: local }).then(rafraichir);
       appliquerSkin(); viderAttente(); rendre(); focaliser(".hsc-fermer");
-    });
   }
   function seDeconnecter(supprimer) {
     etat.occupe = true; rendre();
@@ -277,13 +302,15 @@
       feuille.addEventListener("keydown", function (e) {
         if (e.key !== "Enter") return;
         if (e.target.id === "hsc-email") { e.preventDefault(); demanderCode(); }
+        if (e.target.id === "hsc-id") { e.preventDefault(); focaliser("#hsc-mdp"); }
+        if (e.target.id === "hsc-mdp") { e.preventDefault(); entrer(); }
         if (e.target.id === "hsc-code") { e.preventDefault(); seConnecter(); }
       });
       document.body.appendChild(feuille);
     }
     rendre();
     if (connecte()) appel("GET", "/compte").then(rafraichir);
-    focaliser(connecte() ? ".hsc-fermer" : "#hsc-email");
+    focaliser(connecte() ? ".hsc-fermer" : "#hsc-id");
   }
   function fermer() {
     if (!feuille) return;
@@ -320,6 +347,14 @@
   }
   function vueConnexion() {
     var h = (etat.message ? '<p class="panel" role="status">' + echap(etat.message) + "</p>" : "") + '<p class="muted">' + echap(t("intro")) + "</p>";
+    var creer = etat.mode === "creer", inval = etat.erreur ? ' aria-invalid="true" aria-describedby="hsc-err"' : "";
+    h += '<label class="field" for="hsc-id"><span class="field-l">' + echap(t("identifiant")) + '</span><input id="hsc-id" class="input" type="text" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="24" placeholder="' + echap(t("identifiantEx")) + '" value="' + echap(etat.identifiant) + '"' + inval + "></label>"
+      + '<label class="field" for="hsc-mdp"><span class="field-l">' + echap(t("mdp")) + '</span><input id="hsc-mdp" class="input" type="password" autocomplete="' + (creer ? "new-password" : "current-password") + '" maxlength="128" value="' + echap(etat.mdp) + '"' + inval + "></label>"
+      + (creer ? '<p class="muted small">' + echap(t("mdpConseil")) + "</p>" : "")
+      + (etat.erreur ? '<p class="field-err" id="hsc-err" role="alert">' + echap(etat.erreur) + "</p>" : "")
+      + '<button type="button" class="btn btn-main btn-wide" data-action="entrer"' + (etat.occupe ? " disabled" : "") + ">" + echap(etat.occupe ? (creer ? t("creation") : t("connexion")) : (creer ? t("creerCompte") : t("connecter"))) + "</button>"
+      + '<div class="hsc-ligne"><button type="button" class="btn btn-ghost btn-small" data-action="mode">' + echap(creer ? t("dejaCompte") : t("pasCompte")) + "</button></div>";
+    return h;
     if (etat.etape === "email") {
       h += '<label class="field" for="hsc-email"><span class="field-l">' + echap(t("email")) + '</span><input id="hsc-email" class="input" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="254" placeholder="' + echap(t("emailEx")) + '" value="' + echap(etat.email) + '"' + (etat.erreur ? ' aria-invalid="true" aria-describedby="hsc-err"' : "") + "></label>"
         + (etat.erreur ? '<p class="field-err" id="hsc-err" role="alert">' + echap(etat.erreur) + "</p>" : "")
@@ -451,6 +486,8 @@
   // --- actions ---
   function surSaisie(e) {
     if (e.target.id === "hsc-email") etat.email = e.target.value;
+    if (e.target.id === "hsc-id") etat.identifiant = e.target.value;
+    if (e.target.id === "hsc-mdp") etat.mdp = e.target.value;
     if (e.target.id === "hsc-code") {
       etat.code = e.target.value.replace(/\D/g, "").slice(0, 6);
       if (e.target.value !== etat.code) e.target.value = etat.code;
@@ -463,6 +500,8 @@
     var a = b.getAttribute("data-action");
     if (a === "fermer") return fermer();
     if (a === "code") return demanderCode();
+    if (a === "entrer") return entrer();
+    if (a === "mode") { etat.mode = etat.mode === "creer" ? "connexion" : "creer"; etat.erreur = ""; rendre(); return focaliser("#hsc-id"); }
     if (a === "connexion") return seConnecter();
     if (a === "autre") { etat.etape = "email"; etat.erreur = ""; etat.essai = null; rendre(); return focaliser("#hsc-email"); }
     if (a === "perso-compte") return reprendrePerso(compte.perso);
