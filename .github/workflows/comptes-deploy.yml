@@ -1,7 +1,7 @@
 # Déploie le serveur des comptes (Cloudflare Worker + base D1, offres gratuites) quand son code change.
 # Secrets à créer dans GitHub (hors-service > Settings > Secrets and variables > Actions) :
 #   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, COMPTES_SEL (obligatoires)
-#   BREVO_CLE ou RESEND_CLE, COMPTES_EXPEDITEUR (pour envoyer les vrais e-mails)
+#   GMAIL_URL + GMAIL_CLE (Gmail du jeu), ou BREVO_CLE / RESEND_CLE + COMPTES_EXPEDITEUR (pour envoyer les vrais e-mails)
 name: "Comptes · déploiement"
 on:
   workflow_dispatch:
@@ -49,6 +49,8 @@ jobs:
           S_SEL: ${{ secrets.COMPTES_SEL }}
           S_BREVO_CLE: ${{ secrets.BREVO_CLE }}
           S_RESEND_CLE: ${{ secrets.RESEND_CLE }}
+          S_GMAIL_URL: ${{ secrets.GMAIL_URL }}
+          S_GMAIL_CLE: ${{ secrets.GMAIL_CLE }}
         run: |
           umask 077
           python3 -c "import os,json; d={k[2:]:v for k,v in os.environ.items() if k.startswith('S_') and v}; json.dump(d,open('/tmp/s.json','w')); print('secrets envoyés :', ', '.join(sorted(d)))"

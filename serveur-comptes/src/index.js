@@ -101,6 +101,13 @@ function message(code, langue) {
 }
 async function envoyer(env, email, code, langue) {
   const m = message(code, langue), de = env.EXPEDITEUR || 'Hors Service <compte@exemple.fr>';
+  if (env.GMAIL_URL && env.GMAIL_CLE) {
+    // Envoi par un Gmail dédié, via le script Google « serveur-comptes/gmail/Envoi des codes.gs » (gratuit, sans domaine).
+    const r = await fetch(env.GMAIL_URL, { method: 'POST', redirect: 'follow', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ cle: env.GMAIL_CLE, a: email, sujet: m.sujet, texte: m.texte, html: m.html }) });
+    const t = r.ok ? (await r.text()).trim() : '';
+    if (t !== 'ok') throw new Error(`Gmail ${r.status} ${t.slice(0, 40)}`);
+    return 'gmail';
+  }
   if (env.RESEND_CLE) {
     const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: `Bearer ${env.RESEND_CLE}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: de, to: [email], subject: m.sujet, text: m.texte, html: m.html }) });
     if (!r.ok) throw new Error(`Resend ${r.status}`);
