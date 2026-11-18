@@ -31,3 +31,8 @@ CREATE TABLE IF NOT EXISTS limites (
   n INTEGER NOT NULL,
   expire INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS mots_de_passe (
+  compte_id TEXT PRIMARY KEY,            -- connexion par identifiant : la colonne email de comptes garde l'identifiant
+  h TEXT NOT NULL,                       -- empreinte PBKDF2-SHA256 du mot de passe (jamais le mot de passe)
+  sel TEXT NOT NULL
+);

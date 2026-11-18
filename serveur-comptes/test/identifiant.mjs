@@ -1,0 +1,21 @@
+// Essais de la connexion par identifiant et mot de passe : node --no-warnings test/identifiant.mjs
+import { demarrer } from './local.mjs';
+const { fermer } = await demarrer(8799);
+const U = 'http://localhost:8799'; let ok = 0, ko = 0;
+const verif = (nom, v) => { v ? ok++ : (ko++, console.log('ÉCHEC', nom)); };
+const post = (c, b, j) => fetch(U + c, { method: 'POST', headers: { 'content-type': 'application/json', ...(j ? { authorization: 'Bearer ' + j } : {}) }, body: JSON.stringify(b) }).then(async (r) => ({ s: r.status, j: await r.json() }));
+let r = await post('/connexion', { identifiant: 'ab', mdp: 'secret1', creer: true }); verif('identifiant trop court', r.s === 400 && r.j.cle === 'identifiant');
+r = await post('/connexion', { identifiant: 'Sam.Test', mdp: '123', creer: true }); verif('mdp trop court', r.s === 400 && r.j.cle === 'mdp');
+r = await post('/connexion', { identifiant: 'Sam.Test', mdp: 'secret1', creer: true }); verif('création', r.s === 200 && r.j.jeton && r.j.compte.email === 'sam.test' && r.j.compte.cartes[0] === 'C-001');
+const j1 = r.j.jeton;
+r = await post('/connexion', { identifiant: 'sam.test', mdp: 'autre12', creer: true }); verif('identifiant pris', r.s === 409 && r.j.cle === 'pris');
+r = await post('/connexion', { identifiant: 'SAM.TEST', mdp: 'mauvais', creer: false }); verif('mauvais mdp', r.s === 400 && r.j.cle === 'mauvais');
+r = await post('/connexion', { identifiant: 'inconnu', mdp: 'secret1' }); verif('inconnu', r.s === 400 && r.j.cle === 'mauvais');
+r = await post('/connexion', { identifiant: 'SAM.TEST', mdp: 'secret1' }); verif('connexion second téléphone', r.s === 200 && r.j.jeton && r.j.jeton !== j1);
+r = await post('/compte/partie', { jeu: '96', cle: 'X:1' }, j1); verif('partie comptée', r.s === 200 && r.j.compte.parties === 1);
+r = await fetch(U + '/compte', { method: 'DELETE', headers: { authorization: 'Bearer ' + j1 } }); verif('suppression', r.status === 200);
+r = await post('/connexion', { identifiant: 'sam.test', mdp: 'secret1' }); verif('compte supprimé', r.s === 400);
+r = await post('/connexion', { identifiant: 'sam.test', mdp: 'nouveau1', creer: true }); verif('identifiant libre après suppression', r.s === 200);
+for (let i = 0; i < 20; i++) await post('/connexion', { identifiant: 'sam.test', mdp: 'fauxmdp' + i });
+r = await post('/connexion', { identifiant: 'sam.test', mdp: 'nouveau1' }); verif('blocage après 20 erreurs', r.s === 429);
+console.log(`${ok} vérifications réussies, ${ko} échec(s)`); fermer(); process.exit(ko ? 1 : 0);

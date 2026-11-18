@@ -1,11 +1,10 @@
 // Hors Service : serveur des comptes (Cloudflare Worker + base D1, offres gratuites).
-// Connexion sans mot de passe : un code à 6 chiffres envoyé par e-mail. Le compte garde le perso, les cartes débloquées
-// en jouant et le skin choisi. Aucune donnée de jeu (questions, réponses, gorgées) n'arrive ici.
+// Connexion par identifiant et mot de passe, sans e-mail (mot de passe gardé en empreinte PBKDF2, jamais en clair).
+// Le compte garde le perso, les cartes débloquées en jouant et le skin choisi. Aucune donnée de jeu n'arrive ici.
+// L'ancienne connexion par code e-mail (/code) reste dans le code mais n'est plus utilisée par l'appli.
 //
 // Liaison (wrangler.toml) : DB (base D1). Variables : ORIGINES, EXPEDITEUR, MODE_ESSAI.
-// Secrets (npx wrangler secret put …) : SEL, et RESEND_CLE ou BREVO_CLE pour envoyer les e-mails.
-// MODE_ESSAI = "1" : pour les adresses en @essai.test (domaine réservé, qui ne peut pas exister), le code est rendu
-// dans la réponse au lieu d'être envoyé. Les vraies adresses passent toujours par l'e-mail.
+// Secrets (npx wrangler secret put …) : SEL (obligatoire) ; RESEND_CLE, BREVO_CLE ou GMAIL_URL + GMAIL_CLE seulement pour /code.
 
 const DUREE_CODE = 15 * 60;                 // un code vaut 15 minutes
 const DUREE_SESSION = 365 * 24 * 3600;      // on reste connecté un an sur un téléphone
@@ -14,6 +13,8 @@ const CODES_PAR_HEURE = 5;                  // par adresse
 const DEMANDES_RESEAU_PAR_HEURE = 30;       // par réseau (adresse IP)
 const ECHECS_PAR_JOUR = 20;                 // au-delà, l'adresse est bloquée 24 h (contre les essais au hasard)
 const DOMAINE_ESSAI = '@essai.test';
+const ITERATIONS_MDP = 10000;               // PBKDF2-SHA256 (reste sous la limite de calcul de l'offre gratuite)
+const MDP_MIN = 6, MDP_MAX = 128;
 
 // Le catalogue des 100 skins : 55 communes, 30 rares, 10 épiques, 5 légendaires (mêmes identifiants que cartes-skins.js)
 const serie = (p, nb) => Array.from({ length: nb }, (_, i) => `${p}-${String(i + 1).padStart(3, '0')}`);
@@ -40,6 +41,14 @@ const code6 = () => String(new DataView(aleatoire(4).buffer).getUint32(0) % 1000
 const normaliser = (e) => String(e || '').trim().toLowerCase();
 const emailValide = (e) => e.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 const maintenant = () => Math.floor(Date.now() / 1000);
+// identifiant : 3 à 24 caractères, lettres sans accent, chiffres, point, tiret, tiret bas ; insensible à la casse
+const identifiantPropre = (x) => String(x || '').trim().toLowerCase();
+const identifiantValide = (x) => /^[a-z0-9._-]{3,24}$/.test(x);
+async function empreinteMdp(mdp, sel, poivre) {
+  const cle = await crypto.subtle.importKey('raw', enc.encode(`${poivre || ''}|${mdp}`), 'PBKDF2', false, ['deriveBits']);
+  return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(sel), iterations: ITERATIONS_MDP }, cle, 256));
+}
+function egal(a, b) { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; }
 const lireJson = (t, defaut) => { try { return t == null ? defaut : JSON.parse(t); } catch { return defaut; } };
 // ordre de déblocage propre à chaque compte (mélange rejouable), C-001 toujours en premier
 function ordre(id) {
@@ -132,6 +141,10 @@ function cors(req, env) {
 const json = (corps, statut, h) => new Response(JSON.stringify(corps), { status: statut || 200, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...h } });
 const ERR = {
   email: ['Adresse e-mail invalide.', 'Invalid e-mail address.'],
+  identifiant: ['Identifiant : 3 à 24 caractères, lettres sans accent, chiffres, point ou tiret.', 'Username: 3 to 24 characters, letters without accents, digits, dot or dash.'],
+  mdp: ['Mot de passe : 6 caractères au moins.', 'Password: at least 6 characters.'],
+  pris: ['Cet identifiant est déjà pris. Choisis-en un autre, ou connecte-toi si c’est le tien.', 'This username is taken. Pick another one, or sign in if it is yours.'],
+  mauvais: ['Identifiant ou mot de passe incorrect.', 'Wrong username or password.'],
   trop: ['Trop de demandes. Réessaie plus tard.', 'Too many requests. Try again later.'],
   expire: ['Code expiré. Demande un nouveau code.', 'Code expired. Ask for a new one.'],
   faux: ['Code incorrect.', 'Wrong code.'],
@@ -172,6 +185,35 @@ export default {
         if (env.MODE_ESSAI === '1' && email.endsWith(DOMAINE_ESSAI)) return json({ ok: true, essai: true, code }, 200, h);
         try { await envoyer(env, email, code, langue); } catch (e) { console.log('envoi impossible :', e.message); return erreur('envoi', langue, 502, h); }
         return json({ ok: true }, 200, h);
+      }
+
+      if (chemin === '/connexion' && req.method === 'POST' && corps.identifiant != null) {
+        const id = identifiantPropre(corps.identifiant), mdp = String(corps.mdp || ''), creer = corps.creer === true;
+        if (!identifiantValide(id)) return erreur('identifiant', langue, 400, h);
+        if (mdp.length < MDP_MIN || mdp.length > MDP_MAX) return erreur('mdp', langue, 400, h);
+        const ih = await hacher('id:' + id, env.SEL), reseau = await hacher(req.headers.get('cf-connecting-ip') || 'local', env.SEL);
+        if (await depasse(env, 'echecs:' + ih, ECHECS_PAR_JOUR)) return erreur('trop', langue, 429, h);
+        if (!(await compter(env, 'reseau:' + reseau, DEMANDES_RESEAU_PAR_HEURE, 3600))) return erreur('trop', langue, 429, h);
+        let c = versCompte(await sql(env, 'SELECT * FROM comptes WHERE email_h = ?1', ih).first());
+        if (creer) {
+          if (c) return erreur('pris', langue, 409, h);
+          const cid = crypto.randomUUID(), cree = new Date().toISOString(), sel = jeton();
+          await env.DB.batch([
+            sql(env, 'INSERT INTO comptes (id, email_h, email, cree, vu) VALUES (?1, ?2, ?3, ?4, ?4)', cid, ih, id, cree),
+            sql(env, 'INSERT INTO mots_de_passe (compte_id, h, sel) VALUES (?1, ?2, ?3)', cid, await empreinteMdp(mdp, sel, env.SEL), sel),
+          ]);
+          c = { id: cid, email: id, cree, cartes: ['C-001'], skin: null, perso: null, parties: 0, jeux: {}, cles: [] };
+        } else {
+          const m = c && (await sql(env, 'SELECT h, sel FROM mots_de_passe WHERE compte_id = ?1', c.id).first());
+          if (!m || !egal(await empreinteMdp(mdp, m.sel, env.SEL), m.h)) {
+            await compter(env, 'echecs:' + ih, 1e9, 24 * 3600);
+            return erreur('mauvais', langue, 400, h);
+          }
+        }
+        const t = jeton();
+        await sql(env, 'INSERT INTO sessions (h, compte_id, expire) VALUES (?1, ?2, ?3)', await hacher(t, env.SEL), c.id, maintenant() + DUREE_SESSION).run();
+        await sql(env, 'UPDATE comptes SET vu = ?2 WHERE id = ?1', c.id, new Date().toISOString()).run();
+        return json({ jeton: t, compte: publicCompte(c) }, 200, h);
       }
 
       if (chemin === '/connexion' && req.method === 'POST') {
@@ -224,7 +266,7 @@ export default {
         }
         if (chemin === '/deconnexion' && req.method === 'POST') { await sql(env, 'DELETE FROM sessions WHERE h = ?1', s.sh).run(); return json({ ok: true }, 200, h); }
         if (chemin === '/compte' && req.method === 'DELETE') {
-          await env.DB.batch([sql(env, 'DELETE FROM sessions WHERE compte_id = ?1', c.id), sql(env, 'DELETE FROM comptes WHERE id = ?1', c.id), sql(env, 'DELETE FROM codes WHERE email_h = ?1', await hacher(c.email, env.SEL))]);
+          await env.DB.batch([sql(env, 'DELETE FROM sessions WHERE compte_id = ?1', c.id), sql(env, 'DELETE FROM mots_de_passe WHERE compte_id = ?1', c.id), sql(env, 'DELETE FROM comptes WHERE id = ?1', c.id), sql(env, 'DELETE FROM codes WHERE email_h = ?1', await hacher(c.email, env.SEL))]);
           return json({ ok: true }, 200, h);
         }
       }

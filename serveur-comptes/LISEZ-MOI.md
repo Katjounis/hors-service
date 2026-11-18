@@ -1,7 +1,9 @@
 # Serveur des comptes (B-004)
 
 Un Worker Cloudflare à part, à côté du serveur de salons, avec une base D1. Offres gratuites de Cloudflare.
-Il sert à « Mon compte » dans l'appli : connexion par un code reçu par e-mail, perso gardé, cartes débloquées, cartes choisies.
+Il sert à « Mon compte » dans l'appli : connexion par identifiant et mot de passe (sans e-mail, depuis le 18/11/2026), perso gardé, cartes débloquées, cartes choisies.
+
+`POST /connexion { identifiant, mdp, creer }` : `creer: true` crée le compte (409 si l'identifiant est pris), sinon vérifie le mot de passe (empreinte PBKDF2, table `mots_de_passe`). Pas de récupération possible du mot de passe. Les routes par code e-mail restent dans le code mais l'appli ne s'en sert plus. Essais : `node --no-warnings test/identifiant.mjs`.
 
 ## Ce qu'il fait
 
