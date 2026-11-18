@@ -1,0 +1,32 @@
+{
+ "sections": {
+  "copie d’origine": {
+   "ok": 1,
+   "ko": 0
+  },
+  "écrans fixes identiques à la copie d’origine": {
+   "ok": 53,
+   "ko": 3
+  },
+  "chaque jeu se lance (copie modifiée)": {
+   "ok": 38,
+   "ko": 0
+  },
+  "erreurs de la page (copie modifiée)": {
+   "ok": 1,
+   "ko": 0
+  }
+ },
+ "notes": [
+  "écart « menu », ligne 95 : origine « Compteur de la soirée » / modifiée « Mon compte »",
+  "écart « menu · Compteur de la soirée », ligne 92 : origine « Joueur\tGorgées\tCuls secs\tTotal\tGages\tPoints\tPassés » / modifiée « Mon compte »",
+  "écart « menu · Confidentialité », ligne 93 : origine « Pas de compte, pas de publicité, pas de traceur publicitaire. Tout ce que l’appli garde reste sur ce téléphone, sauf les échanges temporaires d’une partie en salon. » / modifiée « Compte facultatif, pas de publicité, pas de traceur publicitaire. Sans compte, tout ce que l’appli garde reste sur ce téléphone, sauf les échanges temporaires d’une partie en salon. »",
+  "55 écrans comparés (accueil, création des joueurs, salon, 21 fiches de jeu et leurs règles, menu), 35194 caractères",
+  "jeux lancés : Jeu 02, Le 96 → 96 ; Jeu 03, Pipoteur → pipoteur ; Jeu 01, Qui oserait… ? → oserait ; Jeu 12, Je n’ai jamais → jamais ; Jeu 23, Poker des gorgées → poker ; Jeu 24, Blackjack des gorgées → blackjack ; Jeu 21, Action ou vérité → actionverite ; Jeu 06, Toutankhamon → toutankhamon ; Jeu 25, Roulette russe → roulette ; Jeu 13, GlouGlou Garou → garou ; Jeu 17, Le Président → president ; Jeu 22, Tu préfères… → tupref ; Jeu 19, Le Menteur aux dés → perudo ; Jeu 04, Purple → purple ; Jeu 20, Paranoïa → paranoia ; Jeu 10, Bombe → bombe ; Jeu 07, Quiz sur les autres → autres ; Jeu 08, Trouve la carte → trouve ; Jeu 05, Hippodrome → hippodrome ; Jeu 14, Coinche, Un téléphone par joueur : pas jouable sur un seul téléphone ; Jeu 15, Quiz buzzer, Un téléphone par joueur : pas jouable sur un seul téléphone"
+ ],
+ "echecs": [
+  "[écrans fixes identiques à la copie d’origine] « menu » diffère",
+  "[écrans fixes identiques à la copie d’origine] « menu · Compteur de la soirée » diffère",
+  "[écrans fixes identiques à la copie d’origine] « menu · Confidentialité » diffère"
+ ]
+}

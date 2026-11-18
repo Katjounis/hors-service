@@ -1,0 +1,21 @@
+processeur ÷4 · sans skin : 61 i/s (pire image 17 ms), 0 cartes animées, 0 animations, budget 40
+processeur ÷4 · C-001 : 61 i/s (pire image 17 ms), 6 cartes animées, 1 animations, budget 40
+processeur ÷4 · R-012 : 61 i/s (pire image 17 ms), 6 cartes animées, 16 animations, budget 40
+processeur ÷4 · L-001 : 61 i/s (pire image 17 ms), 1 cartes animées, 42 animations, budget 40
+processeur ÷4 · L-003 : 60 i/s (pire image 33 ms), 1 cartes animées, 86 animations, budget 40
+processeur ÷4 · L-004 : 60 i/s (pire image 33 ms), 1 cartes animées, 49 animations, budget 40
+processeur ÷4 · L-005 : 61 i/s (pire image 33 ms), 1 cartes animées, 51 animations, budget 40
+processeur ÷4 · E-001 : 61 i/s (pire image 17 ms), 1 cartes animées, 33 animations, budget 40
+processeur ÷4 · E-002 : 58 i/s (pire image 33 ms), 6 cartes animées, 36 animations, budget 40
+processeur ÷4 · E-007 : 60 i/s (pire image 33 ms), 2 cartes animées, 40 animations, budget 40
+processeur ÷6 · sans skin : 61 i/s (pire image 17 ms), 0 cartes animées, 0 animations, budget 40
+processeur ÷6 · C-001 : 57 i/s (pire image 117 ms), 6 cartes animées, 1 animations, budget 40
+processeur ÷6 · R-012 : 60 i/s (pire image 33 ms), 6 cartes animées, 16 animations, budget 40
+processeur ÷6 · L-001 : 58 i/s (pire image 33 ms), 1 cartes animées, 42 animations, budget 40
+processeur ÷6 · L-003 : 57 i/s (pire image 33 ms), 1 cartes animées, 86 animations, budget 40
+processeur ÷6 · L-004 : 56 i/s (pire image 33 ms), 1 cartes animées, 49 animations, budget 40
+processeur ÷6 · L-005 : 60 i/s (pire image 50 ms), 1 cartes animées, 51 animations, budget 40
+processeur ÷6 · E-001 : 52 i/s (pire image 167 ms), 1 cartes animées, 33 animations, budget 40
+processeur ÷6 · E-002 : 60 i/s (pire image 33 ms), 3 cartes animées, 18 animations, budget 20
+processeur ÷6 · E-007 : 60 i/s (pire image 33 ms), 1 cartes animées, 20 animations, budget 20
+erreurs aucune

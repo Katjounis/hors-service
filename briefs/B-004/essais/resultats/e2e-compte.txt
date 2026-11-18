@@ -1,0 +1,17 @@
+Essais de bout en bout B-004 (2026-11-18T13:23:43.791Z)
+sans compte, l’appli marche comme avant : 8 réussis
+connexion par e-mail et code : 9 réussis
+cartes débloquées en jouant : 7 réussis
+collection et cartes en jeu : 21 réussis
+autre téléphone, perso retrouvé, rejoindre par QR code : 12 réussis
+anglais : 4 réussis
+confidentialité : 1 réussis
+moins d’animations : 2 réussis
+déconnexion et suppression : 7 réussis
+erreurs dans la console : 1 réussis
+
+Échecs :
+aucun
+
+Notes :
+fluidité dans Toutankhamon (Chromium sans carte graphique) : 61 images/s avec le skin légendaire, 60 sans

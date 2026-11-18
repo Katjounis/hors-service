@@ -1,0 +1,18 @@
+# Serveur des comptes Hors Service (Cloudflare Worker + base D1). Mise en place : voir LISEZ-MOI.md
+name = "hors-service-comptes"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hors-service-comptes"
+database_id = "A_REMPLIR_avec_l_identifiant_donne_par_npx_wrangler_d1_create"
+
+[vars]
+ORIGINES = "https://katjounis.github.io"
+EXPEDITEUR = "Hors Service <compte@A_REMPLIR>"
+MODE_ESSAI = "1"
+
+# ménage quotidien des codes, sessions et compteurs périmés (4 h 17 UTC)
+[triggers]
+crons = ["17 4 * * *"]

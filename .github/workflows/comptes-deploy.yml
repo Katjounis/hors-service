@@ -1,0 +1,60 @@
+# Déploie le serveur des comptes (Cloudflare Worker + base D1, offres gratuites) quand son code change.
+# Secrets à créer dans GitHub (hors-service > Settings > Secrets and variables > Actions) :
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, COMPTES_SEL (obligatoires)
+#   BREVO_CLE ou RESEND_CLE, COMPTES_EXPEDITEUR (pour envoyer les vrais e-mails)
+name: "Comptes · déploiement"
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["serveur-comptes/**", ".github/workflows/comptes-deploy.yml"]
+permissions:
+  contents: read
+concurrency: { group: comptes-deploy, cancel-in-progress: false }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: serveur-comptes } }
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - name: Vérifier les secrets obligatoires
+        env: { SEL: "${{ secrets.COMPTES_SEL }}" }
+        run: |
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID SEL; do
+            if [ -z "${!v}" ]; then echo "::error::Secret manquant : $v (COMPTES_SEL pour SEL). Voir serveur-comptes/LISEZ-MOI.md"; exit 1; fi
+          done
+      - name: Base D1 (créée la première fois)
+        run: |
+          ID=$(npx --yes wrangler@4 d1 list --json | jq -r '.[] | select(.name=="hors-service-comptes") | .uuid')
+          if [ -z "$ID" ]; then
+            npx --yes wrangler@4 d1 create hors-service-comptes
+            ID=$(npx --yes wrangler@4 d1 list --json | jq -r '.[] | select(.name=="hors-service-comptes") | .uuid')
+          fi
+          [ -n "$ID" ] || { echo "::error::Base D1 introuvable après création"; exit 1; }
+          sed -i "s/^database_id = .*/database_id = \"$ID\"/" wrangler.toml
+          echo "base D1 : $ID"
+      - name: Tables (sans effet si elles existent déjà)
+        run: npx --yes wrangler@4 d1 execute hors-service-comptes --remote --file schema.sql
+      - name: Déployer
+        env: { EXPEDITEUR: "${{ secrets.COMPTES_EXPEDITEUR }}" }
+        run: |
+          if [ -n "$EXPEDITEUR" ]; then npx --yes wrangler@4 deploy --var "EXPEDITEUR:$EXPEDITEUR"; else npx --yes wrangler@4 deploy; fi
+      - name: Envoyer les secrets au serveur (jamais affichés)
+        env:
+          S_SEL: ${{ secrets.COMPTES_SEL }}
+          S_BREVO_CLE: ${{ secrets.BREVO_CLE }}
+          S_RESEND_CLE: ${{ secrets.RESEND_CLE }}
+        run: |
+          umask 077
+          python3 -c "import os,json; d={k[2:]:v for k,v in os.environ.items() if k.startswith('S_') and v}; json.dump(d,open('/tmp/s.json','w')); print('secrets envoyés :', ', '.join(sorted(d)))"
+          npx --yes wrangler@4 secret bulk /tmp/s.json
+          rm -f /tmp/s.json
+      - name: Vérifier que le serveur répond
+        run: |
+          sleep 5
+          curl -fsS https://hors-service-comptes.chaux-samuel.workers.dev/sante && echo
