@@ -20,6 +20,7 @@
   var REGLES = [
     [/Poker des gorgées/g, "Poker de soirée"],
     [/Blackjack des gorgées/g, "Blackjack de soirée"],
+    [/Classique \+ alcool/g, "Classique"],
     mot("du cul sec", "de la grosse pénalité"),
     mot("cul sec", "grosse pénalité"),
     mot("Cul sec", "Grosse pénalité"),
