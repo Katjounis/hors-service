@@ -3537,6 +3537,26 @@ body:has(.pk) .game { padding-bottom: 90px; }
 @media (max-width: 759px) {
   .app:has(> .screen) .ambiance .obj, .app:has(> .party) .ambiance .obj { opacity: .18 !important; }
 }
+/* Cartes à jouer : chiffres et signes proportionnels à la largeur de chaque carte.
+   Avant, chaque jeu réduisait la carte sans réduire les coins : coins et signe central se chevauchaient. */
+.pc:not(.pc-back) { container-type: inline-size; }
+.app .pc .pc-corner { font-size: 24cqw !important; top: 6cqw !important; left: 7cqw !important; line-height: .9; }
+.app .pc .pc-corner-b { display: flex !important; top: auto !important; left: auto !important; bottom: 6cqw !important; right: 7cqw !important; }
+.app .pc .pc-corner i { margin-top: 3cqw; }
+.app .pc .pc-corner i .pc-suit { width: .75em; height: .75em; }
+.app .pc .pc-mid { font-size: 38cqw !important; margin: auto !important; }
+/* Petites cartes (moins de 46 px) : un seul coin en haut à gauche, le signe en bas à droite */
+@container (max-width: 45px) {
+  .app .pc .pc-corner { font-size: 32cqw !important; top: 5cqw !important; left: 8cqw !important; }
+  .app .pc .pc-corner-b { display: none !important; }
+  .app .pc .pc-mid { font-size: 40cqw !important; margin: auto 8cqw 7cqw auto !important; }
+}
+/* Retournement : la carte attend à plat dans son emplacement, sans déborder sur la rangée du dessus */
+@keyframes hs-flip {
+  0% { transform: perspective(700px) rotateY(180deg); }
+  50% { transform: perspective(700px) translateY(-4px) rotateY(90deg) scale(1.03); }
+  100% { transform: none; }
+}
 </style>
 </head>
 <body>
