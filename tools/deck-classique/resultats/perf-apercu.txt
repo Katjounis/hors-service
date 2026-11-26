@@ -1,0 +1,6 @@
+Processeur ralenti 4 fois (Chromium sans écran). Pendant les mouvements de souris simulés, Chromium appelle requestAnimationFrame plus de 60 fois par seconde : seul compte le nombre d'images lentes (plus de 50 ms).
+
+main qui flotte : 60.0 images/s sur 3.0 s, images de plus de 50 ms : 0, la plus longue : 17 ms
+survol du jeu (inclinaison) : 110.7 images/s sur 4.8 s, images de plus de 50 ms : 0, la plus longue : 33 ms
+carte en grand (flottement, inclinaison, retournement) : 168.7 images/s sur 4.6 s, images de plus de 50 ms : 1, la plus longue : 50 ms
+tout retourner (52 cartes) : 235.4 images/s sur 1.9 s, images de plus de 50 ms : 0, la plus longue : 33 ms

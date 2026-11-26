@@ -1,0 +1,92 @@
+/* Tapis de jeu : un seul décor, le feutre vert de l'appli (choisi exprès, en sombre). */
+:root {
+  color-scheme: dark;
+  --feutre: #1E5A3D; --feutre-f: #123524; --feutre-c: #2B7550; --plaque: rgba(4, 14, 9, .38); --plaque-2: rgba(4, 14, 9, .62);
+  --creme: #F4EDDC; --doux: #C6D8CB; --or: #E7B43A; --rouge: #C8301E; --encre: #1B1814; --ligne: rgba(244, 237, 220, .16);
+  --f-titre: 'Alfa Slab One', Rockwell, 'Roboto Slab', Georgia, serif;
+  --f-texte: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ressort: cubic-bezier(.2, .8, .3, 1.08);
+  /* animations des cartes communes (remplacées par appliquerRarete) */
+  --flot-amp: 3px; --flot-duree: 4.6s; --incl-max: 7deg; --leve: 16px; --echelle-choix: 1.05; --duree-retour: 520ms;
+}
+[hidden] { display: none !important; }
+body { background: radial-gradient(120% 70% at 50% 0%, var(--feutre-c) 0%, var(--feutre) 45%, var(--feutre-f) 100%) var(--feutre); color: var(--creme); font: 15px/1.5 var(--f-texte); min-height: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--feutre-c); }
+.page { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 22px 40px; display: grid; gap: 30px; }
+header.tete { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px; }
+.tete h1 { font: 400 clamp(26px, 4vw, 38px)/1.05 var(--f-titre); margin: 0; letter-spacing: .01em; text-wrap: balance; }
+.tete p { margin: 6px 0 0; color: var(--doux); max-width: 62ch; }
+.commandes { display: flex; flex-wrap: wrap; gap: 8px; }
+.bouton { font: 600 14px/1 var(--f-texte); color: var(--creme); background: var(--plaque); border: 1px solid var(--ligne); border-radius: 999px; padding: 10px 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.bouton:hover { background: var(--plaque-2); }
+.bouton:focus-visible, .carte:focus-visible { outline: 3px solid var(--or); outline-offset: 4px; }
+.bouton[aria-pressed="true"] { background: var(--creme); color: var(--encre); border-color: var(--creme); }
+section h2 { font: 400 19px/1.2 var(--f-titre); margin: 0 0 4px; letter-spacing: .01em; }
+section .aide { margin: 0 0 14px; color: var(--doux); font-size: 14px; }
+.bloc { display: grid; gap: 4px; }
+
+/* --- le jeu complet : une rangée par enseigne --- */
+.jeu { display: grid; gap: 18px; }
+.rangee { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: start; }
+.rangee .nom { font: 600 13px/1.2 var(--f-texte); color: var(--doux); text-transform: uppercase; letter-spacing: .08em; padding-top: 6px; }
+.rangee .nom b { display: block; font: 400 26px/1 var(--f-titre); color: var(--creme); letter-spacing: 0; }
+.cartes { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .rangee { grid-template-columns: 1fr; } .rangee .nom b { display: inline; margin-right: 6px; } .cartes { grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 8px; } }
+
+/* --- une carte : quatre couches, chacune son mouvement (flottement, inclinaison, retournement) --- */
+.carte { --rx: 0deg; --ry: 0deg; position: relative; display: block; width: 100%; aspect-ratio: 5 / 7; max-width: 100%; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; perspective: 700px; -webkit-tap-highlight-color: transparent; border-radius: 6%/4.3%; }
+.carte .flotte, .carte .incline, .carte .pivot { position: absolute; inset: 0; display: block; transform-style: preserve-3d; }
+.carte .incline { transform: translateY(0) rotateX(var(--rx)) rotateY(var(--ry)) scale(1); transition: transform .45s var(--ressort); }
+.carte .pivot { transition: transform var(--duree-retour) cubic-bezier(.3, .7, .2, 1); }
+.carte .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 8.8%/6.3%; box-shadow: 0 3px 7px rgba(0, 0, 0, .32), 0 1px 0 rgba(255, 255, 255, .5) inset; transition: box-shadow .35s ease; background: #FBF7EF; overflow: hidden; }
+.carte .face img { display: block; width: 100%; height: 100%; }
+.carte .verso { transform: rotateY(180deg); }
+.carte.retournee .pivot { transform: rotateY(180deg); }
+.carte.survol .incline { transition: transform .12s linear; }
+.carte.survol .face, .carte.choisie .face { box-shadow: 0 12px 22px rgba(0, 0, 0, .38), 0 1px 0 rgba(255, 255, 255, .5) inset; }
+.carte.choisie .incline { transform: translateY(calc(var(--leve) * -1)) rotateX(var(--rx)) rotateY(var(--ry)) scale(var(--echelle-choix)); }
+/* flottement léger (cartes de la main et carte en grand) */
+.carte.flottante .flotte { animation: flotte var(--flot-duree) ease-in-out infinite alternate; animation-delay: var(--flot-retard, 0s); }
+@keyframes flotte { from { transform: translateY(calc(var(--flot-amp) * -1)); } to { transform: translateY(var(--flot-amp)); } }
+/* retournement : un léger soulèvement pendant la rotation */
+.carte.en-retour .incline { animation: souleve var(--duree-retour) cubic-bezier(.3, .7, .2, 1); }
+@keyframes souleve { 0%, 100% { transform: translateY(0) scale(1); } 45% { transform: translateY(-8px) scale(1.04); } }
+
+/* --- la main du joueur : éventail --- */
+.main-zone { display: grid; gap: 14px; }
+.main-outils { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.main-outils .taille { display: inline-flex; border: 1px solid var(--ligne); border-radius: 999px; overflow: hidden; }
+.main-outils .taille button { font: 600 13px/1 var(--f-texte); color: var(--creme); background: transparent; border: 0; padding: 10px 13px; cursor: pointer; }
+.main-outils .taille button[aria-pressed="true"] { background: var(--creme); color: var(--encre); }
+.tapis { background: var(--plaque); border: 1px solid var(--ligne); border-radius: 18px; padding-block: 30px 22px; padding-inline: 12px; overflow: hidden; }
+.eventail { --l: 64px; position: relative; height: calc(var(--l) * 1.4 + var(--leve) + 30px); display: flex; justify-content: center; align-items: flex-end; }
+.eventail .carte { position: absolute; bottom: 8px; left: 50%; width: var(--l); margin-left: calc(var(--l) / -2); transform-origin: 50% 120%; transform: translateX(var(--dx)) rotate(var(--a)); transition: transform .4s var(--ressort); }
+.eventail .carte.arrive { animation: donne .5s var(--ressort) both; animation-delay: var(--retard, 0s); }
+@keyframes donne { from { opacity: 0; transform: translate(0, 40px) rotate(0deg) scale(.9); } to { opacity: 1; transform: translateX(var(--dx)) rotate(var(--a)); } }
+.legende { font-size: 13px; color: var(--doux); text-align: center; }
+
+/* --- la carte en grand --- */
+.vue { position: fixed; inset: 0; z-index: 20; background: rgba(6, 18, 12, .94); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.vue-boite { display: grid; gap: 14px; justify-items: center; width: min(400px, 100%); }
+.vue .carte { width: min(340px, 82vw, calc((100vh - 180px) * .714)); }
+.vue-titre { font: 400 22px/1.2 var(--f-titre); text-align: center; }
+.vue-titre small { display: block; font: 600 13px/1.3 var(--f-texte); color: var(--doux); letter-spacing: .04em; margin-top: 4px; }
+.vue-nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.vue-nav .bouton { background: var(--feutre-f); }
+.vue-nav .bouton:hover { background: var(--feutre); }
+
+/* --- les raretés --- */
+.raretes { display: flex; flex-wrap: wrap; gap: 8px; }
+.rarete { font: 600 13px/1 var(--f-texte); padding: 8px 12px; border-radius: 999px; border: 1px solid var(--ligne); color: var(--doux); }
+.rarete.active { background: var(--creme); color: var(--encre); border-color: var(--creme); }
+.note { color: var(--doux); font-size: 14px; max-width: 70ch; margin: 0; }
+
+/* --- moins d'animations : choix de la personne ou du téléphone --- */
+html[data-moins-anim] .carte .flotte { animation: none !important; }
+html[data-moins-anim] .carte .incline, html[data-moins-anim] .carte .pivot, html[data-moins-anim] .eventail .carte { transition-duration: .01ms !important; }
+html[data-moins-anim] .carte.en-retour .incline, html[data-moins-anim] .eventail .carte.arrive { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .carte .flotte { animation: none !important; }
+  .carte .incline, .carte .pivot, .eventail .carte { transition-duration: .01ms !important; }
+  .carte.en-retour .incline, .eventail .carte.arrive { animation: none !important; }
+}

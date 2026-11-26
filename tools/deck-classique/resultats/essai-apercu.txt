@@ -1,0 +1,32 @@
+OK  ordinateur : 52 cartes dans le jeu (52)
+OK  ordinateur : images des cartes chargées (104 sur 104)
+OK  ordinateur : pas de défilement horizontal (0 px)
+OK  ordinateur : la carte s’ouvre en grand (Dame de cœurCommune · 25 sur 52 · touche la carte pour la retourner)
+OK  ordinateur : retournement (matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, )
+OK  ordinateur : flèche droite, carte suivante
+OK  ordinateur : Échap ferme
+OK  ordinateur : main de 7 cartes (7)
+OK  ordinateur : choisir une carte de la main
+OK  ordinateur : nouvelle main
+OK  ordinateur : tout retourner (52)
+OK  ordinateur : moins d’animations coupe le flottement (none)
+OK  ordinateur : réglage gardé après rechargement
+OK  ordinateur : aucune erreur dans la console
+OK  telephone : 52 cartes dans le jeu (52)
+OK  telephone : images des cartes chargées (104 sur 104)
+OK  telephone : pas de défilement horizontal (0 px)
+OK  telephone : la carte s’ouvre en grand (Dame de cœurCommune · 25 sur 52 · touche la carte pour la retourner)
+OK  telephone : retournement (matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, )
+OK  telephone : flèche droite, carte suivante
+OK  telephone : Échap ferme
+OK  telephone : main de 7 cartes (7)
+OK  telephone : choisir une carte de la main
+OK  telephone : nouvelle main
+OK  telephone : tout retourner (52)
+OK  telephone : moins d’animations coupe le flottement (none)
+OK  telephone : réglage gardé après rechargement
+OK  telephone : aucune erreur dans la console
+OK  survol : la carte s’incline (rx 5.60deg, ry 5.60deg)
+OK  survol : elle revient à plat
+OK  téléphone en « réduire les animations » : pas de flottement (none)
+31 sur 31

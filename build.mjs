@@ -78,7 +78,7 @@ if (target === 'preview') {
   const { copyFileSync, readdirSync } = await import('node:fs');
   const OUT = 'dist/pages';
   // ordre de chargement : textes.js avant l'app, puis contenus.js, cartes.js (après contenus.js), genre.js, skins.js ; anim.js en defer ; install.js en fin de page
-  const STATIC_JS = ['install.js', 'anim.js', 'textes.js', 'contenus.js', 'cartes.js', 'genre.js', 'skins.js'];
+  const STATIC_JS = ['install.js', 'anim.js', 'textes.js', 'contenus.js', 'cartes.js', 'genre.js', 'skins.js', 'deck-classique.js'];
   const HEAD_JS = ['textes.js', 'contenus.js', 'cartes.js', 'genre.js', 'skins.js'].map((f) => `<script src="${f}"></script>`).join('\n') + '\n<script src="anim.js" defer></script>';
   rmSync(OUT, { recursive: true, force: true });
   mkdirSync(`${OUT}/assets/icons`, { recursive: true });
@@ -120,6 +120,7 @@ ${HEAD_JS}
 <noscript><p style="padding:24px;color:#F2EADB;background:#1C1A17;font-family:system-ui,sans-serif">Hors Service a besoin de JavaScript pour fonctionner.</p></noscript>
 <script>${safeScript(js)}</script>
 <script src="install.js" defer></script>
+<script src="deck-classique.js" defer></script>
 </body>
 </html>`;
   writeFileSync(`${OUT}/index.html`, html);
