@@ -12,6 +12,9 @@
   var HS_COMPTES_URL = "https://hors-service-comptes.chaux-samuel.workers.dev";
   var API = String(window.HS_COMPTES_URL || HS_COMPTES_URL).replace(/\/+$/, "");
   var FICHIER_CARTES = "cartes-skins.js";
+  // Partie cartes à collectionner (skins, collection, cartes débloquées) en pause depuis le 26/11/2026 :
+  // un seul jeu de cartes pour tous, le deck Classique (deck-classique.js). Le code reste là, repasser à true pour la rallumer.
+  var TCG = false;
   var CLE = { compte: "hs:compte", cache: "hs:compte-cache", attente: "hs:compte-attente", skin: "hs:skin-actif", anim: "hs:cartes-anim", plays: "hs:plays", profil: "hs:profile", lang: "hs:lang" };
 
   // --- textes (français, anglais) ---
@@ -19,7 +22,7 @@
     compte: ["Mon compte", "My account"],
     fermer: ["Fermer", "Close"],
     retour: ["Retour", "Back"],
-    intro: ["Crée ton compte avec un identifiant et un mot de passe pour retrouver ton perso et tes cartes sur n’importe quel téléphone.", "Create an account with a username and a password to get your character and your cards back on any phone."],
+    intro: ["Crée ton compte avec un identifiant et un mot de passe pour retrouver ton perso sur n’importe quel téléphone.", "Create an account with a username and a password to get your character back on any phone."],
     identifiant: ["Identifiant", "Username"],
     identifiantEx: ["ex. sam_du_96", "e.g. sam_the_king"],
     identifiantFaux: ["Identifiant : 3 à 24 caractères, lettres sans accent, chiffres, point ou tiret.", "Username: 3 to 24 characters, letters without accents, digits, dot or dash."],
@@ -69,7 +72,7 @@
     deconnecter: ["Me déconnecter", "Sign out"],
     supprimer: ["Supprimer mon compte", "Delete my account"],
     supprimerOk: ["Confirmer : tout supprimer", "Confirm: delete everything"],
-    supprimerAide: ["Tout est effacé du serveur tout de suite : l’adresse, le perso, les cartes. Ton perso reste sur ce téléphone.", "Everything is erased from the server right away: the address, the character, the cards. Your character stays on this phone."],
+    supprimerAide: ["Tout est effacé du serveur tout de suite : l’identifiant, le perso. Ton perso reste sur ce téléphone.", "Everything is erased from the server right away: the username, the character. Your character stays on this phone."],
     annuler: ["Annuler", "Cancel"],
     supprime: ["Compte supprimé.", "Account deleted."],
     deconnecte: ["Déconnecté. Ton perso reste sur ce téléphone.", "Signed out. Your character stays on this phone."],
@@ -176,7 +179,7 @@
       envoiEnCours = false;
       if (!r.ok && r.statut !== 400) return; // hors ligne ou serveur muet : on réessaiera
       ecrire(CLE.attente, (lire(CLE.attente, []) || []).slice(1));
-      if (r.ok && r.j.nouvelles && r.j.nouvelles.length) annoncer(r.j.nouvelles);
+      if (TCG && r.ok && r.j.nouvelles && r.j.nouvelles.length) annoncer(r.j.nouvelles);
       rafraichir();
       viderAttente();
     });
@@ -212,7 +215,7 @@
     return chargementCartes;
   }
   var possede = function (id) { return !!(compte && compte.cartes && compte.cartes.indexOf(id) >= 0); };
-  function skinActif() { var s = lire(CLE.skin, null); return connecte() && s && possede(s) ? s : null; }
+  function skinActif() { var s = lire(CLE.skin, null); return TCG && connecte() && s && possede(s) ? s : null; }
   function appliquerSkin() {
     var s = skinActif();
     if (s) cartes().then(function (C) { C.activer(s); }).catch(function () {});
@@ -291,6 +294,7 @@
   // --- la feuille « Mon compte » (mêmes classes que les feuilles de l'appli) ---
   var feuille = null, ouvreur = null;
   function ouvrir(vue) {
+    if (!TCG && (vue === "collection" || vue === "detail")) vue = undefined;
     ouvreur = document.activeElement;
     etat.vue = vue || "compte"; etat.erreur = ""; etat.confirmer = false;
     if (!feuille) {
@@ -386,7 +390,8 @@
       }
     } else h += '<p class="small">' + echap(t("persoAucun")) + "</p>";
     h += "</section>";
-    // cartes
+    // cartes (en pause : voir TCG)
+    if (TCG) {
     var total = (c.cartes || []).length, p = c.prochaine;
     h += '<section class="panel hsc-bloc"><div class="hsc-titre-ligne"><h3 class="hsc-h3">' + echap(t("mesCartes")) + '</h3><span class="hsc-compteur">' + echap(t("surCent", total)) + "</span></div>"
       + '<div class="chips">' + ["L", "E", "R", "C"].map(function (r) { return '<span class="chip hsc-r' + NIV[r] + '"><b class="hsc-pastille"></b>' + echap(nomRaretes(NIV[r])) + " " + n[r] + "/" + { C: 55, R: 30, E: 10, L: 5 }[r] + "</span>"; }).join("") + "</div>"
@@ -399,6 +404,7 @@
       + '<button type="button" class="seg-btn' + (anim ? " is-on" : "") + '" aria-pressed="' + anim + '" data-action="anim-oui">' + echap(t("oui")) + "</button>"
       + '<button type="button" class="seg-btn' + (anim ? "" : " is-on") + '" aria-pressed="' + !anim + '" data-action="anim-non">' + echap(t("non")) + "</button></div>"
       + '<span class="field-h">' + echap(t("animerAide")) + "</span></div>";
+    }
     // sortie
     if (etat.erreur) h += '<p class="field-err" role="alert">' + echap(etat.erreur) + "</p>";
     if (etat.confirmer) {
@@ -506,14 +512,14 @@
     if (a === "autre") { etat.etape = "email"; etat.erreur = ""; etat.essai = null; rendre(); return focaliser("#hsc-email"); }
     if (a === "perso-compte") return reprendrePerso(compte.perso);
     if (a === "perso-tel") { var p = profilLocal(); if (p) appel("PUT", "/compte/perso", { perso: p }).then(rendre); return; }
-    if (a === "collection") { etat.vue = "collection"; etat.erreur = ""; rendre(); return focaliser(".hsc-filtres .is-on"); }
+    if (TCG && a === "collection") { etat.vue = "collection"; etat.erreur = ""; rendre(); return focaliser(".hsc-filtres .is-on"); }
     if (a === "recharger") { etat.erreur = ""; rendre(); return; }
     if (a === "filtre") { etat.filtre = b.getAttribute("data-f"); rendre(); return focaliser('.hsc-filtres [data-f="' + etat.filtre + '"]'); }
-    if (a === "detail") { etat.vue = "detail"; etat.detail = b.getAttribute("data-id"); etat.recto = null; rendre(); return focaliser(".hsc-grande"); }
+    if (TCG && a === "detail") { etat.vue = "detail"; etat.detail = b.getAttribute("data-id"); etat.recto = null; rendre(); return focaliser(".hsc-grande"); }
     if (a === "retour") { etat.vue = etat.vue === "detail" ? "collection" : "compte"; rendre(); return focaliser(etat.vue === "collection" ? '[data-id="' + etat.detail + '"]' : ".hsc-fermer"); }
     if (a === "retourner") { etat.recto = etat.recto ? null : ["R", "S"]; b.classList.toggle("is-recto", !!etat.recto); var rr = etat.recto || ["R", "S"], rec = feuille.querySelector(".hsc-face-recto"); if (rec && window.HS_CARTES) { rec.innerHTML = window.HS_CARTES.recto(etat.detail, rr[0], rr[1]); muet(rec); } return; }
     if (a === "face") { etat.recto = [b.getAttribute("data-r"), b.getAttribute("data-e")]; rendre(); return focaliser(".hsc-grande"); }
-    if (a === "utiliser") { choisirSkin(b.getAttribute("data-id")); rendre(); return focaliser('[data-action="origine"]'); }
+    if (TCG && a === "utiliser") { choisirSkin(b.getAttribute("data-id")); rendre(); return focaliser('[data-action="origine"]'); }
     if (a === "origine") { choisirSkin(null); rendre(); return focaliser('[data-action="utiliser"]'); }
     if (a === "anim-oui" || a === "anim-non") { ecrire(CLE.anim, a === "anim-oui"); if (window.HS_CARTES) window.HS_CARTES.animer(a === "anim-oui"); rendre(); return focaliser('[data-action="' + a + '"]'); }
     if (a === "deconnecter") return seDeconnecter(false);
